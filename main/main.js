@@ -392,6 +392,31 @@ const productData = [
             'img/Anker30W/anker2.jpg',
             'img/Anker30W/anker4.jpg'
         ]
+    },
+    {
+        id: 16,
+        name: 'Earphone JBL T110',
+        type: 'Earphone',
+        cartName: 'Earphone JBL T110',
+        specs: [
+            'Support for Audio <strong>3.5mm jack</strong>',
+            "Best for Android"
+
+        ],
+        price: 17,
+        colorName: 'color_jbl_t110',
+        colors: [
+            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
+            { name: 'Blue', value: 'Blue', colorCode: '#3498db' },
+            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
+
+        ],
+        images: [
+            'img/JBLT110/1.png',
+            'img/JBLT110/2.jpg',
+            'img/JBLT110/3.jpg'
+        ]
+
     }
 ];
 
