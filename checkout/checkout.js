@@ -137,11 +137,11 @@ function chooseBank(method, img, name) {
     if (method === 'aba') {
         link.href = "https://pay.ababank.com/oRF8/4y0ur1w1";
         link.innerHTML = "🔗 Open ABA Link";
-        qrImage.src = "/img/bank/abaqr.jpg";
+        qrImage.src = "/img/Bank/abaqr.jpg";
     } else if (method === 'ac') {
         link.href = "https://acledabank.com.kh/acleda?payment_data=qWY5B2SAUfIhLblxzOtfu5ckLzMHjaSki6Ru0bsOyNK+ylPBgZ0sHH6BeGUscKoE58OqGYCB+0+/7oWYyz8zgsTJ6N1UFR6fIgKzYTC4dNBSP571ZBhr8NiW1VOcGNIzwp6mftkf9IzguusEGUFd8ONloxLNNAw/BQNxsYnPnySIPbhS8RMpf0EpteXXX9HIojN3S+eHDxcvzAKL/su/VQV2g35MTN2izKPWyPmhi4yiRBRS0zBA4p3xcAqn+NjU&key=khqr"; // កែតម្រូវ URL នៅពេលអ្នកដឹងពិតប្រាកដ
         link.innerHTML = "🔗 Open ACLEDA Link";
-        qrImage.src = "/img/bank/acqr.jpg";
+        qrImage.src = "/img/Bank/acqr.jpg";
     }
 }
 
