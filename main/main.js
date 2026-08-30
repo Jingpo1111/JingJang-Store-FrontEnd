@@ -417,7 +417,28 @@ const productData = [
             'img/JBLT110/3.jpg'
         ]
 
-    }
+    },
+    {
+        id: 17,
+        name: "Earphone JBL RUN3 ",
+        type: "Earphone",
+        cartName: "Earphone JBL RUN3",
+        specs: [
+            'Support for Audio <strong>3.5mm jack</strong>',
+            "For running, Gaming , Music"
+        ],
+        price: 22,
+        colorName: 'color_jbl_run3',
+        colors: [
+            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
+            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
+        ],
+        images: [
+            'img/JBLRUN3/1.png',
+            'img/JBLRUN3/2.png',
+            'img/JBLRUN3/3.jpg'
+        ]
+    },
 ];
 
 let currentFilter = 'ALL';
