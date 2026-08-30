@@ -44,13 +44,13 @@ async function submitOrder(event) {
     const userId = localStorage.getItem('jj_userId') || 'GUEST';
 
     const orderData = {
-        userid:  userId,
-        name:    document.getElementById('cus-name').value,
-        Phone:   document.getElementById('cus-phone').value,
+        userid: userId,
+        name: document.getElementById('cus-name').value,
+        Phone: document.getElementById('cus-phone').value,
         Address: document.getElementById('cus-address').value,
-        Note:    document.getElementById('cus-note').value || 'គ្មាន',
-        Total:   document.getElementById('checkout-total-price').innerText,
-        Items:   JSON.stringify(cart),
+        Note: document.getElementById('cus-note').value || 'គ្មាន',
+        Total: document.getElementById('checkout-total-price').innerText,
+        Items: JSON.stringify(cart),
         Receipt: receiptBase64 || 'No Receipt'
     };
 
@@ -137,11 +137,11 @@ function chooseBank(method, img, name) {
     if (method === 'aba') {
         link.href = "https://pay.ababank.com/oRF8/4y0ur1w1";
         link.innerHTML = "🔗 Open ABA Link";
-        qrImage.src = "img/abaqr.JPG";
+        qrImage.src = "img/bank/abaqr.jpg";
     } else if (method === 'ac') {
         link.href = "https://acledabank.com.kh/acleda?payment_data=qWY5B2SAUfIhLblxzOtfu5ckLzMHjaSki6Ru0bsOyNK+ylPBgZ0sHH6BeGUscKoE58OqGYCB+0+/7oWYyz8zgsTJ6N1UFR6fIgKzYTC4dNBSP571ZBhr8NiW1VOcGNIzwp6mftkf9IzguusEGUFd8ONloxLNNAw/BQNxsYnPnySIPbhS8RMpf0EpteXXX9HIojN3S+eHDxcvzAKL/su/VQV2g35MTN2izKPWyPmhi4yiRBRS0zBA4p3xcAqn+NjU&key=khqr"; // កែតម្រូវ URL នៅពេលអ្នកដឹងពិតប្រាកដ
         link.innerHTML = "🔗 Open ACLEDA Link";
-        qrImage.src = "img/acqr.jpg";
+        qrImage.src = "img/bank/acqr.jpg";
     }
 }
 
