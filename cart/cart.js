@@ -1,4 +1,8 @@
-let cart = []; // Array to store cart items
+let cart = JSON.parse(localStorage.getItem('jj_cart') || '[]'); // Array to store cart items
+
+function saveCartToLocalStorage() {
+    localStorage.setItem('jj_cart', JSON.stringify(cart));
+}
 
 // 1. មុខងារ Add to Cart (គាំទ្រការរើសពណ៌)
 function addToCart(name, price, colorGroupName) {
@@ -28,7 +32,14 @@ function addToCart(name, price, colorGroupName) {
         cart.push({ name: finalName, price: price, quantity: 1 });
     }
 
+    saveCartToLocalStorage();
     updateCartUI();
+
+    if (window.innerWidth <= 768) {
+        window.location.href = 'cart.html';
+        return;
+    }
+
     const sidebar = document.getElementById('cart-sidebar');
     if (sidebar) sidebar.classList.add('open');
 }
@@ -41,6 +52,7 @@ function updateQuantity(index, change) {
         cart.splice(index, 1);
     }
 
+    saveCartToLocalStorage();
     updateCartUI();
 }
 
@@ -49,20 +61,21 @@ function updateCartUI() {
     const countEl = document.getElementById('cart-count');
     const itemsEl = document.getElementById('cart-items');
     const totalEl = document.getElementById('cart-total');
+    const checkoutTotalEl = document.getElementById('checkout-total-price');
 
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     if (countEl) countEl.innerText = totalItems;
 
+    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
     if (itemsEl) {
         itemsEl.innerHTML = '';
-        let totalPrice = 0;
 
         if (cart.length === 0) {
             itemsEl.innerHTML = '<p style="text-align:center; color:#999;">Cart is empty</p>';
         } else {
             cart.forEach((item, index) => {
                 const itemTotal = item.price * item.quantity;
-                totalPrice += itemTotal;
 
                 itemsEl.innerHTML += `
                     <div class="cart-item">
@@ -79,13 +92,20 @@ function updateCartUI() {
                 `;
             });
         }
-        if (totalEl) totalEl.innerText = totalPrice.toFixed(2);
     }
+    
+    if (totalEl) totalEl.innerText = totalPrice.toFixed(2);
+    if (checkoutTotalEl) checkoutTotalEl.innerText = totalPrice.toFixed(2);
 }
 
 // 4. មុខងារបិទ/បើកកន្ត្រក
 function toggleCart() {
+    if (window.innerWidth <= 768) {
+        window.location.href = 'cart.html';
+        return;
+    }
     const sidebar = document.getElementById('cart-sidebar');
     if (sidebar) sidebar.classList.toggle('open');
 }
+
 

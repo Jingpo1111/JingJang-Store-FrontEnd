@@ -6,7 +6,12 @@ function openCheckout() {
         alert("Your cart is empty!");
         return;
     }
-    document.getElementById('cart-sidebar').classList.remove('open');
+    if (window.innerWidth <= 768) {
+        window.location.href = 'checkout.html';
+        return;
+    }
+    const sidebar = document.getElementById('cart-sidebar');
+    if (sidebar) sidebar.classList.remove('open');
     document.getElementById('checkout-total-price').innerText = document.getElementById('cart-total').innerText;
     document.getElementById('checkout-modal').style.display = 'flex';
 }
@@ -70,11 +75,17 @@ async function submitOrder(event) {
         }
 
         cart = [];
+        saveCartToLocalStorage();
         updateCartUI();
         document.getElementById('checkout-form').reset();
         document.getElementById('receipt-preview').style.display = 'none';
         receiptBase64 = '';
-        closeCheckout();
+
+        if (window.innerWidth <= 768) {
+            window.location.href = 'index.html';
+        } else {
+            closeCheckout();
+        }
 
         // Force refresh profile orders so the new order appears immediately
         if (typeof loadProfileOrders === 'function') {

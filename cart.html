@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart — JingJang Store</title>
+    <link rel="icon" type="image/png" href="">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f6fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .cart-page-content {
+            flex: 1;
+            max-width: 600px;
+            width: 90%;
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Override cart-sidebar styles so it works as a static element in the page flow */
+        .cart-sidebar {
+            position: static !important;
+            width: 100% !important;
+            height: auto !important;
+            box-shadow: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+            background-color: transparent !important;
+        }
+
+        .close-cart {
+            display: none !important; /* No close button since it's a page */
+        }
+
+        .back-to-shop {
+            padding: 20px 25px 0 25px;
+            background: #ffffff;
+        }
+
+        .back-to-shop a {
+            color: #3b665b;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            transition: transform 0.2s ease;
+        }
+
+        .back-to-shop a:hover {
+            transform: translateX(-4px);
+        }
+    </style>
+    <link rel="stylesheet" href="header/header.css">
+    <link rel="stylesheet" href="footer/footer.css">
+    <link rel="stylesheet" href="cart/cart.css">
+    <script src="config.js"></script>
+</head>
+
+<body>
+    <div id="header-container"></div>
+
+    <div class="cart-page-content">
+        <div class="back-to-shop">
+            <a href="index.html">← Back to Shop</a>
+        </div>
+        <!-- Reuse the exact same HTML structure as cart.html partial -->
+        <div id="cart-sidebar" class="cart-sidebar open">
+            <div class="cart-header">
+                <h2>Your Cart</h2>
+            </div>
+
+            <div id="cart-items" class="cart-items">
+                <p style="text-align:center; color:#999;">Cart is empty</p>
+            </div>
+
+            <div class="cart-footer">
+                <h3>Total: $<span id="cart-total">0.00</span></h3>
+                <button class="cart-checkout-btn" onclick="openCheckout()">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script src="cart/cart.js"></script>
+    <script src="checkout/checkout.js"></script>
+    <script src="profile/profile.js"></script>
+    <script>
+        // Inline routing helpers for header buttons on standalone page
+        function showPage(page) {
+            window.location.href = `index.html?page=${page}`;
+        }
+        function openProfile() {
+            window.location.href = 'index.html?openProfile=true';
+        }
+        function logout() {
+            window.location.href = 'index.html?logout=true';
+        }
+        function toggleMenu() {
+            const menu = document.getElementById("nav-menu");
+            if (menu) menu.classList.toggle("show");
+        }
+
+        function updateHeaderAuthUI() {
+            var isLoggedIn = localStorage.getItem('jj_loggedIn') === 'true';
+            var username = localStorage.getItem('jj_username');
+            var userId = localStorage.getItem('jj_userId');
+
+            var loginBtn = document.getElementById('header-login-btn');
+            var userInfo = document.getElementById('header-user-info');
+            var profileBtn = document.getElementById('header-profile-btn');
+            var logoutBtn = document.getElementById('header-logout-btn');
+
+            if (isLoggedIn && username && userId) {
+                if (userInfo) userInfo.style.display = 'flex';
+                if (profileBtn) profileBtn.style.display = 'flex';
+                if (logoutBtn) logoutBtn.style.display = 'block';
+                if (loginBtn) loginBtn.style.display = 'none';
+
+                var nameEl = document.getElementById('header-username');
+                var idEl = document.getElementById('header-user-id');
+                if (nameEl) nameEl.textContent = username;
+                if (idEl) idEl.textContent = userId;
+            } else {
+                if (loginBtn) loginBtn.style.display = 'block';
+                if (userInfo) userInfo.style.display = 'none';
+                if (profileBtn) profileBtn.style.display = 'none';
+                if (logoutBtn) logoutBtn.style.display = 'none';
+            }
+        }
+
+        async function fetchAndCacheHtml(url, containerId, postProcessFn = null) {
+            const cacheKey = 'jj_html_' + url;
+            const cachedHtml = localStorage.getItem(cacheKey);
+            const container = document.getElementById(containerId);
+
+            if (cachedHtml && container) {
+                container.innerHTML = cachedHtml;
+                if (postProcessFn) postProcessFn();
+            }
+
+            try {
+                const fetchUrl = url.includes('?') ? url + '&_t=' + Date.now() : url + '?_t=' + Date.now();
+                const response = await fetch(fetchUrl);
+                const newHtml = await response.text();
+
+                if (newHtml !== cachedHtml) {
+                    localStorage.setItem(cacheKey, newHtml);
+                    if (container) {
+                        container.innerHTML = newHtml;
+                        if (postProcessFn) postProcessFn();
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching " + url, err);
+            }
+        }
+
+        async function loadComponents() {
+            await Promise.all([
+                fetchAndCacheHtml('header/header.html', 'header-container', () => {
+                    updateHeaderAuthUI();
+                    updateCartUI();
+                }),
+                fetchAndCacheHtml('footer/footer.html', 'footer-container')
+            ]);
+            updateCartUI();
+        }
+
+        loadComponents();
+    </script>
+</body>
+
+</html>

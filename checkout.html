@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout — JingJang Store</title>
+    <link rel="icon" type="image/png" href="">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f6fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .checkout-page-content {
+            flex: 1;
+            max-width: 600px;
+            width: 90%;
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .back-to-cart {
+            padding: 20px 25px 0 25px;
+            background: #ffffff;
+            border-bottom: 1px solid #f1f2f6;
+        }
+
+        .back-to-cart a {
+            color: #3b665b;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            transition: transform 0.2s ease;
+        }
+
+        .back-to-cart a:hover {
+            transform: translateX(-4px);
+        }
+
+        /* Override modal overlay styling to display as standard page content */
+        .modal-overlay {
+            position: static !important;
+            width: 100% !important;
+            height: auto !important;
+            background: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: stretch !important;
+            z-index: auto !important;
+        }
+
+        .modal-content {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            padding: 25px !important;
+            animation: none !important;
+        }
+
+        .close-modal {
+            display: none !important; /* No close button since it's a page */
+        }
+    </style>
+    <link rel="stylesheet" href="header/header.css">
+    <link rel="stylesheet" href="footer/footer.css">
+    <link rel="stylesheet" href="checkout/checkout.css">
+    <script src="config.js"></script>
+</head>
+
+<body>
+    <div id="header-container"></div>
+
+    <div class="checkout-page-content">
+        <div class="back-to-cart">
+            <a href="cart.html">← Back to Cart</a>
+        </div>
+        <!-- Reuse the exact same HTML structure as checkout.html partial -->
+        <div id="checkout-modal" class="modal-overlay">
+            <div class="modal-content">
+                <h2>Checkout & Payment</h2>
+
+                <div class="payment-info">
+                    <p>Total to Pay: <strong style="color: #e74c3c;">$<span id="checkout-total-price">0.00</span></strong></p>
+
+                    <div style="margin: 15px 0; font-size: 16px; display: flex; flex-direction: column; align-items: center;">
+                        <p style="margin-bottom: 8px;">Method:</p>
+
+                        <div class="custom-select-box" onclick="toggleBankMenu()">
+                            <div id="selected-bank">
+                                <img src="img/ABA.png" class="bank-icon"> ABA
+                            </div>
+                            <div id="bank-dropdown" class="bank-options" style="display: none;">
+                                <div onclick="chooseBank('aba', 'img/ABA.png', 'ABA')">
+                                    <img src="img/ABA.png" class="bank-icon"> ABA
+                                </div>
+                                <div onclick="chooseBank('ac', 'img/AC.png', 'ACLEDA')">
+                                    <img src="img/AC.png" class="bank-icon"> ACLEDA
+                                </div>
+                            </div>
+                        </div>
+
+                        <a id="payment-link" href="https://pay.ababank.com/oRF8/4y0ur1w1" target="_blank"
+                            style="display: inline-block; margin-top: 10px; color: #005bb5; font-weight: bold; text-decoration: none;">
+                            🔗 Open ABA Link
+                        </a>
+                    </div>
+
+                    <div class="qr-code-section">
+                        <p>Scan QR to Pay:</p>
+                        <img src="/img/Bank/abaqr.jpg" alt="QR Code" class="qr-img" id="qr-image">
+                    </div>
+                </div>
+
+                <form id="checkout-form" onsubmit="submitOrder(event)">
+                    <div class="input-group">
+                        <label>Full Name</label>
+                        <input type="text" id="cus-name" required placeholder="Enter your name">
+                    </div>
+                    <div class="input-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="cus-phone" required placeholder="Enter your phone number">
+                    </div>
+                    <div class="input-group">
+                        <label>Delivery Address</label>
+                        <div style="display: flex; gap: 8px;">
+                            <textarea id="cus-address" required placeholder="Enter your full address"
+                                style="flex: 1;"></textarea>
+
+                            <button type="button" id="btn-location" onclick="getRealLocation()"
+                                style="padding: 10px 15px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap; height: fit-content;">
+                                📍 Location
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Note (Optional)</label>
+                        <textarea id="cus-note" placeholder="Example: Please deliver in the afternoon..."></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Upload Payment Receipt</label>
+                        <input type="file" id="receipt-upload" accept="image/*" required onchange="previewReceipt(event)">
+                        <img id="receipt-preview"
+                            style="display:none; width:100%; max-height:200px; object-fit:contain; margin-top:10px; border-radius:5px; border: 1px solid #ddd;">
+                    </div>
+
+                    <button type="submit" class="btn submit-btn">Confirm Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script src="cart/cart.js"></script>
+    <script src="checkout/checkout.js"></script>
+    <script src="profile/profile.js"></script>
+    <script>
+        // Inline routing helpers for header buttons on standalone page
+        function showPage(page) {
+            window.location.href = `index.html?page=${page}`;
+        }
+        function openProfile() {
+            window.location.href = 'index.html?openProfile=true';
+        }
+        function logout() {
+            window.location.href = 'index.html?logout=true';
+        }
+        function toggleMenu() {
+            const menu = document.getElementById("nav-menu");
+            if (menu) menu.classList.toggle("show");
+        }
+
+        function updateHeaderAuthUI() {
+            var isLoggedIn = localStorage.getItem('jj_loggedIn') === 'true';
+            var username = localStorage.getItem('jj_username');
+            var userId = localStorage.getItem('jj_userId');
+
+            var loginBtn = document.getElementById('header-login-btn');
+            var userInfo = document.getElementById('header-user-info');
+            var profileBtn = document.getElementById('header-profile-btn');
+            var logoutBtn = document.getElementById('header-logout-btn');
+
+            if (isLoggedIn && username && userId) {
+                if (userInfo) userInfo.style.display = 'flex';
+                if (profileBtn) profileBtn.style.display = 'flex';
+                if (logoutBtn) logoutBtn.style.display = 'block';
+                if (loginBtn) loginBtn.style.display = 'none';
+
+                var nameEl = document.getElementById('header-username');
+                var idEl = document.getElementById('header-user-id');
+                if (nameEl) nameEl.textContent = username;
+                if (idEl) idEl.textContent = userId;
+            } else {
+                if (loginBtn) loginBtn.style.display = 'block';
+                if (userInfo) userInfo.style.display = 'none';
+                if (profileBtn) profileBtn.style.display = 'none';
+                if (logoutBtn) logoutBtn.style.display = 'none';
+            }
+        }
+
+        async function fetchAndCacheHtml(url, containerId, postProcessFn = null) {
+            const cacheKey = 'jj_html_' + url;
+            const cachedHtml = localStorage.getItem(cacheKey);
+            const container = document.getElementById(containerId);
+
+            if (cachedHtml && container) {
+                container.innerHTML = cachedHtml;
+                if (postProcessFn) postProcessFn();
+            }
+
+            try {
+                const fetchUrl = url.includes('?') ? url + '&_t=' + Date.now() : url + '?_t=' + Date.now();
+                const response = await fetch(fetchUrl);
+                const newHtml = await response.text();
+
+                if (newHtml !== cachedHtml) {
+                    localStorage.setItem(cacheKey, newHtml);
+                    if (container) {
+                        container.innerHTML = newHtml;
+                        if (postProcessFn) postProcessFn();
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching " + url, err);
+            }
+        }
+
+        async function loadComponents() {
+            await Promise.all([
+                fetchAndCacheHtml('header/header.html', 'header-container', () => {
+                    updateHeaderAuthUI();
+                    updateCartUI();
+                }),
+                fetchAndCacheHtml('footer/footer.html', 'footer-container')
+            ]);
+            updateCartUI();
+        }
+
+        loadComponents();
+    </script>
+</body>
+
+</html>

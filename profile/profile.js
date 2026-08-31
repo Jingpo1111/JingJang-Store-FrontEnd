@@ -38,17 +38,20 @@ function stopOrderAutoRefresh() {
 // ========================
 function openProfile() {
     const modal = document.getElementById('profile-modal');
-    if (modal) {
-        modal.classList.add('open');
-
-        // Clear search box to prevent browser autofill from hiding orders
-        const searchBox = document.getElementById('profile-order-search');
-        if (searchBox) searchBox.value = '';
-
-        loadProfileData();
-        loadProfileOrders();
-        startOrderAutoRefresh(); // Start the 1-hour auto-refresh
+    if (!modal) {
+        window.location.href = 'index.html?openProfile=true';
+        return;
     }
+
+    modal.classList.add('open');
+
+    // Clear search box to prevent browser autofill from hiding orders
+    const searchBox = document.getElementById('profile-order-search');
+    if (searchBox) searchBox.value = '';
+
+    loadProfileData();
+    loadProfileOrders();
+    startOrderAutoRefresh(); // Start the 1-hour auto-refresh
 }
 
 function closeProfile() {

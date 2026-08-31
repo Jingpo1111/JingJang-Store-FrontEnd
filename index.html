@@ -119,17 +119,37 @@
             try {
                 // Load critical components first (network priority)
                 await Promise.all([
-                    fetchAndCacheHtml('header/header.html', 'header-container', updateHeaderAuthUI),
+                    fetchAndCacheHtml('header/header.html', 'header-container', () => {
+                        updateHeaderAuthUI();
+                        if (typeof updateCartUI === 'function') updateCartUI();
+                    }),
                     fetchAndCacheHtml('main/main.html', 'main-container', () => { if (typeof renderProducts === 'function') renderProducts(); }),
                     fetchAndCacheHtml('footer/footer.html', 'footer-container')
                 ]);
 
                 // Load non-critical components after critical ones finish fetching
-                fetchAndCacheHtml('cart/cart.html', 'cart-container');
-                fetchAndCacheHtml('checkout/checkout.html', 'checkout-container');
-                fetchAndCacheHtml('profile/profile.html', 'profile-container');
-                fetchAndCacheHtml('about/about.html', 'about-container');
-                fetchAndCacheHtml('contact/contact.html', 'contact-container');
+                await Promise.all([
+                    fetchAndCacheHtml('cart/cart.html', 'cart-container', () => { if (typeof updateCartUI === 'function') updateCartUI(); }),
+                    fetchAndCacheHtml('checkout/checkout.html', 'checkout-container'),
+                    fetchAndCacheHtml('profile/profile.html', 'profile-container', () => {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        if (urlParams.get('openProfile') === 'true') {
+                            if (typeof openProfile === 'function') openProfile();
+                        }
+                    }),
+                    fetchAndCacheHtml('about/about.html', 'about-container'),
+                    fetchAndCacheHtml('contact/contact.html', 'contact-container')
+                ]);
+
+                // Query Parameter Routing on load
+                const urlParams = new URLSearchParams(window.location.search);
+                const pageParam = urlParams.get('page');
+                if (pageParam && typeof showPage === 'function') {
+                    showPage(pageParam);
+                }
+                if (urlParams.get('logout') === 'true') {
+                    if (typeof logout === 'function') logout();
+                }
 
             } catch (error) {
                 console.error("Error in loadComponents:", error);
