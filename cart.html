@@ -84,7 +84,7 @@
 
     <div class="cart-page-content">
         <div class="back-to-shop">
-            <a href="index.html">← Back to Shop</a>
+            <a href="index.html" onclick="goBack('index.html'); return false;">← Back to Shop</a>
         </div>
         <!-- Reuse the exact same HTML structure as cart.html partial -->
         <div id="cart-sidebar" class="cart-sidebar open">
@@ -109,6 +109,15 @@
     <script src="checkout/checkout.js"></script>
     <script src="profile/profile.js"></script>
     <script>
+        // Go back using browser history to avoid reloading the page
+        function goBack(fallbackUrl) {
+            if (document.referrer && document.referrer.includes(window.location.host)) {
+                history.back();
+            } else {
+                window.location.href = fallbackUrl;
+            }
+        }
+
         // Inline routing helpers for header buttons on standalone page
         function showPage(page) {
             window.location.href = `index.html?page=${page}`;

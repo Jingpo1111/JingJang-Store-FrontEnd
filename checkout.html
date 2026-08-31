@@ -96,7 +96,7 @@
 
     <div class="checkout-page-content">
         <div class="back-to-cart">
-            <a href="cart.html">← Back to Cart</a>
+            <a href="cart.html" onclick="goBack('cart.html'); return false;">← Back to Cart</a>
         </div>
         <!-- Reuse the exact same HTML structure as checkout.html partial -->
         <div id="checkout-modal" class="modal-overlay">
@@ -181,6 +181,15 @@
     <script src="checkout/checkout.js"></script>
     <script src="profile/profile.js"></script>
     <script>
+        // Go back using browser history to avoid reloading the page
+        function goBack(fallbackUrl) {
+            if (document.referrer && document.referrer.includes(window.location.host)) {
+                history.back();
+            } else {
+                window.location.href = fallbackUrl;
+            }
+        }
+
         // Inline routing helpers for header buttons on standalone page
         function showPage(page) {
             window.location.href = `index.html?page=${page}`;
