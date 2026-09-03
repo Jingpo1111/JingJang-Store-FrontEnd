@@ -102,10 +102,24 @@ function handleOrdersTabDblClick() {
 // ========================
 // Load User Profile Data
 // ========================
+function formatProfileDate(raw) {
+    if (!raw || raw === '—') return '—';
+    if (raw.includes('/') && (raw.includes('am') || raw.includes('pm') || raw.includes('AM') || raw.includes('PM'))) {
+        return raw;
+    }
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return raw;
+    return d.toLocaleString('en-GB', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Phnom_Penh'
+    });
+}
+
 function loadProfileData() {
     const username = localStorage.getItem('jj_username') || '—';
     const userId = localStorage.getItem('jj_userId') || '—';
-    const regDate = localStorage.getItem('jj_regDate') || '—';
+    let regDate = localStorage.getItem('jj_regDate') || '—';
+    if (regDate !== '—') regDate = formatProfileDate(regDate);
 
     const avatar = localStorage.getItem('jj_avatar');
 
@@ -137,6 +151,26 @@ function loadProfileData() {
 
     const setDate = document.getElementById('settings-regdate');
     if (setDate) setDate.textContent = regDate;
+
+    // If registration date is missing from storage, fetch immediately from backend (MySQL)
+    if ((!regDate || regDate === '—') && userId && userId !== '—') {
+        const apiBase = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE) ? CONFIG.API_BASE : '';
+        fetch(apiBase + '/user/get-info', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: userId })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'success' && data.registerDate) {
+                const formatted = formatProfileDate(data.registerDate);
+                localStorage.setItem('jj_regDate', formatted);
+                if (setDate) setDate.textContent = formatted;
+                if (joinedEl) joinedEl.textContent = 'Member since: ' + formatted;
+            }
+        })
+        .catch(err => console.warn('Could not load user register date:', err));
+    }
 }
 
 // ========================
@@ -319,14 +353,13 @@ function showProfileTab(tab) {
 }
 
 // ========================
-// Change Password (Step 1: Verify Current Password & Send OTP)
+// Change Password via Email OTP (Same as Login Forgot Password Flow)
 // ========================
 let pendingPasswordChange = null;
 
 async function handleChangePassword(event) {
     event.preventDefault();
 
-    const currentPw = document.getElementById('current-password').value;
     const newPw = document.getElementById('new-password').value;
     const confirmPw = document.getElementById('confirm-new-password').value;
     const errEl = document.getElementById('password-error');
@@ -337,55 +370,56 @@ async function handleChangePassword(event) {
     sucEl.textContent = '';
 
     // Validation
+    if (!newPw || !confirmPw) {
+        errEl.textContent = '❌ Please enter and confirm your new password.';
+        return;
+    }
     if (newPw !== confirmPw) {
-        errEl.textContent = '❌ New passwords do not match!';
+        errEl.textContent = '❌ Passwords do not match!';
         return;
     }
     if (newPw.length < 4) {
         errEl.textContent = '❌ New password must be at least 4 characters.';
         return;
     }
-    if (currentPw === newPw) {
-        errEl.textContent = '❌ New password must be different from current password.';
-        return;
-    }
+
+    const apiBase = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE) ? CONFIG.API_BASE : '';
+    const userId = localStorage.getItem('jj_userId');
+    let email = localStorage.getItem('jj_email');
 
     btn.querySelector('.btn-text').style.display = 'none';
     btn.querySelector('.btn-loader').style.display = 'inline';
     btn.disabled = true;
 
     try {
-        const username = localStorage.getItem('jj_username');
-        const email = localStorage.getItem('jj_email');
+        // If email is not in localStorage, fetch from database
+        if (!email && userId) {
+            const userCheck = await fetch(apiBase + '/user/get-info', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: userId })
+            });
+            const userData = await userCheck.json();
+            if (userData.status === 'success' && userData.email) {
+                email = userData.email;
+                localStorage.setItem('jj_email', email);
+            }
+        }
 
         if (!email) {
-            errEl.textContent = '❌ Email not found in session. Please login again.';
+            errEl.textContent = '❌ Registered email not found. Please log in again.';
             return;
         }
 
-        // First, verify the current password by calling /user/login
-        const loginCheck = await fetch(AUTH_API_BASE + '/login', {
-            method: 'POST',
-            body: JSON.stringify({ username, password: currentPw }),
-            headers: { 'Content-Type': 'application/json' }
-        });
-
-        const loginResult = await loginCheck.json();
-
-        if (loginResult.status !== 'success') {
-            errEl.textContent = '❌ Incorrect current password.';
-            return;
-        }
-
-        // Current password is correct. Save data temporarily
+        // Store pending request in memory
         pendingPasswordChange = {
-            currentPw: currentPw,
             newPw: newPw,
-            email: email
+            email: email,
+            userId: userId
         };
 
-        // Generate OTP via NodeJS /otp/generate
-        const otpResponse = await fetch(OTP_API_BASE + '/generate', {
+        // 1. Generate 6-digit OTP code from backend
+        const otpResponse = await fetch(apiBase + '/otp/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: email })
@@ -394,20 +428,23 @@ async function handleChangePassword(event) {
         const otpData = await otpResponse.json();
 
         if (otpData.status === 'SUCCESS') {
-            // Send OTP via EmailJS
+            // 2. Send OTP via EmailJS (template_abzvhmj)
             await emailjs.send("service_uug1k5r", "template_abzvhmj", {
                 to_email: email,
                 otp_code: otpData.otp
             });
 
-            // Show OTP Modal
+            // 3. Open OTP Verification Modal
             document.getElementById('profile-otp-email').textContent = email;
+            document.getElementById('profile-otp-input').value = '';
+            document.getElementById('profile-otp-error').textContent = '';
             document.getElementById('profile-otp-modal').style.display = 'flex';
         } else {
-            errEl.textContent = '❌ Failed to send OTP: ' + (otpData.message || 'Unknown error');
+            errEl.textContent = '❌ Failed to generate OTP: ' + (otpData.message || 'Please try again.');
         }
     } catch (error) {
-        errEl.textContent = '❌ Connection error. Please try again.';
+        console.error('Change password error:', error);
+        errEl.textContent = '❌ Error connecting to server. Please try again.';
     } finally {
         btn.querySelector('.btn-text').style.display = 'inline';
         btn.querySelector('.btn-loader').style.display = 'none';
@@ -435,22 +472,24 @@ async function handleProfileVerifyOTP() {
     errorEl.textContent = '';
 
     if (!otpInput || otpInput.length !== 6) {
-        errorEl.textContent = 'Please enter the 6-digit code.';
+        errorEl.textContent = 'Please enter the 6-digit verification code.';
         return;
     }
 
     if (!pendingPasswordChange) {
-        errorEl.textContent = 'Session lost. Please try again.';
+        errorEl.textContent = 'Session expired. Please try requesting a new OTP.';
         return;
     }
+
+    const apiBase = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE) ? CONFIG.API_BASE : '';
 
     btn.querySelector('.btn-text').style.display = 'none';
     btn.querySelector('.btn-loader').style.display = 'inline';
     btn.disabled = true;
 
     try {
-        // Verify OTP via NodeJS /otp/verify
-        const response = await fetch(OTP_API_BASE + '/verify', {
+        // 1. Verify OTP code
+        const response = await fetch(apiBase + '/otp/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -462,16 +501,15 @@ async function handleProfileVerifyOTP() {
         const data = await response.json();
 
         if (data.status === 'SUCCESS') {
-            // OTP Verified! Now call /user/change-password
-            const userId = localStorage.getItem('jj_userId');
-            const pwResponse = await fetch(AUTH_API_BASE + '/change-password', {
+            // 2. OTP is verified! Now update password in database
+            const pwResponse = await fetch(apiBase + '/user/reset-password', {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    userId: userId,
-                    currentPassword: pendingPasswordChange.currentPw,
-                    newPassword: pendingPasswordChange.newPw
-                }),
-                headers: { 'Content-Type': 'application/json' }
+                    email: pendingPasswordChange.email,
+                    newPassword: pendingPasswordChange.newPw,
+                    userId: pendingPasswordChange.userId
+                })
             });
 
             const pwResult = await pwResponse.json();
@@ -479,16 +517,17 @@ async function handleProfileVerifyOTP() {
             closeProfileOTPModal();
 
             if (pwResult.status === 'success') {
-                formSucEl.textContent = '✅ ' + pwResult.message;
+                formSucEl.textContent = '✅ ' + (pwResult.message || 'Password updated successfully!');
                 document.getElementById('change-password-form').reset();
             } else {
-                formErrEl.textContent = '❌ ' + pwResult.message;
+                formErrEl.textContent = '❌ ' + (pwResult.message || 'Failed to update password.');
             }
         } else {
-            errorEl.textContent = data.message || 'Invalid code. Please try again.';
+            errorEl.textContent = data.message || 'Invalid or expired code. Please try again.';
         }
     } catch (error) {
-        errorEl.textContent = 'Verification failed. Please try again.';
+        console.error('Verify OTP error:', error);
+        errorEl.textContent = 'Verification error. Please try again.';
     } finally {
         btn.querySelector('.btn-text').style.display = 'inline';
         btn.querySelector('.btn-loader').style.display = 'none';
@@ -501,16 +540,18 @@ async function handleProfileResendOTP() {
     const resendBtn = document.getElementById('profile-otp-resend-btn');
 
     if (!pendingPasswordChange) {
-        errorEl.textContent = 'Session lost. Please try again.';
+        errorEl.textContent = 'Session expired. Please close and try again.';
         return;
     }
+
+    const apiBase = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE) ? CONFIG.API_BASE : '';
 
     resendBtn.textContent = 'Sending...';
     resendBtn.disabled = true;
     errorEl.textContent = '';
 
     try {
-        const otpResponse = await fetch(OTP_API_BASE + '/generate', {
+        const otpResponse = await fetch(apiBase + '/otp/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: pendingPasswordChange.email })
@@ -524,16 +565,17 @@ async function handleProfileResendOTP() {
                 otp_code: otpData.otp
             });
 
-            errorEl.textContent = '✅ New OTP sent! Check your inbox.';
+            errorEl.textContent = '✅ New verification code sent to your email!';
             errorEl.style.color = '#2ecc71';
             setTimeout(() => {
                 errorEl.textContent = '';
-                errorEl.style.color = '#e74c3c'; // reset to default error color
-            }, 3000);
+                errorEl.style.color = '#e74c3c';
+            }, 3500);
         } else {
-            errorEl.textContent = 'Failed to resend OTP.';
+            errorEl.textContent = 'Failed to resend OTP code.';
         }
     } catch (error) {
+        console.error('Resend OTP error:', error);
         errorEl.textContent = 'Connection error. Please try again.';
     } finally {
         resendBtn.textContent = "Didn't receive it? Resend OTP";

@@ -64,12 +64,11 @@
 
             <!-- Change Password Card -->
             <div class="settings-card">
-                <h3>🔒 Change Password</h3>
+                <h3>🔒 Change Password via Email OTP</h3>
+                <p style="font-size: 13px; color: #7f8c8d; margin-bottom: 14px; line-height: 1.4;">
+                    Just like Forgot Password, verify your registered email with a 6-digit code to securely set a new password.
+                </p>
                 <form id="change-password-form" onsubmit="handleChangePassword(event)">
-                    <div class="settings-input-group">
-                        <label>Current Password</label>
-                        <input type="password" id="current-password" required placeholder="Enter current password">
-                    </div>
                     <div class="settings-input-group">
                         <label>New Password</label>
                         <input type="password" id="new-password" required placeholder="Enter new password (min 4 chars)">
@@ -81,8 +80,8 @@
                     <div id="password-error" class="password-msg error"></div>
                     <div id="password-success" class="password-msg success"></div>
                     <button type="submit" class="change-pw-btn" id="change-pw-btn">
-                        <span class="btn-text">Update Password</span>
-                        <span class="btn-loader" style="display:none;">⏳ Updating...</span>
+                        <span class="btn-text">📨 Send OTP & Change Password</span>
+                        <span class="btn-loader" style="display:none;">⏳ Sending OTP...</span>
                     </button>
                 </form>
             </div>

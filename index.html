@@ -64,6 +64,7 @@
                 var email = urlParams.get('email') || '';
                 var avatar = urlParams.get('avatar') || '';
                 var role = urlParams.get('role') || 'customer';
+                var regDate = urlParams.get('regDate') || '';
 
                 // Save to localStorage for unified frontend session
                 localStorage.setItem('jj_loggedIn', 'true');
@@ -72,6 +73,7 @@
                 localStorage.setItem('jj_email', email);
                 if (avatar) localStorage.setItem('jj_avatar', avatar);
                 localStorage.setItem('jj_role', role);
+                if (regDate) localStorage.setItem('jj_regDate', regDate);
                 localStorage.setItem('jj_authType', 'google');
 
                 // Remove auth query parameters from browser URL for clean display
@@ -235,76 +237,60 @@
     <script src="main/main.js"></script>
     <script src="cart/cart.js"></script>
     <script src="checkout/checkout.js"></script>
-    <script src="profile/profile.js?v=4"></script>
+    <script src="profile/profile.js?v=6"></script>
 
     <script>
-        // 🔐 Logout (Instant for Google OAuth, Password modal for local accounts)
+        // 🔐 Logout with "LOGOUT" confirmation
         function logout() {
-            var authType = localStorage.getItem('jj_authType');
-            if (authType === 'google') {
-                // Google OAuth users do not have a local password; directly logout
-                performLogout();
-                return;
-            }
-
             // Show the logout confirmation modal
             const modal = document.getElementById('logout-modal');
             if (modal) {
                 modal.style.display = 'flex';
                 setTimeout(() => { modal.style.opacity = '1'; }, 10);
-                document.getElementById('logout-password').value = '';
-                document.getElementById('logout-error').textContent = '';
+                const inputEl = document.getElementById('logout-confirm-input');
+                if (inputEl) {
+                    inputEl.value = '';
+                    inputEl.focus();
+                }
+                const errorEl = document.getElementById('logout-error');
+                if (errorEl) errorEl.textContent = '';
             }
         }
 
         function cancelLogout() {
             const modal = document.getElementById('logout-modal');
-            modal.style.opacity = '0';
-            setTimeout(() => { modal.style.display = 'none'; }, 300);
+            if (modal) {
+                modal.style.opacity = '0';
+                setTimeout(() => { modal.style.display = 'none'; }, 300);
+            }
         }
 
         async function confirmLogout() {
-            const password = document.getElementById('logout-password').value;
+            const inputEl = document.getElementById('logout-confirm-input');
+            const inputVal = inputEl ? inputEl.value.trim() : '';
             const errorEl = document.getElementById('logout-error');
             const btn = document.getElementById('logout-confirm-btn');
-            const userId = localStorage.getItem('jj_userId');
 
-            errorEl.textContent = '';
+            if (errorEl) errorEl.textContent = '';
 
-            if (!password) {
-                errorEl.textContent = '❌ Please enter your password.';
-                return;
-            }
-
-            if (!userId) {
-                // No userId in storage, just logout
-                performLogout();
-                return;
-            }
-
-            btn.textContent = '⏳ Verifying...';
-            btn.disabled = true;
-
-            try {
-                const response = await fetch(CONFIG.API_BASE + '/user/verify-password', {
-                    method: 'POST',
-                    body: JSON.stringify({ userId: userId, password: password }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    performLogout();
-                } else {
-                    errorEl.textContent = '❌ ' + result.message;
+            if (inputVal !== 'LOGOUT') {
+                if (errorEl) {
+                    errorEl.textContent = '❌ Please type "LOGOUT" to confirm.';
+                    if (inputEl) {
+                        inputEl.style.borderColor = '#e74c3c';
+                        inputEl.focus();
+                    }
                 }
-            } catch (error) {
-                errorEl.textContent = '❌ Connection error. Please try again.';
-            } finally {
-                btn.textContent = '🔓 Confirm Logout';
-                btn.disabled = false;
+                return;
             }
+
+            if (btn) {
+                btn.textContent = '⏳ Logging out...';
+                btn.disabled = true;
+            }
+
+            cancelLogout();
+            await performLogout();
         }
 
         async function performLogout() {
@@ -352,20 +338,25 @@
             box-shadow: 0 25px 60px rgba(0,0,0,0.3);
             animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         ">
-            <div style="font-size: 50px; margin-bottom: 10px;">🔒</div>
+            <div style="font-size: 50px; margin-bottom: 10px;">🚪</div>
             <h2
                 style="color: #2c3e50; font-size: 20px; font-weight: 700; margin-bottom: 8px; font-family: 'Inter', sans-serif;">
                 Confirm Logout</h2>
-            <p style="color: #7f8c8d; font-size: 13px; margin-bottom: 20px; font-family: 'Inter', sans-serif;">Enter
-                your password to confirm logout.</p>
+            <p style="color: #7f8c8d; font-size: 13px; margin-bottom: 20px; font-family: 'Inter', sans-serif; line-height: 1.5;">
+                Please type <b style="color: #e74c3c; font-weight: 800; letter-spacing: 1px;">LOGOUT</b> below to confirm signing out.
+            </p>
 
-            <input type="password" id="logout-password" placeholder="Enter your password"
+            <input type="text" id="logout-confirm-input" placeholder='Type "LOGOUT"'
+                autocomplete="off" spellcheck="false"
                 onkeydown="if(event.key==='Enter') confirmLogout()" style="
                     width: 100%;
                     padding: 14px 16px;
                     border: 2px solid #e0e0e0;
                     border-radius: 12px;
-                    font-size: 15px;
+                    font-size: 16px;
+                    font-weight: 700;
+                    letter-spacing: 2px;
+                    text-align: center;
                     font-family: 'Inter', sans-serif;
                     outline: none;
                     transition: border-color 0.3s;

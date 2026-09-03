@@ -669,7 +669,12 @@ function closeForgotSuccessModal() {
 // ============================================================
 function signInWithGoogle() {
     const backendUrl = CONFIG.API_BASE || 'http://localhost:3000';
-    window.location.href = backendUrl + '/auth/google';
+    // Dynamically send current frontend location so backend redirects back correctly (Local or Deployed)
+    let currentBase = window.location.origin;
+    if (window.location.pathname.includes('/FrontEnd')) {
+        currentBase += '/FrontEnd';
+    }
+    window.location.href = backendUrl + '/auth/google?redirect=' + encodeURIComponent(currentBase);
 }
 
 // Check for OAuth error in URL parameters on page load
