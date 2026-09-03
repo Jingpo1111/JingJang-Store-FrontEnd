@@ -2,9 +2,9 @@
 // 📌 login.js — Login/Register with OTP Email Verification
 // ============================================================
 // ✅ NodeJS Backend API (replaces Google Apps Script)
-const API_BASE   = CONFIG.API_BASE;
-const AUTH_BASE  = API_BASE + '/user';    // /user/login, /user/register, etc.
-const OTP_BASE   = API_BASE + '/otp';     // /otp/generate, /otp/verify
+const API_BASE = CONFIG.API_BASE;
+const AUTH_BASE = API_BASE + '/user';    // /user/login, /user/register, etc.
+const OTP_BASE = API_BASE + '/otp';     // /otp/generate, /otp/verify
 
 // Temporary storage for registration data during OTP flow
 let pendingRegistration = null;
@@ -92,6 +92,7 @@ async function handleLogin(event) {
             localStorage.setItem('jj_loggedIn', 'true');
             localStorage.setItem('jj_email', result.email || '');
             localStorage.setItem('jj_regDate', result.registerDate || '');
+            localStorage.setItem('jj_authType', 'local');
 
             // Redirect to main store
             window.location.href = '../index.html';
@@ -663,6 +664,30 @@ function closeForgotSuccessModal() {
     backToLogin();
 }
 
+// ============================================================
+// Google OAuth 2.0 Sign-In Integration
+// ============================================================
+function signInWithGoogle() {
+    const backendUrl = CONFIG.API_BASE || 'http://localhost:3000';
+    window.location.href = backendUrl + '/auth/google';
+}
+
+// Check for OAuth error in URL parameters on page load
+(function checkOAuthParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const authError = urlParams.get('error');
+    const authMsg = urlParams.get('msg');
+
+    if (authError) {
+        const errorEl = document.getElementById('login-error');
+        if (errorEl) {
+            errorEl.textContent = '❌ Google Sign-In failed: ' + (authMsg || authError);
+            errorEl.classList.add('shake');
+        }
+    }
+})();
+
 // Run auth check on page load
 checkAuth();
+
 

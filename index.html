@@ -55,10 +55,36 @@
     <div id="profile-container"></div>
 
     <script>
+        // 🚀 Detect and handle Google OAuth callback parameters on page load
+        (function handleGoogleAuthCallback() {
+            var urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('auth') === 'google_success') {
+                var userId = urlParams.get('userId') || ('CUST-' + urlParams.get('id'));
+                var name = urlParams.get('name') || 'Google Customer';
+                var email = urlParams.get('email') || '';
+                var avatar = urlParams.get('avatar') || '';
+                var role = urlParams.get('role') || 'customer';
+
+                // Save to localStorage for unified frontend session
+                localStorage.setItem('jj_loggedIn', 'true');
+                localStorage.setItem('jj_userId', userId);
+                localStorage.setItem('jj_username', name);
+                localStorage.setItem('jj_email', email);
+                if (avatar) localStorage.setItem('jj_avatar', avatar);
+                localStorage.setItem('jj_role', role);
+                localStorage.setItem('jj_authType', 'google');
+
+                // Remove auth query parameters from browser URL for clean display
+                var cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+            }
+        })();
+
         function updateHeaderAuthUI() {
             var isLoggedIn = localStorage.getItem('jj_loggedIn') === 'true';
             var username = localStorage.getItem('jj_username');
             var userId = localStorage.getItem('jj_userId');
+            var avatar = localStorage.getItem('jj_avatar');
 
             var loginBtn = document.getElementById('header-login-btn');
             var userInfo = document.getElementById('header-user-info');
@@ -68,7 +94,14 @@
             if (isLoggedIn && username && userId) {
                 // Show user info + profile + logout
                 if (userInfo) userInfo.style.display = 'flex';
-                if (profileBtn) profileBtn.style.display = 'flex';
+                if (profileBtn) {
+                    profileBtn.style.display = 'flex';
+                    if (avatar) {
+                        profileBtn.innerHTML = `<img src="${avatar}" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #2ecc71;">`;
+                    } else {
+                        profileBtn.innerHTML = '👤';
+                    }
+                }
                 if (logoutBtn) logoutBtn.style.display = 'block';
                 if (loginBtn) loginBtn.style.display = 'none';
 
@@ -205,8 +238,15 @@
     <script src="profile/profile.js?v=4"></script>
 
     <script>
-        // 🔐 Logout with Password Confirmation
+        // 🔐 Logout (Instant for Google OAuth, Password modal for local accounts)
         function logout() {
+            var authType = localStorage.getItem('jj_authType');
+            if (authType === 'google') {
+                // Google OAuth users do not have a local password; directly logout
+                performLogout();
+                return;
+            }
+
             // Show the logout confirmation modal
             const modal = document.getElementById('logout-modal');
             if (modal) {
@@ -267,12 +307,22 @@
             }
         }
 
-        function performLogout() {
+        async function performLogout() {
+            try {
+                // Notify backend to clear express-session and cookie
+                await fetch((CONFIG.API_BASE || '') + '/auth/logout', { credentials: 'include' });
+            } catch (e) {
+                console.warn('Backend logout error:', e);
+            }
+
             localStorage.removeItem('jj_userId');
             localStorage.removeItem('jj_username');
             localStorage.removeItem('jj_loggedIn');
             localStorage.removeItem('jj_email');
             localStorage.removeItem('jj_regDate');
+            localStorage.removeItem('jj_avatar');
+            localStorage.removeItem('jj_role');
+            localStorage.removeItem('jj_authType');
             window.location.href = 'login/login.html';
         }
     </script>

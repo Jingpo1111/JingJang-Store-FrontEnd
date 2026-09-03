@@ -107,9 +107,17 @@ function loadProfileData() {
     const userId = localStorage.getItem('jj_userId') || '—';
     const regDate = localStorage.getItem('jj_regDate') || '—';
 
+    const avatar = localStorage.getItem('jj_avatar');
+
     // Profile header
     const avatarEl = document.getElementById('profile-avatar');
-    if (avatarEl) avatarEl.textContent = username.substring(0, 2).toUpperCase();
+    if (avatarEl) {
+        if (avatar) {
+            avatarEl.innerHTML = `<img src="${avatar}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+        } else {
+            avatarEl.textContent = username.substring(0, 2).toUpperCase();
+        }
+    }
 
     const nameEl = document.getElementById('profile-name');
     if (nameEl) nameEl.textContent = username;
