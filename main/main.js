@@ -5,6 +5,8 @@ function moveSlide(button, direction) {
     const sliderContainer = button.parentElement;
     const slides = sliderContainer.querySelectorAll('.slide');
 
+    if (!slides || slides.length === 0) return;
+
     let currentIndex = 0;
 
     for (let i = 0; i < slides.length; i++) {
@@ -26,10 +28,6 @@ function moveSlide(button, direction) {
     slides[nextIndex].classList.add('active');
 }
 
-
-
-
-
 function sendMessage(event) {
     event.preventDefault();
     const form = event.target;
@@ -44,404 +42,39 @@ function sendMessage(event) {
     return false;
 }
 
-// 1. Array of products
-const productData = [
-    {
-        id: 1,
-        name: 'Acer OMR228 1000Hz',
-        type: 'Mouse',
-        cartName: 'Acer OMR228 1000Hz',
-        specs: [
-            'Suppor: <strong>Computer, android</strong>',
-            '<strong>Connectivity: Bluetooth, Type-C, USB-2.4G</strong>'
-        ],
-        price: 11,
-        colorName: 'color_aceromr228',
-        colors: [
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/Mouse-aceromr228/1.jpg',
-            'img/Mouse-aceromr228/2.jpg',
-            'img/Mouse-aceromr228/3.jpg',
-            'img/Mouse-aceromr228/4.jpg'
-        ]
-    },
-    {
-        id: 2,
-        name: 'Acer OMW030 gaming RGB',
-        type: 'Mouse',
-        cartName: 'Acer OMW030 gaming RGB',
-        specs: [
-            'Suppor: <strong>Computer gaming</strong>',
-            '<strong>Connectivity: USB wired 7200DPI</strong>'
-        ],
-        price: 11.5,
-        colorName: 'color_aceromw030',
-        colors: [
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/Mouse aceromw030/1.jpg',
-            'img/Mouse aceromw030/2.jpg',
-            'img/Mouse aceromw030/3.jpg'
-        ]
-    },
-    {
-        id: 3,
-        name: 'Acer OMW950 gaming RGB',
-        type: 'Mouse',
-        cartName: 'Acer OMW950 gaming RGB',
-        specs: [
-            'Support :<strong>Computer gaming </strong>',
-            '<strong>Connectivity: USB wired 7200DPI</strong>'
-        ],
-        price: 12,
-        colorName: 'color_aceromw950',
-        colors: [
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/Mouse aceromw950 wired/1.jpg',
-            'img/Mouse aceromw950 wired/2.jpg',
-            'img/Mouse aceromw950 wired/3.jpg',
-            'img/Mouse aceromw950 wired/4.jpg'
-        ]
-    },
-    {
-        id: 4,
-        name: 'FMouse M500SE 4800DPI',
-        type: 'Mouse',
-        cartName: 'FMouse M500SE',
-        specs: [
-            'Support APP: <strong>Computer, Android, </strong>',
-            '<strong>Connectivity: Bluetooth, Type-C, USB-2.4G</strong>'
-        ],
-        price: 17,
-        colorName: 'color_m500se',
-        colors: [
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/Fmouse M500se/1.png',
-            'img/Fmouse M500se/2.jpg',
-            'img/Fmouse M500se/3.jpg',
-            'img/Fmouse M500se/4.jpg',
-            'img/Fmouse M500se/5.jpg'
-        ]
-    },
-    {
-        id: 5,
-        name: 'FMouse M233 1600DPI ',
-        type: 'Mouse',
-        cartName: 'FMouse M233',
-        specs: [
-            'Office Mouse Support : <strong>Computer, Android</strong>',
-            '<strong>Connectivity: Bluetooth, Type-C, USB-2.4G</strong>'
-        ],
-        price: 13,
-        colorName: 'color_m233',
-        colors: [
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'Pink', value: 'Pink', colorCode: 'pink' },
-            { name: 'Orange', value: 'Orange', colorCode: 'orange' },
-            { name: 'Blue', value: 'Blue', colorCode: 'blue' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/Fmouse-m233/1.jpg',
-            'img/Fmouse-m233/2.jpg',
-            'img/Fmouse-m233/3.jpg',
-            'img/Fmouse-m233/4.jpg',
-            'img/Fmouse-m233/5.jpg'
-        ]
-    },
-    {
-        id: 6,
-        name: 'FMouse M235Pro 4800DPI RGB ',
-        type: 'Mouse',
-        cartName: 'FMouse M235Pro',
-        specs: [
-            'Support: <strong>Computer, Android, IOS</strong>',
-            '<strong>Connectivity: Bluetooth, Type-C, USB-2.4G</strong>'
-        ],
-        price: 16,
-        colorName: 'color_m235_pro',
-        colors: [
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'black+Green', value: 'black+Green', colorCode: 'rgb(53, 175, 132)' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/mouse m235 pro/1.jpg',
-            'img/mouse m235 pro/2.jpg',
-            'img/mouse m235 pro/3.jpg',
-            'img/mouse m235 pro/4.jpg',
-            'img/mouse m235 pro/5.jpg'
-        ]
-    },
-    {
-        id: 7,
-        name: 'Mouse Aula SC650 12000 DPI',
-        type: 'Mouse',
-        cartName: 'Mouse Aula SC650',
-        specs: [
-            'Support for gaming: <strong>Computer, Android, IOS</strong>',
-            '<strong>Connectivity: Bluetooth, Type-C, USB-2.4G</strong>'
-        ],
-        price: 20,
-        colorName: 'color_sc650',
-        colors: [
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'Pink', value: 'Pink', colorCode: 'rgb(184, 45, 126)' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/mouse aulaSC650/1.jpg',
-            'img/mouse aulaSC650/2.jpg',
-            'img/mouse aulaSC650/3.jpg',
-            'img/mouse aulaSC650/4.jpg',
-            'img/mouse aulaSC650/5.jpg'
-        ]
-    },
-    {
-        id: 8,
-        name: 'Gamesir Tegeniria',
-        type: 'Controller',
-        cartName: 'Gamesir Tegeniria',
-        specs: [
-            'Supporrt: <strong>Computer</strong>',
-            '<strong>Method Connection: USB</strong>'
-        ],
-        price: 15,
-        colorName: 'color_tegeniria',
-        colors: [
-            { name: 'Gray', value: 'Gray', colorCode: 'gray' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/Gamesir Tegeniria/1.jpg',
-            'img/Gamesir Tegeniria/2.jpg',
-            'img/Gamesir Tegeniria/3.jpg',
-            'img/Gamesir Tegeniria/4.jpg',
-            'img/Gamesir Tegeniria/5.jpg'
-        ]
-    },
-    {
-        id: 9,
-        name: 'Gamesir Nova2Life',
-        type: 'Controller',
-        cartName: 'Gamesir Nova2Life',
-        specs: [
-            'Supporrt: <strong>Computer, Android, IOS </strong>',
-            '<strong>Method Connection: Bluetooth, Type-C, USB-Reciver</strong>'
-        ],
-        price: 25,
-        colorName: 'color_nova2life',
-        colors: [
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/Gamesir nova2life/1.jpg',
-            'img/Gamesir nova2life/2.jpg',
-            'img/Gamesir nova2life/3.jpg',
-            'img/Gamesir nova2life/4.jpg',
-            'img/Gamesir nova2life/5.jpg'
-        ]
-    },
-    {
-        id: 10,
-        name: 'Gamesir X5Life (Type-C)',
-        type: 'Controller',
-        cartName: 'Gamesir X5Life',
-        specs: [
-            'Supporrt <strong>Android & IOS</strong>',
-            'Game App: <strong>Gamesir, GameHub</strong>'
-        ],
-        price: 22,
-        colorName: 'color_gamesir_x5',
-        colors: [
-            { name: 'Pink', value: 'Pink', colorCode: 'pink' },
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/Gamesir x5life/gamesir x5life 1.jpg',
-            'img/Gamesir x5life/gamesir x5life 2.jpg',
-            'img/Gamesir x5life/gamesir x5life 3.jpg',
-            'img/Gamesir x5life/gamesir x5life 4.jpg',
-            'img/Gamesir x5life/gamesir x5life 5.jpg'
-        ]
-    },
-    {
-        id: 11,
-        name: 'Mini Stand Computer(1Pair)',
-        type: 'Stand',
-        cartName: 'Mini Stand Computer',
-        specs: [
-            'Supporrt Computer: <strong>14inch - 17inch</strong>',
-            '<strong>Flexible for use</strong>'
-        ],
-        price: 4,
-        colorName: 'color_ministand',
-        colors: [
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/MiniStandcomputer/1.jpg',
-            'img/MiniStandcomputer/2.jpg'
-        ]
-    },
-    {
-        id: 12,
-        name: 'Anker Cable Lightning 60W(0.9m)',
-        type: 'Charger',
-        cartName: 'Anker Cable Lightning',
-        specs: [
-            'Supporrt <strong>IOS</strong>',
-            'The best for: <strong>iPhone 8 to iPhone 14PM</strong>'
-        ],
-        price: 12,
-        colorName: 'color_anker_light',
-        colors: [
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/AnkerLihtning60w/1.png',
-            'img/AnkerLihtning60w/3.jpg',
-            'img/AnkerLihtning60w/4.jpg'
-        ]
-    },
-    {
-        id: 13,
-        name: 'Anker Cable Type-c 100W(0.9m)',
-        type: 'Charger',
-        cartName: 'Anker Cable 100W',
-        specs: [
-            'Supporrt <strong>Android & IOS</strong>',
-            'The best for: <strong>iPhone 15 up</strong>'
-        ],
-        price: 8,
-        colorName: 'color_anker_100w',
-        colors: [
-            { name: 'Pink', value: 'Pink', colorCode: 'pink' },
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'Blue', value: 'Blue', colorCode: '#3498db' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/AnkerCable100W/1.jpg',
-            'img/AnkerCable100W/2.jpg',
-            'img/AnkerCable100W/3.jpg',
-            'img/AnkerCable100W/4.jpg',
-            'img/AnkerCable100W/5.jpg'
-        ]
-    },
-    {
-        id: 14,
-        name: 'JBL Earphone T310C (Type-C)',
-        type: 'Earphone',
-        cartName: 'JBL Earphone T310C',
-        specs: [
-            'Supporrt <strong>Android & IOS</strong>',
-            'The best for EQ: <strong>BASS, VOCAL, DEFAULT</strong>'
-        ],
-        price: 18,
-        colorName: 'color_jbl_t310c',
-        colors: [
-            { name: 'Red', value: 'Red', colorCode: 'red' },
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'Blue', value: 'Blue', colorCode: '#3498db' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/JBL T310C/T310C1.png',
-            'img/JBL T310C/T310C2.jpg',
-            'img/JBL T310C/T310C3.jpg',
-            'img/JBL T310C/T310C4.jpg',
-            'img/JBL T310C/T310C5.jpg'
-        ]
-    },
-    {
-        id: 15,
-        name: 'Anker Zolo 30W (Type-C)',
-        type: 'Charger',
-        cartName: 'Anker Zolo 30W',
-        specs: [
-            'Supporrt <strong>Android & IOS</strong>',
-            'The best for: <strong>iPhone 12-iPhone 16 Pro Max</strong>'
-        ],
-        price: 12,
-        colorName: 'color_anker_zolo',
-        colors: [
-            { name: 'Pink', value: 'Pink', colorCode: 'pink' },
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'Blue', value: 'Blue', colorCode: '#3498db' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/Anker30W/anker5.png',
-            'img/Anker30W/anker1.jpg',
-            'img/Anker30W/anker2.jpg',
-            'img/Anker30W/anker4.jpg'
-        ]
-    },
-    {
-        id: 16,
-        name: 'Earphone JBL T110',
-        type: 'Earphone',
-        cartName: 'Earphone JBL T110',
-        specs: [
-            'Support for Audio <strong>3.5mm jack</strong>',
-            "Best for Android"
-
-        ],
-        price: 17,
-        colorName: 'color_jbl_t110',
-        colors: [
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'Blue', value: 'Blue', colorCode: '#3498db' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-
-        ],
-        images: [
-            'img/JBLT110/1.png',
-            'img/JBLT110/2.jpg',
-            'img/JBLT110/3.jpg'
-        ]
-
-    },
-    {
-        id: 17,
-        name: "Earphone JBL RUN3 ",
-        type: "Earphone",
-        cartName: "Earphone JBL RUN3",
-        specs: [
-            'Support for Audio <strong>3.5mm jack</strong>',
-            "For running, Gaming , Music"
-        ],
-        price: 22,
-        colorName: 'color_jbl_run3',
-        colors: [
-            { name: 'Black', value: 'Black', colorCode: '#2c2c2c' },
-            { name: 'White', value: 'White', colorCode: '#f9f9f9', border: true }
-        ],
-        images: [
-            'img/JBLRUN3/1.png',
-            'img/JBLRUN3/2.png',
-            'img/JBLRUN3/3.jpg'
-        ]
-    },
-];
-
+// ============================================================
+// DYNAMIC PRODUCT DATA (LOADED FROM BACKEND API)
+// ============================================================
+let productData = [];
+let isFetchingProducts = false;
 let currentFilter = 'ALL';
+
+async function fetchProductsFromAPI() {
+    if (isFetchingProducts) return;
+    isFetchingProducts = true;
+
+    try {
+        const apiBase = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE) 
+            ? CONFIG.API_BASE 
+            : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' 
+                ? 'http://localhost:3000' 
+                : 'https://jingjang-store-backend.onrender.com');
+
+        const response = await fetch(`${apiBase}/products`);
+        const result = await response.json();
+
+        if (result.status === 'success' && Array.isArray(result.data)) {
+            productData = result.data;
+        } else {
+            console.warn('Could not load products from API:', result);
+        }
+    } catch (err) {
+        console.error('Error connecting to products API:', err);
+    } finally {
+        isFetchingProducts = false;
+        renderProducts();
+    }
+}
 
 function filterProducts(type) {
     currentFilter = type;
@@ -449,7 +82,8 @@ function filterProducts(type) {
     // Update active class on filter buttons
     const buttons = document.querySelectorAll('.filter-btn');
     buttons.forEach(btn => {
-        if (btn.innerText === type || (btn.innerText === 'ALL' && type === 'ALL')) {
+        const btnText = btn.innerText.trim();
+        if (btnText.toLowerCase() === type.toLowerCase() || (btnText === 'ALL' && type === 'ALL')) {
             btn.classList.add('active');
         } else {
             btn.classList.remove('active');
@@ -459,31 +93,93 @@ function filterProducts(type) {
     renderProducts();
 }
 
-// 2. Render function to generate HTML
+function renderCategoryFilters() {
+    const filterContainer = document.querySelector('.product-filter');
+    if (!filterContainer || productData.length === 0) return;
+
+    // Distinct categories/types from product data
+    const types = Array.from(new Set(productData.map(p => (p.type || p.category_name || '').trim()).filter(Boolean)));
+    
+    let html = `<button class="filter-btn ${currentFilter === 'ALL' ? 'active' : ''}" onclick="filterProducts('ALL')">ALL</button>`;
+    types.forEach(t => {
+        const isActive = currentFilter.toLowerCase() === t.toLowerCase() ? 'active' : '';
+        html += `<button class="filter-btn ${isActive}" onclick="filterProducts('${t}')">${t}</button>`;
+    });
+
+    filterContainer.innerHTML = html;
+}
+
+// Render function to generate HTML
 function renderProducts() {
+    renderCategoryFilters();
     const grid = document.querySelector('.product-grid');
     if (!grid) return;
 
+    // If data not loaded yet, fetch from API and display loading state
+    if (productData.length === 0) {
+        if (isFetchingProducts) {
+            grid.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+                    <div style="display:inline-block; width: 36px; height: 36px; border: 3px solid #e2e8f0; border-top-color: #2ecc71; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                    <p style="margin-top: 15px; font-weight: 600; color: #64748b;">Loading products from JingJang Store...</p>
+                    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+                </div>
+            `;
+            return;
+        } else {
+            fetchProductsFromAPI();
+            return;
+        }
+    }
+
     const filteredData = currentFilter === 'ALL'
         ? productData
-        : productData.filter(p => p.type === currentFilter);
+        : productData.filter(p => {
+            const pType = (p.type || p.category_name || '').toLowerCase();
+            return pType === currentFilter.toLowerCase();
+        });
+
+    if (filteredData.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+                <p style="font-size: 18px; font-weight: 600; color: #94a3b8;">No products found in "${currentFilter}".</p>
+            </div>
+        `;
+        return;
+    }
 
     grid.innerHTML = filteredData.map(product => {
-        const imagesHtml = product.images.map((img, index) => {
+        const images = (product.images && product.images.length > 0) 
+            ? product.images 
+            : ['img/IMG_3840.PNG'];
+
+        const imagesHtml = images.map((img, index) => {
             const altText = index === 0 ? 'Front' : (index === 1 ? 'Back' : 'Side');
             const activeClass = index === 0 ? 'active' : '';
             const loadingAttr = index !== 0 ? 'loading="lazy"' : '';
             return `<img src="${img}" alt="${altText}" class="slide ${activeClass}" ${loadingAttr}>`;
         }).join('');
 
-        const specsHtml = product.specs.map(spec => `<p class="specs">${spec}</p>`).join('');
+        const sliderButtons = images.length > 1 ? `
+            <button class="slider-btn prev" onclick="moveSlide(this, -1)">&#10094;</button>
+            <button class="slider-btn next" onclick="moveSlide(this, 1)">&#10095;</button>
+        ` : '';
 
-        const colorsHtml = product.colors.map((c, index) => {
+        const specs = Array.isArray(product.specs) ? product.specs : [];
+        const specsHtml = specs.map(spec => `<p class="specs">${spec}</p>`).join('');
+
+        const colors = Array.isArray(product.colors) ? product.colors : [];
+        const colorName = product.colorName || product.color_name || `color_prod_${product.id}`;
+        const cartName = (product.cartName || product.cart_name || product.name).replace(/'/g, "\\'");
+
+        const colorsHtml = colors.map((c, index) => {
             const checked = index === 0 ? 'checked' : '';
             const borderStyle = c.border ? 'border: 1px solid #ddd;' : '';
+            const colorVal = c.value || c.name || 'Default';
+            const colorCode = c.colorCode || c.color || '#2c2c2c';
             return `
-                        <input type="radio" name="${product.colorName}" id="color_${c.value}_${product.colorName}" value="${c.value}" ${checked}>
-                        <label for="color_${c.value}_${product.colorName}" class="color-swatch" style="background-color: ${c.colorCode}; ${borderStyle}"></label>
+                <input type="radio" name="${colorName}" id="color_${colorVal}_${colorName}" value="${colorVal}" ${checked}>
+                <label for="color_${colorVal}_${colorName}" class="color-swatch" style="background-color: ${colorCode}; ${borderStyle}"></label>
             `;
         }).join('');
 
@@ -491,8 +187,7 @@ function renderProducts() {
         <div class="product-card">
             <div class="image-slider">
                 ${imagesHtml}
-                <button class="slider-btn prev" onclick="moveSlide(this, -1)">&#10094;</button>
-                <button class="slider-btn next" onclick="moveSlide(this, 1)">&#10095;</button>
+                ${sliderButtons}
             </div>
             <div class="product-info">
                 <h3>${product.name}</h3>
@@ -503,12 +198,14 @@ function renderProducts() {
                         ${colorsHtml}
                     </div>
                 </div>
-                <button class="add-to-cart" onclick="addToCart('${product.cartName}', ${product.price}, '${product.colorName}')">Add to Cart</button>
+                <button class="add-to-cart" onclick="addToCart('${cartName}', ${product.price}, '${colorName}')">Add to Cart</button>
             </div>
         </div>
         `;
     }).join('');
 }
 
-// 3. Initialize rendering on page load
-document.addEventListener('DOMContentLoaded', renderProducts);
+// Initialize rendering on page load & fetch products from backend
+document.addEventListener('DOMContentLoaded', () => {
+    fetchProductsFromAPI();
+});
