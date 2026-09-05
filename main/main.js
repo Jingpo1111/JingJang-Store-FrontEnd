@@ -1,7 +1,57 @@
 // main.js
 
-// Function to slide images inside a specific product card
-function moveSlide(button, direction) {
+// ============================================================
+// CONSTANTS & STATE
+// ============================================================
+const CACHE_KEY_PRODUCTS = 'jj_cached_products';
+const CACHE_KEY_FILTER = 'jj_cached_filter';
+
+let productData = [];
+let isFetchingProducts = false;
+let currentFilter = 'ALL';
+
+// Synchronously restore cached products & filter immediately on script evaluation
+try {
+    const saved = localStorage.getItem(CACHE_KEY_PRODUCTS);
+    if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+            productData = parsed;
+        }
+    }
+} catch (e) {
+    console.warn('Could not read cached products:', e);
+}
+
+try {
+    const savedFilter = localStorage.getItem(CACHE_KEY_FILTER);
+    if (savedFilter) currentFilter = savedFilter;
+} catch (e) {}
+
+// Preload product images into memory cache immediately
+function preloadProductImages(products) {
+    if (!Array.isArray(products) || products.length === 0) return;
+    products.forEach(p => {
+        if (Array.isArray(p.images)) {
+            p.images.forEach(url => {
+                if (url && typeof url === 'string') {
+                    const img = new Image();
+                    img.src = url;
+                }
+            });
+        }
+    });
+}
+
+// Immediately warm image cache for cached products
+if (productData.length > 0) {
+    preloadProductImages(productData);
+}
+
+// ============================================================
+// IMAGE SLIDER (WITH SESSION PERSISTENCE)
+// ============================================================
+function moveSlide(button, direction, productId) {
     const sliderContainer = button.parentElement;
     const slides = sliderContainer.querySelectorAll('.slide');
 
@@ -26,8 +76,18 @@ function moveSlide(button, direction) {
     }
 
     slides[nextIndex].classList.add('active');
+
+    // Remember the user's active slide so refresh doesn't reset it
+    if (productId) {
+        try {
+            sessionStorage.setItem('jj_slide_' + productId, nextIndex);
+        } catch (e) {}
+    }
 }
 
+// ============================================================
+// EMAILJS CONTACT FORM HANDLER
+// ============================================================
 function sendMessage(event) {
     event.preventDefault();
     const form = event.target;
@@ -43,12 +103,83 @@ function sendMessage(event) {
 }
 
 // ============================================================
-// DYNAMIC PRODUCT DATA (LOADED FROM BACKEND API)
+// SINGLE PRODUCT CARD HTML GENERATOR
 // ============================================================
-let productData = [];
-let isFetchingProducts = false;
-let currentFilter = 'ALL';
+function renderSingleProductCard(product) {
+    const images = (product.images && product.images.length > 0) 
+        ? product.images 
+        : ['img/IMG_3840.PNG'];
 
+    // Restore saved slide index for this product if user moved it earlier
+    let activeSlideIndex = 0;
+    try {
+        const savedSlide = parseInt(sessionStorage.getItem('jj_slide_' + product.id), 10);
+        if (!isNaN(savedSlide) && savedSlide >= 0 && savedSlide < images.length) {
+            activeSlideIndex = savedSlide;
+        }
+    } catch (e) {}
+
+    const imagesHtml = images.map((img, index) => {
+        const altText = index === 0 ? 'Front' : (index === 1 ? 'Back' : 'Side');
+        const activeClass = index === activeSlideIndex ? 'active' : '';
+        const loadingAttr = index === activeSlideIndex ? 'loading="eager" decoding="async"' : 'loading="lazy" decoding="async"';
+        return `<img src="${img}" alt="${altText}" class="slide ${activeClass}" ${loadingAttr} onerror="this.onerror=null;this.src='img/IMG_3840.PNG';">`;
+    }).join('');
+
+    const sliderButtons = images.length > 1 ? `
+        <button class="slider-btn prev" onclick="moveSlide(this, -1, ${product.id})">&#10094;</button>
+        <button class="slider-btn next" onclick="moveSlide(this, 1, ${product.id})">&#10095;</button>
+    ` : '';
+
+    const specs = Array.isArray(product.specs) ? product.specs : [];
+    const specsHtml = specs.map(spec => `<p class="specs">${spec}</p>`).join('');
+
+    const colors = Array.isArray(product.colors) ? product.colors : [];
+    const colorName = product.colorName || product.color_name || `color_prod_${product.id}`;
+    const cartName = (product.cartName || product.cart_name || product.name).replace(/'/g, "\\'");
+
+    let selectedColorVal = null;
+    try {
+        selectedColorVal = sessionStorage.getItem('jj_color_' + product.id);
+    } catch (e) {}
+
+    const colorsHtml = colors.map((c, index) => {
+        const colorVal = c.value || c.name || 'Default';
+        const checked = selectedColorVal 
+            ? (selectedColorVal === colorVal ? 'checked' : '') 
+            : (index === 0 ? 'checked' : '');
+        const borderStyle = c.border ? 'border: 1px solid #ddd;' : '';
+        const colorCode = c.colorCode || c.color || '#2c2c2c';
+        return `
+            <input type="radio" name="${colorName}" id="color_${colorVal}_${colorName}" value="${colorVal}" ${checked} onchange="try{sessionStorage.setItem('jj_color_${product.id}', this.value)}catch(e){}">
+            <label for="color_${colorVal}_${colorName}" class="color-swatch" style="background-color: ${colorCode}; ${borderStyle}"></label>
+        `;
+    }).join('');
+
+    return `
+    <div class="product-card" data-product-id="${product.id}">
+        <div class="image-slider">
+            ${imagesHtml}
+            ${sliderButtons}
+        </div>
+        <div class="product-info">
+            <h3>${product.name}</h3>
+            ${specsHtml}
+            <p class="price">$${product.price}</p>
+            <div class="color-selection">
+                <div class="color-options">
+                    ${colorsHtml}
+                </div>
+            </div>
+            <button class="add-to-cart" onclick="addToCart('${cartName}', ${product.price}, '${colorName}')">Add to Cart</button>
+        </div>
+    </div>
+    `;
+}
+
+// ============================================================
+// DYNAMIC PRODUCT DATA (LOADED FROM BACKEND API WITH INCREMENTAL DIFF)
+// ============================================================
 async function fetchProductsFromAPI() {
     if (isFetchingProducts) return;
     isFetchingProducts = true;
@@ -64,7 +195,7 @@ async function fetchProductsFromAPI() {
         const result = await response.json();
 
         if (result.status === 'success' && Array.isArray(result.data)) {
-            productData = result.data;
+            syncProductsIncremental(result.data);
         } else {
             console.warn('Could not load products from API:', result);
         }
@@ -72,12 +203,112 @@ async function fetchProductsFromAPI() {
         console.error('Error connecting to products API:', err);
     } finally {
         isFetchingProducts = false;
-        renderProducts();
+        // If grid exists and has no product cards (e.g. first-time cold visit), render now
+        const grid = document.querySelector('.product-grid');
+        if (grid && !grid.querySelector('.product-card') && productData.length > 0) {
+            renderProducts();
+        }
     }
+}
+
+/**
+ * Smart incremental synchronization:
+ * - If data is unchanged: does NOT touch the DOM (existing images & slides remain stable)
+ * - If NEW products exist: surgically adds only the new product cards without reloading existing ones
+ * - If products were removed: removes only deleted cards
+ */
+function syncProductsIncremental(newProducts) {
+    const grid = document.querySelector('.product-grid');
+    const oldJson = JSON.stringify(productData);
+    const newJson = JSON.stringify(newProducts);
+
+    // 1. If exact match and cards are already on page, do not touch DOM
+    if (oldJson === newJson && grid && grid.querySelector('.product-card')) {
+        return;
+    }
+
+    // 2. If grid is not yet mounted or was completely empty, do a full initial render
+    if (!grid || !grid.querySelector('.product-card') || productData.length === 0) {
+        productData = newProducts;
+        try {
+            localStorage.setItem(CACHE_KEY_PRODUCTS, newJson);
+        } catch (e) {}
+        renderProducts();
+        preloadProductImages(productData);
+        return;
+    }
+
+    // 3. Incremental Diff:
+    const oldMap = new Map(productData.map(p => [p.id, p]));
+    const newMap = new Map(newProducts.map(p => [p.id, p]));
+
+    // Check for removed products
+    productData.forEach(p => {
+        if (!newMap.has(p.id)) {
+            const card = grid.querySelector(`.product-card[data-product-id="${p.id}"]`);
+            if (card) card.remove();
+        }
+    });
+
+    // Check for updated products (e.g. price, name, specs changed)
+    newProducts.forEach(newP => {
+        const oldP = oldMap.get(newP.id);
+        if (oldP && JSON.stringify(oldP) !== JSON.stringify(newP)) {
+            const existingCard = grid.querySelector(`.product-card[data-product-id="${newP.id}"]`);
+            if (existingCard) {
+                // Replace only this specific card's HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = renderSingleProductCard(newP).trim();
+                const newCard = tempDiv.firstElementChild;
+                grid.replaceChild(newCard, existingCard);
+            }
+        }
+    });
+
+    // Check for brand NEW products (present in newProducts but not in productData)
+    const newlyAddedProducts = newProducts.filter(p => !oldMap.has(p.id));
+    if (newlyAddedProducts.length > 0) {
+        // Preload images for the new items
+        preloadProductImages(newlyAddedProducts);
+
+        // Prepend/insert new cards surgically into the grid without touching existing ones
+        newlyAddedProducts.forEach(newP => {
+            const pType = (newP.type || newP.category_name || '').toLowerCase();
+            const matchesFilter = currentFilter === 'ALL' || pType === currentFilter.toLowerCase();
+
+            if (matchesFilter) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = renderSingleProductCard(newP).trim();
+                const newCard = tempDiv.firstElementChild;
+                
+                // Add smooth subtle entrance for newly arrived product
+                newCard.style.animation = 'fadeInUp 0.5s ease-out forwards';
+                
+                // Insert at the beginning of the grid (since products are ORDER BY id DESC)
+                if (grid.firstChild) {
+                    grid.insertBefore(newCard, grid.firstChild);
+                } else {
+                    grid.appendChild(newCard);
+                }
+            }
+        });
+    }
+
+    // Update state and cache
+    productData = newProducts;
+    try {
+        localStorage.setItem(CACHE_KEY_PRODUCTS, newJson);
+    } catch (e) {}
+
+    // Update category filter buttons if new categories appeared
+    renderCategoryFilters();
 }
 
 function filterProducts(type) {
     currentFilter = type;
+    try {
+        localStorage.setItem(CACHE_KEY_FILTER, type);
+    } catch (e) {}
 
     // Update active class on filter buttons
     const buttons = document.querySelectorAll('.filter-btn');
@@ -109,7 +340,7 @@ function renderCategoryFilters() {
     filterContainer.innerHTML = html;
 }
 
-// Render function to generate HTML
+// Render function to generate HTML for the whole grid
 function renderProducts() {
     renderCategoryFilters();
     const grid = document.querySelector('.product-grid');
@@ -148,64 +379,19 @@ function renderProducts() {
         return;
     }
 
-    grid.innerHTML = filteredData.map(product => {
-        const images = (product.images && product.images.length > 0) 
-            ? product.images 
-            : ['img/IMG_3840.PNG'];
-
-        const imagesHtml = images.map((img, index) => {
-            const altText = index === 0 ? 'Front' : (index === 1 ? 'Back' : 'Side');
-            const activeClass = index === 0 ? 'active' : '';
-            const loadingAttr = index !== 0 ? 'loading="lazy"' : '';
-            return `<img src="${img}" alt="${altText}" class="slide ${activeClass}" ${loadingAttr}>`;
-        }).join('');
-
-        const sliderButtons = images.length > 1 ? `
-            <button class="slider-btn prev" onclick="moveSlide(this, -1)">&#10094;</button>
-            <button class="slider-btn next" onclick="moveSlide(this, 1)">&#10095;</button>
-        ` : '';
-
-        const specs = Array.isArray(product.specs) ? product.specs : [];
-        const specsHtml = specs.map(spec => `<p class="specs">${spec}</p>`).join('');
-
-        const colors = Array.isArray(product.colors) ? product.colors : [];
-        const colorName = product.colorName || product.color_name || `color_prod_${product.id}`;
-        const cartName = (product.cartName || product.cart_name || product.name).replace(/'/g, "\\'");
-
-        const colorsHtml = colors.map((c, index) => {
-            const checked = index === 0 ? 'checked' : '';
-            const borderStyle = c.border ? 'border: 1px solid #ddd;' : '';
-            const colorVal = c.value || c.name || 'Default';
-            const colorCode = c.colorCode || c.color || '#2c2c2c';
-            return `
-                <input type="radio" name="${colorName}" id="color_${colorVal}_${colorName}" value="${colorVal}" ${checked}>
-                <label for="color_${colorVal}_${colorName}" class="color-swatch" style="background-color: ${colorCode}; ${borderStyle}"></label>
-            `;
-        }).join('');
-
-        return `
-        <div class="product-card">
-            <div class="image-slider">
-                ${imagesHtml}
-                ${sliderButtons}
-            </div>
-            <div class="product-info">
-                <h3>${product.name}</h3>
-                ${specsHtml}
-                <p class="price">$${product.price}</p>
-                <div class="color-selection">
-                    <div class="color-options">
-                        ${colorsHtml}
-                    </div>
-                </div>
-                <button class="add-to-cart" onclick="addToCart('${cartName}', ${product.price}, '${colorName}')">Add to Cart</button>
-            </div>
-        </div>
-        `;
-    }).join('');
+    grid.innerHTML = filteredData.map(product => renderSingleProductCard(product)).join('');
 }
 
-// Initialize rendering on page load & fetch products from backend
-document.addEventListener('DOMContentLoaded', () => {
+// Self-initializing lifecycle
+function initStoreProducts() {
+    if (document.querySelector('.product-grid')) {
+        renderProducts();
+    }
     fetchProductsFromAPI();
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initStoreProducts);
+} else {
+    initStoreProducts();
+}
