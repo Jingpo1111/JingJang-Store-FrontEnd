@@ -8,6 +8,37 @@ const ORDER_API_BASE    = API_BASE_PROFILE + '/order'; // /order, /order/user/:i
 const AUTH_API_BASE     = API_BASE_PROFILE + '/user';  // /user/login, /user/change-password
 const OTP_API_BASE      = API_BASE_PROFILE + '/otp';   // /otp/generate, /otp/verify
 
+// Cooldown timer for change-password OTP modal
+let profileOtpTimer = null;
+function startProfileOtpCountdown(seconds = 60) {
+    const btn = document.getElementById('profile-otp-resend-btn');
+    if (!btn) return;
+
+    if (profileOtpTimer) {
+        clearInterval(profileOtpTimer);
+    }
+
+    let remaining = seconds;
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    btn.style.cursor = 'not-allowed';
+    btn.textContent = `⏳ Resend code in ${remaining}s`;
+
+    profileOtpTimer = setInterval(() => {
+        remaining -= 1;
+        if (remaining <= 0) {
+            clearInterval(profileOtpTimer);
+            profileOtpTimer = null;
+            btn.disabled = false;
+            btn.style.opacity = '';
+            btn.style.cursor = 'pointer';
+            btn.textContent = "Didn't receive it? Resend OTP";
+        } else {
+            btn.textContent = `⏳ Resend code in ${remaining}s`;
+        }
+    }, 1000);
+}
+
 // ========================
 // Auto-Refresh Timer
 // ========================
@@ -418,7 +449,7 @@ async function handleChangePassword(event) {
             userId: userId
         };
 
-        // 1. Generate 6-digit OTP code from backend
+        // 1. Generate & send 6-digit OTP code from backend via Resend
         const otpResponse = await fetch(apiBase + '/otp/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -428,17 +459,16 @@ async function handleChangePassword(event) {
         const otpData = await otpResponse.json();
 
         if (otpData.status === 'SUCCESS') {
-            // 2. Send OTP via EmailJS (template_abzvhmj)
-            await emailjs.send("service_uug1k5r", "template_abzvhmj", {
-                to_email: email,
-                otp_code: otpData.otp
-            });
-
-            // 3. Open OTP Verification Modal
+            // 2. Open OTP Verification Modal
             document.getElementById('profile-otp-email').textContent = email;
             document.getElementById('profile-otp-input').value = '';
             document.getElementById('profile-otp-error').textContent = '';
             document.getElementById('profile-otp-modal').style.display = 'flex';
+
+            // 3. Start 60-second cooldown timer
+            startProfileOtpCountdown(60);
+        } else if (otpData.status === 'COOLDOWN') {
+            errEl.textContent = '⏳ ' + otpData.message;
         } else {
             errEl.textContent = '❌ Failed to generate OTP: ' + (otpData.message || 'Please try again.');
         }
@@ -460,6 +490,18 @@ function closeProfileOTPModal() {
     document.getElementById('profile-otp-input').value = '';
     document.getElementById('profile-otp-error').textContent = '';
     pendingPasswordChange = null;
+
+    if (profileOtpTimer) {
+        clearInterval(profileOtpTimer);
+        profileOtpTimer = null;
+    }
+    const resendBtn = document.getElementById('profile-otp-resend-btn');
+    if (resendBtn) {
+        resendBtn.disabled = false;
+        resendBtn.style.opacity = '';
+        resendBtn.style.cursor = 'pointer';
+        resendBtn.textContent = "Didn't receive it? Resend OTP";
+    }
 }
 
 async function handleProfileVerifyOTP() {
@@ -560,26 +602,27 @@ async function handleProfileResendOTP() {
         const otpData = await otpResponse.json();
 
         if (otpData.status === 'SUCCESS') {
-            await emailjs.send("service_uug1k5r", "template_abzvhmj", {
-                to_email: pendingPasswordChange.email,
-                otp_code: otpData.otp
-            });
-
-            errorEl.textContent = '✅ New verification code sent to your email!';
+            errorEl.textContent = '✅ New code sent! Valid for 5 minutes.';
             errorEl.style.color = '#2ecc71';
             setTimeout(() => {
                 errorEl.textContent = '';
                 errorEl.style.color = '#e74c3c';
             }, 3500);
+            startProfileOtpCountdown(60);
+        } else if (otpData.status === 'COOLDOWN') {
+            errorEl.textContent = otpData.message;
+            errorEl.style.color = '#e67e22';
+            startProfileOtpCountdown(otpData.cooldownSeconds || 60);
         } else {
-            errorEl.textContent = 'Failed to resend OTP code.';
+            errorEl.textContent = otpData.message || 'Failed to resend OTP code.';
+            resendBtn.disabled = false;
+            resendBtn.textContent = "Didn't receive it? Resend OTP";
         }
     } catch (error) {
         console.error('Resend OTP error:', error);
         errorEl.textContent = 'Connection error. Please try again.';
-    } finally {
-        resendBtn.textContent = "Didn't receive it? Resend OTP";
         resendBtn.disabled = false;
+        resendBtn.textContent = "Didn't receive it? Resend OTP";
     }
 }
 

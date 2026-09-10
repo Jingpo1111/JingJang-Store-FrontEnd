@@ -9,6 +9,37 @@ const OTP_BASE = API_BASE + '/otp';     // /otp/generate, /otp/verify
 // Temporary storage for registration data during OTP flow
 let pendingRegistration = null;
 
+// Helper: 60-second cooldown timer for resend buttons
+const otpTimers = {};
+function startOtpCountdown(btnId, seconds = 60) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+
+    if (otpTimers[btnId]) {
+        clearInterval(otpTimers[btnId]);
+    }
+
+    let remaining = seconds;
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    btn.style.cursor = 'not-allowed';
+    btn.textContent = `⏳ Resend OTP in ${remaining}s`;
+
+    otpTimers[btnId] = setInterval(() => {
+        remaining -= 1;
+        if (remaining <= 0) {
+            clearInterval(otpTimers[btnId]);
+            delete otpTimers[btnId];
+            btn.disabled = false;
+            btn.style.opacity = '';
+            btn.style.cursor = 'pointer';
+            btn.textContent = "Didn't receive it? Resend OTP";
+        } else {
+            btn.textContent = `⏳ Resend OTP in ${remaining}s`;
+        }
+    }, 1000);
+}
+
 // ========================
 // Tab Switching
 // ========================
@@ -173,7 +204,7 @@ async function handleRegister(event) {
                 password: password
             };
 
-            // Step 2: Generate OTP via NodeJS /otp/generate
+            // Step 2: Generate & send OTP via NodeJS /otp/generate
             const otpResponse = await fetch(OTP_BASE + '/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -183,21 +214,22 @@ async function handleRegister(event) {
             const otpData = await otpResponse.json();
 
             if (otpData.status === 'SUCCESS') {
-                // Step 3: Send OTP via EmailJS
-                await emailjs.send("service_uug1k5r", "template_abzvhmj", {
-                    to_email: email,
-                    otp_code: otpData.otp
-                });
-
                 // Show OTP step, hide register form and tabs
                 document.getElementById('register-form').classList.remove('active');
                 document.getElementById('tab-switcher').style.display = 'none';
                 document.getElementById('otp-step').style.display = 'flex';
                 document.getElementById('otp-email-display').textContent = email;
-                document.querySelector('.subtitle').textContent = 'Almost there! Verify your email.';
+                document.querySelector('.subtitle').textContent = 'Almost there! Check your email for code (expires in 5 minutes).';
+
+                // Start 60s cooldown timer
+                startOtpCountdown('otp-resend-btn', 60);
 
                 // Clear form
                 document.getElementById('register-form').reset();
+            } else if (otpData.status === 'COOLDOWN') {
+                errorEl.textContent = otpData.message;
+                errorEl.classList.add('shake');
+                setTimeout(() => errorEl.classList.remove('shake'), 500);
             } else {
                 errorEl.textContent = 'Failed to send OTP: ' + (otpData.message || 'Unknown error');
                 errorEl.classList.add('shake');
@@ -322,7 +354,7 @@ async function handleResendOTP() {
     errorEl.textContent = '';
 
     try {
-        // Generate new OTP
+        // Request backend to send OTP via Resend
         const otpResponse = await fetch(OTP_BASE + '/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -332,26 +364,26 @@ async function handleResendOTP() {
         const otpData = await otpResponse.json();
 
         if (otpData.status === 'SUCCESS') {
-            // Send via EmailJS
-            await emailjs.send("service_uug1k5r", "template_abzvhmj", {
-                to_email: pendingRegistration.email,
-                otp_code: otpData.otp
-            });
-
-            errorEl.textContent = '✅ New OTP sent! Check your inbox.';
+            errorEl.textContent = '✅ New OTP sent! Valid for 60s.';
             errorEl.style.color = '#2ecc71';
             setTimeout(() => {
                 errorEl.textContent = '';
                 errorEl.style.color = '';
             }, 3000);
+            startOtpCountdown('otp-resend-btn', 60);
+        } else if (otpData.status === 'COOLDOWN') {
+            errorEl.textContent = otpData.message;
+            errorEl.style.color = '#e67e22';
+            startOtpCountdown('otp-resend-btn', otpData.cooldownSeconds || 60);
         } else {
-            errorEl.textContent = 'Failed to resend OTP.';
+            errorEl.textContent = otpData.message || 'Failed to resend OTP.';
+            resendBtn.disabled = false;
+            resendBtn.textContent = "Didn't receive it? Resend OTP";
         }
     } catch (error) {
         errorEl.textContent = 'Connection error. Please try again.';
-    } finally {
-        resendBtn.textContent = "Didn't receive it? Resend OTP";
         resendBtn.disabled = false;
+        resendBtn.textContent = "Didn't receive it? Resend OTP";
     }
 }
 
@@ -467,7 +499,7 @@ async function handleForgotSendOTP() {
             return;
         }
 
-        // Generate OTP
+        // Generate and send OTP via backend
         const otpResponse = await fetch(OTP_BASE + '/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -477,19 +509,18 @@ async function handleForgotSendOTP() {
         const otpData = await otpResponse.json();
 
         if (otpData.status === 'SUCCESS') {
-            // Send OTP via EmailJS
-            await emailjs.send("service_uug1k5r", "template_abzvhmj", {
-                to_email: email,
-                otp_code: otpData.otp
-            });
-
             forgotEmail = email;
 
             // Show Step 2
             document.getElementById('forgot-step1').style.display = 'none';
             document.getElementById('forgot-step2').style.display = 'flex';
             document.getElementById('forgot-email-display').textContent = email;
-            document.querySelector('.subtitle').textContent = 'Check your email for the code.';
+            document.querySelector('.subtitle').textContent = 'Check your email for the code (expires in 5 minutes).';
+
+            startOtpCountdown('forgot-otp-resend-btn', 60);
+        } else if (otpData.status === 'COOLDOWN') {
+            errorEl.textContent = otpData.message;
+            startOtpCountdown('forgot-otp-resend-btn', otpData.cooldownSeconds || 60);
         } else {
             errorEl.textContent = 'Failed to send OTP: ' + (otpData.message || 'Unknown error');
         }
@@ -620,14 +651,16 @@ async function handleForgotResetPassword() {
 // Resend OTP for Forgot Password
 async function handleForgotResendOTP() {
     const errorEl = document.getElementById('forgot-otp-error');
+    const resendBtn = document.getElementById('forgot-otp-resend-btn');
 
     if (!forgotEmail) {
         errorEl.textContent = 'Email not found. Please go back and try again.';
         return;
     }
 
-    errorEl.textContent = '⏳ Sending new code...';
-    errorEl.style.color = '';
+    resendBtn.textContent = 'Sending...';
+    resendBtn.disabled = true;
+    errorEl.textContent = '';
 
     try {
         const otpResponse = await fetch(OTP_BASE + '/generate', {
@@ -639,22 +672,26 @@ async function handleForgotResendOTP() {
         const otpData = await otpResponse.json();
 
         if (otpData.status === 'SUCCESS') {
-            await emailjs.send("service_uug1k5r", "template_abzvhmj", {
-                to_email: forgotEmail,
-                otp_code: otpData.otp
-            });
-
-            errorEl.textContent = '✅ New code sent! Check your inbox.';
+            errorEl.textContent = '✅ New code sent! Valid for 60s.';
             errorEl.style.color = '#2ecc71';
             setTimeout(() => {
                 errorEl.textContent = '';
                 errorEl.style.color = '';
             }, 3000);
+            startOtpCountdown('forgot-otp-resend-btn', 60);
+        } else if (otpData.status === 'COOLDOWN') {
+            errorEl.textContent = otpData.message;
+            errorEl.style.color = '#e67e22';
+            startOtpCountdown('forgot-otp-resend-btn', otpData.cooldownSeconds || 60);
         } else {
-            errorEl.textContent = 'Failed to resend. Please try again.';
+            errorEl.textContent = otpData.message || 'Failed to resend. Please try again.';
+            resendBtn.disabled = false;
+            resendBtn.textContent = "Didn't receive it? Resend OTP";
         }
     } catch (error) {
         errorEl.textContent = 'Connection error. Please try again.';
+        resendBtn.disabled = false;
+        resendBtn.textContent = "Didn't receive it? Resend OTP";
     }
 }
 

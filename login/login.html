@@ -12,10 +12,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="login.css">
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    <script>
-        emailjs.init("NFPYtavChA35rx-xd");
-    </script>
 </head>
 
 <body>
@@ -192,7 +188,7 @@
                 <span class="btn-text">✅ Verify Code</span>
                 <span class="btn-loader" style="display:none;">⏳</span>
             </button>
-            <button type="button" class="otp-resend-btn" onclick="handleForgotResendOTP()">Didn't receive it? Resend OTP</button>
+            <button type="button" class="otp-resend-btn" id="forgot-otp-resend-btn" onclick="handleForgotResendOTP()">Didn't receive it? Resend OTP</button>
         </div>
 
         <!-- Forgot Password Step 3: Set New Password -->
