@@ -24,8 +24,13 @@
 }
 
 @keyframes profileFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* Panel */
@@ -47,6 +52,7 @@
         opacity: 0;
         transform: translateY(40px) scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -184,6 +190,7 @@
         opacity: 0;
         transform: translateY(8px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -210,7 +217,7 @@
 
 .summary-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .summary-card.active-filter {
@@ -577,7 +584,7 @@
 
 .order-status-pill:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .order-detail-row {
@@ -628,8 +635,11 @@
 /* Timeline Modal */
 .timeline-modal {
     position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
     z-index: 10000;
     display: none;
     align-items: center;
@@ -644,7 +654,7 @@
     border-radius: 16px;
     padding: 25px;
     position: relative;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
 .timeline-close {
@@ -678,7 +688,8 @@
 .stepper::before {
     content: '';
     position: absolute;
-    left: 21px; /* Center of the icon */
+    left: 21px;
+    /* Center of the icon */
     top: 10px;
     bottom: 30px;
     width: 2px;

@@ -26,7 +26,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .cart-header h2 {
@@ -60,13 +60,13 @@
     background: #f8f9fa;
     padding: 15px;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .cart-item:hover {
     transform: translateX(-5px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .item-info {
@@ -91,47 +91,57 @@
 .qty-controls {
     display: flex;
     align-items: center;
-    gap: 12px;
-    background-color: #ffffff;
+    gap: 10px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
     border-radius: 8px;
-    padding: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    padding: 3px 6px;
 }
 
 .qty-btn {
-    background-color: #f1f2f6;
-    border: none;
-    color: #2f3542;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
     width: 32px;
     height: 32px;
     border-radius: 6px;
     cursor: pointer;
-    font-weight: bold;
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .qty-btn:hover {
     background-color: #3b665b;
-    color: white;
-    transform: scale(1.05);
+    border-color: #3b665b;
+    color: #ffffff;
+    transform: scale(1.08);
+}
+
+.qty-btn:active {
+    transform: scale(0.92);
 }
 
 .qty-num {
-    font-size: 16px;
-    font-weight: bold;
-    min-width: 20px;
+    font-size: 15px;
+    font-weight: 700;
+    min-width: 22px;
     text-align: center;
-    color: #2c3e50;
+    color: #0f172a;
+    user-select: none;
 }
 
 .cart-footer {
     padding: 25px;
     background-color: #ffffff;
     border-top: 1px solid #f1f2f6;
-    box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05);
 }
 
 /* --- Find Order Section --- */

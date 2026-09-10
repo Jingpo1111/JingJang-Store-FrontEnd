@@ -150,7 +150,7 @@ function chooseBank(method, img, name) {
         link.innerHTML = "🔗 Open ABA Link";
         qrImage.src = "/img/Bank/abaqr.jpg";
     } else if (method === 'ac') {
-        link.href = "https://acledabank.com.kh/acleda?payment_data=qWY5B2SAUfIhLblxzOtfu5ckLzMHjaSki6Ru0bsOyNK+ylPBgZ0sHH6BeGUscKoE58OqGYCB+0+/7oWYyz8zgsTJ6N1UFR6fIgKzYTC4dNBSP571ZBhr8NiW1VOcGNIzwp6mftkf9IzguusEGUFd8ONloxLNNAw/BQNxsYnPnySIPbhS8RMpf0EpteXXX9HIojN3S+eHDxcvzAKL/su/VQV2g35MTN2izKPWyPmhi4yiRBRS0zBA4p3xcAqn+NjU&key=khqr"; // កែតម្រូវ URL នៅពេលអ្នកដឹងពិតប្រាកដ
+        link.href = "https://acledabank.com.kh/acleda?payment_data=qWY5B2SAUfIhLblxzOtfu5ckLzMHjaSki6Ru0bsOyNK+ylPBgZ0sHH6BeGUscKoE58OqGYCB+0+/7oWYyz8zgsTJ6N1UFR6fIgKzYTC4dNA+H3HDmFtNdaTGeaC33xpV6rCwitYe2fTeUBvJ4vj/Hmgxn5Q0fK8JnIUsIRRUfbbAXOWG8G8Zmx250X7rpRvY8O74OMfCDKeJu3nBu08j7lLxGxvnvBJZhfDdJt3urffF2r6v8pr4q3eq0AaRb4Yo&key=khqr"; // កែតម្រូវ URL នៅពេលអ្នកដឹងពិតប្រាកដ
         link.innerHTML = "🔗 Open ACLEDA Link";
         qrImage.src = "/img/Bank/acqr.jpg";
     }

@@ -3,10 +3,10 @@
 // ============================================================
 
 // ✅ NodeJS Backend API (replaces Google Apps Script)
-const API_BASE_PROFILE  = CONFIG.API_BASE;
-const ORDER_API_BASE    = API_BASE_PROFILE + '/order'; // /order, /order/user/:id
-const AUTH_API_BASE     = API_BASE_PROFILE + '/user';  // /user/login, /user/change-password
-const OTP_API_BASE      = API_BASE_PROFILE + '/otp';   // /otp/generate, /otp/verify
+const API_BASE_PROFILE = CONFIG.API_BASE;
+const ORDER_API_BASE = API_BASE_PROFILE + '/order'; // /order, /order/user/:id
+const AUTH_API_BASE = API_BASE_PROFILE + '/user';  // /user/login, /user/change-password
+const OTP_API_BASE = API_BASE_PROFILE + '/otp';   // /otp/generate, /otp/verify
 
 // Cooldown timer for change-password OTP modal
 let profileOtpTimer = null;
@@ -191,16 +191,16 @@ function loadProfileData() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: userId })
         })
-        .then(r => r.json())
-        .then(data => {
-            if (data.status === 'success' && data.registerDate) {
-                const formatted = formatProfileDate(data.registerDate);
-                localStorage.setItem('jj_regDate', formatted);
-                if (setDate) setDate.textContent = formatted;
-                if (joinedEl) joinedEl.textContent = 'Member since: ' + formatted;
-            }
-        })
-        .catch(err => console.warn('Could not load user register date:', err));
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success' && data.registerDate) {
+                    const formatted = formatProfileDate(data.registerDate);
+                    localStorage.setItem('jj_regDate', formatted);
+                    if (setDate) setDate.textContent = formatted;
+                    if (joinedEl) joinedEl.textContent = 'Member since: ' + formatted;
+                }
+            })
+            .catch(err => console.warn('Could not load user register date:', err));
     }
 }
 

@@ -1,14 +1,28 @@
 <div class="main-content">
-  <div class="product-filter">
-    <button class="filter-btn active" onclick="filterProducts('ALL')">ALL</button>
-    <button class="filter-btn" onclick="filterProducts('Mouse')">Mouse</button>
-    <button class="filter-btn" onclick="filterProducts('Controller')">Controller</button>
-    <button class="filter-btn" onclick="filterProducts('Charger')">Charger</button>
-    <button class="filter-btn" onclick="filterProducts('Earphone')">Earphone</button>
-    <button class="filter-btn" onclick="filterProducts('Stand')">Stand</button>
+    <!-- Search Bar Directly Above Category Filter -->
+    <div class="category-search-wrapper">
+        <div class="category-search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="store-search-input" placeholder="Search products ..." autocomplete="off"
+                oninput="handleCategorySearch(this.value)" onkeydown="if(event.key==='Enter') triggerCategorySearch()">
+            <button type="button" class="search-action-btn" onclick="triggerCategorySearch()">Search</button>
+            <button type="button" id="search-clear-btn" class="search-clear-btn" style="display:none;"
+                onclick="clearCategorySearch()" title="Clear Search">✕</button>
+        </div>
+    </div>
 
-  </div>
-  <h2 class="section-title"></h2>
-  <section class="product-grid">
-  </section>
+    <!-- Category Filter Pills -->
+    <div class="product-filter">
+        <button class="filter-btn active" onclick="filterProducts('ALL')">ALL</button>
+        <button class="filter-btn" onclick="filterProducts('Mouse')">Mouse</button>
+        <button class="filter-btn" onclick="filterProducts('Controller')">Controller</button>
+        <button class="filter-btn" onclick="filterProducts('Charger')">Charger</button>
+        <button class="filter-btn" onclick="filterProducts('Earphone')">Earphone</button>
+        <button class="filter-btn" onclick="filterProducts('Stand')">Stand</button>
+    </div>
+
+
+    <!-- Product Grid Preview -->
+    <section class="product-grid">
+    </section>
 </div>

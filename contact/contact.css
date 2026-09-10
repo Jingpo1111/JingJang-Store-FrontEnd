@@ -7,8 +7,15 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .contact-header {
@@ -30,7 +37,7 @@
     right: -20%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 60%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
     transform: rotate(-30deg);
 }
 
@@ -56,7 +63,8 @@
     transition: transform 0.3s ease;
 }
 
-.contact-form:hover, .contact-info:hover {
+.contact-form:hover,
+.contact-info:hover {
     transform: translateY(-5px);
 }
 

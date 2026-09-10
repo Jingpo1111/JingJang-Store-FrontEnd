@@ -1,10 +1,32 @@
-let cart = JSON.parse(localStorage.getItem('jj_cart') || '[]'); // Array to store cart items
+// ==========================================================================
+// JingJang Store — Shopping Cart State & Logic (cart.js)
+// ==========================================================================
 
-function saveCartToLocalStorage() {
-    localStorage.setItem('jj_cart', JSON.stringify(cart));
+let cart = [];
+
+// Synchronously load cart from localStorage safely
+try {
+    const stored = localStorage.getItem('jj_cart');
+    if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+            cart = parsed;
+        }
+    }
+} catch (e) {
+    console.warn('Could not parse cart from localStorage:', e);
+    cart = [];
 }
 
-// 1. មុខងារ Add to Cart (គាំទ្រការរើសពណ៌)
+function saveCartToLocalStorage() {
+    try {
+        localStorage.setItem('jj_cart', JSON.stringify(cart));
+    } catch (e) {
+        console.warn('Could not save cart to localStorage:', e);
+    }
+}
+
+// 1. Add to Cart (supports color variations & auto quantity accumulation)
 function addToCart(name, price, colorGroupName) {
     // 🔐 Check if user is logged in
     if (localStorage.getItem('jj_loggedIn') !== 'true') {
@@ -15,97 +37,120 @@ function addToCart(name, price, colorGroupName) {
     }
 
     let selectedColor = "";
-
     if (colorGroupName) {
-        let colorInput = document.querySelector('input[name="' + colorGroupName + '"]:checked');
-        if (colorInput) {
+        const colorInput = document.querySelector('input[name="' + colorGroupName + '"]:checked');
+        if (colorInput && colorInput.value) {
             selectedColor = " (ពណ៌: " + colorInput.value + ")";
         }
     }
 
-    let finalName = name + selectedColor;
+    const finalName = name + selectedColor;
+    const itemPrice = parseFloat(price) || 0;
     const existingItem = cart.find(item => item.name === finalName);
 
     if (existingItem) {
-        existingItem.quantity += 1;
+        existingItem.quantity = (parseInt(existingItem.quantity, 10) || 0) + 1;
     } else {
-        cart.push({ name: finalName, price: price, quantity: 1 });
+        cart.push({
+            name: finalName,
+            price: itemPrice,
+            quantity: 1
+        });
     }
 
     saveCartToLocalStorage();
     updateCartUI();
 
-    if (window.innerWidth <= 768) {
-        window.location.href = 'cart.html';
-        return;
-    }
-
+    // Smoothly open the cart sidebar without redirecting
     const sidebar = document.getElementById('cart-sidebar');
-    if (sidebar) sidebar.classList.add('open');
+    if (sidebar) {
+        sidebar.classList.add('open');
+    }
 }
 
-// 2. មុខងារបន្ថែម ឬបន្ថយចំនួនទំនិញ (+ / -)
+// 2. Add or Subtract item quantity (+ / -)
 function updateQuantity(index, change) {
-    cart[index].quantity += change;
+    const idx = parseInt(index, 10);
+    if (isNaN(idx) || !cart[idx]) return;
 
-    if (cart[index].quantity <= 0) {
-        cart.splice(index, 1);
+    const currentQty = parseInt(cart[idx].quantity, 10) || 1;
+    const delta = parseInt(change, 10);
+    const newQty = currentQty + delta;
+
+    if (newQty <= 0) {
+        // If reduced to 0 or below, remove item from cart
+        cart.splice(idx, 1);
+    } else {
+        cart[idx].quantity = newQty;
     }
 
     saveCartToLocalStorage();
     updateCartUI();
 }
 
-// 3. មុខងារបង្ហាញទិន្នន័យលើ Cart UI 
+// 3. Render Cart UI Data & Quantities
 function updateCartUI() {
     const countEl = document.getElementById('cart-count');
     const itemsEl = document.getElementById('cart-items');
     const totalEl = document.getElementById('cart-total');
     const checkoutTotalEl = document.getElementById('checkout-total-price');
 
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    // Total item count across all items
+    const totalItems = cart.reduce((sum, item) => sum + (parseInt(item.quantity, 10) || 0), 0);
     if (countEl) countEl.innerText = totalItems;
 
-    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    // Total price
+    const totalPrice = cart.reduce((sum, item) => {
+        const qty = parseInt(item.quantity, 10) || 0;
+        const price = parseFloat(item.price) || 0;
+        return sum + (price * qty);
+    }, 0);
+
+    const formattedTotal = totalPrice.toFixed(2);
 
     if (itemsEl) {
-        itemsEl.innerHTML = '';
-
         if (cart.length === 0) {
-            itemsEl.innerHTML = '<p style="text-align:center; color:#999;">Cart is empty</p>';
+            itemsEl.innerHTML = '<p style="text-align:center; color:#94a3b8; padding: 40px 0; font-size: 15px; font-weight: 600;">Your cart is currently empty.</p>';
         } else {
+            let html = '';
             cart.forEach((item, index) => {
-                const itemTotal = item.price * item.quantity;
+                const qty = parseInt(item.quantity, 10) || 1;
+                const unitPrice = parseFloat(item.price) || 0;
+                const itemTotal = (unitPrice * qty).toFixed(2);
 
-                itemsEl.innerHTML += `
+                html += `
                     <div class="cart-item">
                         <div class="item-info">
                             <span class="item-name">${item.name}</span>
-                            <span class="item-price">$${itemTotal.toFixed(2)}</span>
+                            <span class="item-price">$${itemTotal}</span>
                         </div>
                         <div class="qty-controls">
-                            <button class="qty-btn" onclick="updateQuantity(${index}, -1)">-</button>
-                            <span class="qty-num">${item.quantity}</span>
-                            <button class="qty-btn" onclick="updateQuantity(${index}, 1)">+</button>
+                            <button type="button" class="qty-btn qty-minus" onclick="updateQuantity(${index}, -1)" title="Subtract 1" aria-label="Subtract quantity">−</button>
+                            <span class="qty-num">${qty}</span>
+                            <button type="button" class="qty-btn qty-plus" onclick="updateQuantity(${index}, 1)" title="Add 1" aria-label="Add quantity">+</button>
                         </div>
                     </div>
                 `;
             });
+            itemsEl.innerHTML = html;
         }
     }
-    
-    if (totalEl) totalEl.innerText = totalPrice.toFixed(2);
-    if (checkoutTotalEl) checkoutTotalEl.innerText = totalPrice.toFixed(2);
+
+    if (totalEl) totalEl.innerText = formattedTotal;
+    if (checkoutTotalEl) checkoutTotalEl.innerText = formattedTotal;
 }
 
-// 4. មុខងារបិទ/បើកកន្ត្រក
+// 4. Toggle Cart Sidebar
 function toggleCart() {
-    if (window.innerWidth <= 768) {
-        window.location.href = 'cart.html';
-        return;
-    }
     const sidebar = document.getElementById('cart-sidebar');
-    if (sidebar) sidebar.classList.toggle('open');
+    if (sidebar) {
+        sidebar.classList.toggle('open');
+    }
 }
 
-
+// Auto initialize Cart UI on load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateCartUI);
+} else {
+    updateCartUI();
+}
