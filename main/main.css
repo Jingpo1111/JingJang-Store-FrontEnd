@@ -455,7 +455,8 @@
     }
 
     .category-search-box input {
-        font-size: 16px; /* Prevents auto-zoom on mobile browsers */
+        font-size: 16px;
+        /* Prevents auto-zoom on mobile browsers */
     }
 
     .search-action-btn {
