@@ -26,8 +26,8 @@ function saveCartToLocalStorage() {
     }
 }
 
-// 1. Add to Cart (supports color variations & auto quantity accumulation)
-function addToCart(name, price, colorGroupName) {
+// 1. Add to Cart (supports custom options, color variations, custom quantity & auto accumulation)
+function addToCart(name, price, colorGroupName, productId, optionName, quantity = 1, directOptionsText = null, directColorText = null) {
     // 🔐 Check if user is logged in
     if (localStorage.getItem('jj_loggedIn') !== 'true') {
         if (confirm("You need to login first to add items to cart.\n\nGo to Login page?")) {
@@ -36,25 +36,50 @@ function addToCart(name, price, colorGroupName) {
         return;
     }
 
+    const addQty = Math.max(1, parseInt(quantity, 10) || 1);
+
+    // 1. Determine selected options string (e.g. " (Size: XL, Type: Wireless)")
+    let selectedOption = "";
+    if (directOptionsText !== null && directOptionsText !== undefined) {
+        selectedOption = directOptionsText;
+    } else if (productId && window.jj_selected_variants && window.jj_selected_variants[productId]) {
+        const parts = [];
+        const optObj = window.jj_selected_variants[productId];
+        for (const [k, v] of Object.entries(optObj)) {
+            if (v) parts.push(`${k}: ${v}`);
+        }
+        if (parts.length > 0) {
+            selectedOption = ` (${parts.join(', ')})`;
+        }
+    } else if (productId && optionName) {
+        const optEl = document.getElementById('opt_prod_' + productId);
+        if (optEl && optEl.value) {
+            selectedOption = ` (${optionName}: ${optEl.value})`;
+        }
+    }
+
+    // 2. Determine selected color string (e.g. " (ពណ៌: Black)")
     let selectedColor = "";
-    if (colorGroupName) {
+    if (directColorText !== null && directColorText !== undefined) {
+        selectedColor = directColorText;
+    } else if (colorGroupName) {
         const colorInput = document.querySelector('input[name="' + colorGroupName + '"]:checked');
         if (colorInput && colorInput.value) {
             selectedColor = " (ពណ៌: " + colorInput.value + ")";
         }
     }
 
-    const finalName = name + selectedColor;
+    const finalName = name + selectedOption + selectedColor;
     const itemPrice = parseFloat(price) || 0;
     const existingItem = cart.find(item => item.name === finalName);
 
     if (existingItem) {
-        existingItem.quantity = (parseInt(existingItem.quantity, 10) || 0) + 1;
+        existingItem.quantity = (parseInt(existingItem.quantity, 10) || 0) + addQty;
     } else {
         cart.push({
             name: finalName,
             price: itemPrice,
-            quantity: 1
+            quantity: addQty
         });
     }
 

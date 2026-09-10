@@ -144,6 +144,26 @@ function sendMessage(event) {
 }
 
 // ============================================================
+// GLOBAL SELECTION REGISTRY FOR VARIANT PILLS
+// { [productId]: { [optionName]: selectedValue } }
+// ============================================================
+window.jj_selected_variants = window.jj_selected_variants || {};
+
+function selectCardOptionPill(btn, productId, optName, optVal, e) {
+    if (e) e.stopPropagation();
+    const parentRow = btn.parentElement;
+    parentRow.querySelectorAll('.option-choice-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    if (!window.jj_selected_variants[productId]) window.jj_selected_variants[productId] = {};
+    window.jj_selected_variants[productId][optName] = optVal;
+
+    const safeId = optName.replace(/[^a-zA-Z0-9]/g, '_');
+    const badge = document.getElementById(`lbl_opt_${productId}_${safeId}`);
+    if (badge) badge.textContent = optVal;
+}
+
+// ============================================================
 // SINGLE PRODUCT CARD PREVIEW GENERATOR
 // ============================================================
 function renderSingleProductCard(product) {
@@ -168,8 +188,8 @@ function renderSingleProductCard(product) {
     }).join('');
 
     const sliderButtons = images.length > 1 ? `
-        <button class="slider-btn prev" onclick="moveSlide(this, -1, ${product.id})" aria-label="Previous image">&#10094;</button>
-        <button class="slider-btn next" onclick="moveSlide(this, 1, ${product.id})" aria-label="Next image">&#10095;</button>
+        <button class="slider-btn prev" onclick="event.stopPropagation(); moveSlide(this, -1, ${product.id})" aria-label="Previous image">&#10094;</button>
+        <button class="slider-btn next" onclick="event.stopPropagation(); moveSlide(this, 1, ${product.id})" aria-label="Next image">&#10095;</button>
         <div class="slider-dots">
             ${images.map((_, i) => `<span class="slider-dot ${i === activeSlideIndex ? 'active' : ''}"></span>`).join('')}
         </div>
@@ -197,37 +217,361 @@ function renderSingleProductCard(product) {
         const borderStyle = c.border ? 'border: 1px solid #cbd5e1;' : '';
         const colorCode = c.colorCode || c.color || '#2c2c2c';
         return `
-            <input type="radio" name="${colorName}" id="color_${colorVal}_${colorName}" value="${colorVal}" ${checked} onchange="try{sessionStorage.setItem('jj_color_${product.id}', this.value)}catch(e){}">
-            <label for="color_${colorVal}_${colorName}" class="color-swatch" style="background-color: ${colorCode}; ${borderStyle}" title="${colorVal}"></label>
+            <input type="radio" name="${colorName}" id="color_${colorVal}_${colorName}" value="${colorVal}" ${checked} onclick="event.stopPropagation();" onchange="try{sessionStorage.setItem('jj_color_${product.id}', this.value)}catch(e){}">
+            <label for="color_${colorVal}_${colorName}" class="color-swatch" style="background-color: ${colorCode}; ${borderStyle}" title="${colorVal}" onclick="event.stopPropagation();"></label>
         `;
     }).join('');
 
+    // Multi-option groups ("choose not select")
+    let productOptions = [];
+    if (Array.isArray(product.options) && product.options.length > 0) {
+        productOptions = product.options;
+    } else if (Array.isArray(product.option_values) && product.option_values.length > 0) {
+        if (typeof product.option_values[0] === 'object' && product.option_values[0].name) {
+            productOptions = product.option_values;
+        } else if (product.option_name) {
+            productOptions = [{ name: product.option_name, values: product.option_values }];
+        }
+    }
+
+    let optionsPillsHtml = '';
+    if (productOptions.length > 0) {
+        optionsPillsHtml = `
+        <div class="product-options-container" onclick="event.stopPropagation();">
+            ${productOptions.map(opt => {
+                const optName = opt.name || 'Option';
+                const vals = Array.isArray(opt.values) ? opt.values : [];
+                if (vals.length === 0) return '';
+
+                if (!window.jj_selected_variants[product.id]) window.jj_selected_variants[product.id] = {};
+                if (!window.jj_selected_variants[product.id][optName]) {
+                    window.jj_selected_variants[product.id][optName] = vals[0];
+                }
+                const curVal = window.jj_selected_variants[product.id][optName];
+                const safeId = optName.replace(/[^a-zA-Z0-9]/g, '_');
+
+                return `
+                <div class="option-pill-group">
+                    <span class="option-pill-title">${optName}: <strong id="lbl_opt_${product.id}_${safeId}">${curVal}</strong></span>
+                    <div class="option-pills-row">
+                        ${vals.map(val => `
+                            <button type="button" 
+                                    class="option-choice-pill ${val === curVal ? 'active' : ''}" 
+                                    data-prod-id="${product.id}"
+                                    data-opt-name="${optName}"
+                                    data-opt-val="${val}"
+                                    onclick="selectCardOptionPill(this, ${product.id}, '${optName.replace(/'/g, "\\'")}', '${val.replace(/'/g, "\\'")}', event)">
+                                ${val}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+                `;
+            }).join('')}
+        </div>
+        `;
+    }
+
     return `
     <div class="product-card" data-product-id="${product.id}">
-        <div class="image-slider">
+        <div class="image-slider" onclick="openProductPreviewModal(${product.id})" style="cursor: pointer;" title="Tap to preview large product & details">
             <span class="product-category-badge">${categoryTag}</span>
             ${imagesHtml}
             ${sliderButtons}
+            <div class="preview-zoom-hint">🔍 Quick View</div>
         </div>
         <div class="product-info">
-            <h3 title="${product.name}">${product.name}</h3>
+            <h3 onclick="openProductPreviewModal(${product.id})" style="cursor: pointer;" title="Tap to preview large product & details">${product.name}</h3>
             ${specsHtml}
             <div class="price-row">
                 <span class="price">$${formattedPrice}</span>
                 <span class="preorder-tag">🇨🇳 Pre-Order</span>
             </div>
             ${colors.length > 0 ? `
-            <div class="color-selection">
+            <div class="color-selection" onclick="event.stopPropagation();">
                 <div class="color-options">
                     ${colorsHtml}
                 </div>
             </div>` : ''}
-            <button class="add-to-cart" onclick="addToCart('${cartName}', ${product.price}, '${colorName}')">
+            ${optionsPillsHtml}
+            <button class="add-to-cart" onclick="event.stopPropagation(); addToCart('${cartName}', ${product.price}, '${colorName}', ${product.id})">
                 <span class="cart-btn-icon">🛍️</span> Add to Cart
             </button>
         </div>
     </div>
     `;
+}
+
+// ============================================================
+// PRODUCT PREVIEW MODAL (LARGE ALONE PREVIEW & FULL DETAILS)
+// ============================================================
+window.jj_modal_state = null;
+
+function openProductPreviewModal(productId) {
+    const product = productData.find(p => String(p.id) === String(productId));
+    if (!product) return;
+
+    let modalOverlay = document.getElementById('product-preview-modal-overlay');
+    if (!modalOverlay) {
+        modalOverlay = document.createElement('div');
+        modalOverlay.id = 'product-preview-modal-overlay';
+        modalOverlay.className = 'product-preview-modal-overlay';
+        modalOverlay.innerHTML = '<div class="product-preview-modal-card" id="product-preview-modal-card"></div>';
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeProductPreviewModal();
+        });
+        document.body.appendChild(modalOverlay);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeProductPreviewModal();
+        });
+    }
+
+    const card = document.getElementById('product-preview-modal-card');
+    const images = (product.images && product.images.length > 0) ? product.images : ['img/IMG_3840.PNG'];
+    const categoryTag = product.category_name || product.type || 'Tech';
+    const specs = Array.isArray(product.specs) ? product.specs : [];
+    const colors = Array.isArray(product.colors) ? product.colors : [];
+    const colorName = `modal_color_${product.id}`;
+    const formattedPrice = Number(product.price).toFixed(2);
+
+    let productOptions = [];
+    if (Array.isArray(product.options) && product.options.length > 0) {
+        productOptions = product.options;
+    } else if (Array.isArray(product.option_values) && product.option_values.length > 0) {
+        if (typeof product.option_values[0] === 'object' && product.option_values[0].name) {
+            productOptions = product.option_values;
+        } else if (product.option_name) {
+            productOptions = [{ name: product.option_name, values: product.option_values }];
+        }
+    }
+
+    // Modal state
+    window.jj_modal_state = {
+        productId: product.id,
+        product: product,
+        images: images,
+        currentImageIndex: 0,
+        qty: 1,
+        colorName: colorName
+    };
+
+    // Build specs HTML
+    const specsHtml = specs.length > 0 ? `
+        <div class="modal-specs-card">
+            <div class="modal-specs-title">Specifications</div>
+            <ul class="modal-specs-list">
+                ${specs.map(s => `<li>${s}</li>`).join('')}
+            </ul>
+        </div>
+    ` : '';
+
+    // Build colors HTML
+    let colorsHtml = '';
+    if (colors.length > 0) {
+        colorsHtml = `
+        <div class="modal-option-unit">
+            <label>Color Variation:</label>
+            <div style="display:flex; gap:10px; align-items:center;">
+                ${colors.map((c, idx) => {
+                    const cVal = c.value || c.name || 'Default';
+                    const cCode = c.colorCode || c.color || '#2c2c2c';
+                    const border = c.border ? 'border: 1.5px solid #cbd5e1;' : '';
+                    return `
+                    <label style="cursor:pointer; display:flex; align-items:center;">
+                        <input type="radio" name="${colorName}" value="${cVal}" ${idx === 0 ? 'checked' : ''} style="margin-right:4px;">
+                        <span class="color-swatch" style="background-color:${cCode}; ${border}" title="${cVal}"></span>
+                    </label>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+        `;
+    }
+
+    // Build multi-options HTML ("choose not select")
+    let optionsHtml = '';
+    if (productOptions.length > 0) {
+        optionsHtml = productOptions.map(opt => {
+            const optName = opt.name || 'Option';
+            const vals = Array.isArray(opt.values) ? opt.values : [];
+            if (vals.length === 0) return '';
+
+            if (!window.jj_selected_variants[product.id]) window.jj_selected_variants[product.id] = {};
+            if (!window.jj_selected_variants[product.id][optName]) {
+                window.jj_selected_variants[product.id][optName] = vals[0];
+            }
+            const curVal = window.jj_selected_variants[product.id][optName];
+            const safeId = optName.replace(/[^a-zA-Z0-9]/g, '_');
+
+            return `
+            <div class="modal-option-unit">
+                <label>${optName}: <strong id="modal_lbl_opt_${safeId}" style="color:#0f172a; font-weight:800; background:#e2e8f0; padding:1px 7px; border-radius:4px;">${curVal}</strong></label>
+                <div class="option-pills-row">
+                    ${vals.map(val => `
+                        <button type="button" 
+                                class="option-choice-pill ${val === curVal ? 'active' : ''}" 
+                                onclick="selectModalOptionPill(this, ${product.id}, '${optName.replace(/'/g, "\\'")}', '${val.replace(/'/g, "\\'")}')">
+                            ${val}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+            `;
+        }).join('');
+    }
+
+    // Thumbnails
+    const thumbsHtml = images.length > 1 ? `
+        <div class="modal-thumbs-row">
+            ${images.map((img, i) => `
+                <img src="${img}" class="modal-thumb-img ${i === 0 ? 'active' : ''}" 
+                     onclick="setModalImage(${i})" alt="Thumb ${i + 1}">
+            `).join('')}
+        </div>
+    ` : '';
+
+    const navArrows = images.length > 1 ? `
+        <button class="modal-nav-arrow prev" onclick="stepModalImage(-1)">&lsaquo;</button>
+        <button class="modal-nav-arrow next" onclick="stepModalImage(1)">&rsaquo;</button>
+    ` : '';
+
+    card.innerHTML = `
+        <button type="button" class="modal-close-btn" onclick="closeProductPreviewModal()">&times;</button>
+        
+        <div class="modal-gallery-col">
+            <div class="modal-stage-wrap">
+                <img src="${images[0]}" id="modal-stage-img" class="modal-stage-img" alt="${product.name}">
+                ${navArrows}
+            </div>
+            ${thumbsHtml}
+        </div>
+
+        <div class="modal-details-col">
+            <span class="modal-cat-tag">${categoryTag}</span>
+            <h2 class="modal-prod-title">${product.name}</h2>
+
+            <div class="modal-price-strip">
+                <span class="modal-price-val">$${formattedPrice}</span>
+                <span class="preorder-tag">🇨🇳 Pre-Order</span>
+            </div>
+
+            ${specsHtml}
+
+            <div class="modal-options-block">
+                ${colorsHtml}
+                ${optionsHtml}
+            </div>
+
+            <div class="modal-actions-row">
+                <div class="modal-qty-box">
+                    <button type="button" class="modal-qty-btn" onclick="stepModalQty(-1)">&minus;</button>
+                    <input type="text" id="modal-qty-input" class="modal-qty-num" value="1" readonly>
+                    <button type="button" class="modal-qty-btn" onclick="stepModalQty(1)">&plus;</button>
+                </div>
+
+                <button type="button" class="modal-add-cart-btn" id="modal-add-to-cart-btn" onclick="submitModalAddToCart()">
+                    <span>🛍️</span>
+                    <span>Add to Cart &bull; $<span id="modal-btn-price">${formattedPrice}</span></span>
+                </button>
+            </div>
+        </div>
+    `;
+
+    modalOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeProductPreviewModal() {
+    const modalOverlay = document.getElementById('product-preview-modal-overlay');
+    if (modalOverlay) {
+        modalOverlay.classList.remove('active');
+    }
+    document.body.style.overflow = '';
+}
+
+function setModalImage(idx) {
+    if (!window.jj_modal_state) return;
+    const { images } = window.jj_modal_state;
+    if (idx < 0 || idx >= images.length) return;
+    window.jj_modal_state.currentImageIndex = idx;
+
+    const imgEl = document.getElementById('modal-stage-img');
+    if (imgEl) imgEl.src = images[idx];
+
+    const thumbs = document.querySelectorAll('.modal-thumb-img');
+    thumbs.forEach((t, i) => t.classList.toggle('active', i === idx));
+}
+
+function stepModalImage(dir) {
+    if (!window.jj_modal_state) return;
+    const { images, currentImageIndex } = window.jj_modal_state;
+    let nextIdx = (currentImageIndex + dir + images.length) % images.length;
+    setModalImage(nextIdx);
+}
+
+function stepModalQty(delta) {
+    if (!window.jj_modal_state) return;
+    let qty = window.jj_modal_state.qty + delta;
+    if (qty < 1) qty = 1;
+    if (qty > 99) qty = 99;
+    window.jj_modal_state.qty = qty;
+
+    const qtyInput = document.getElementById('modal-qty-input');
+    if (qtyInput) qtyInput.value = qty;
+
+    const priceSpan = document.getElementById('modal-btn-price');
+    if (priceSpan && window.jj_modal_state.product) {
+        const total = (parseFloat(window.jj_modal_state.product.price) * qty).toFixed(2);
+        priceSpan.textContent = total;
+    }
+}
+
+function selectModalOptionPill(btn, productId, optName, optVal) {
+    const parentRow = btn.parentElement;
+    parentRow.querySelectorAll('.option-choice-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    if (!window.jj_selected_variants[productId]) window.jj_selected_variants[productId] = {};
+    window.jj_selected_variants[productId][optName] = optVal;
+
+    const safeId = optName.replace(/[^a-zA-Z0-9]/g, '_');
+    const badge = document.getElementById(`modal_lbl_opt_${safeId}`);
+    if (badge) badge.textContent = optVal;
+
+    // Sync back to card on main grid if present
+    const cardBadge = document.getElementById(`lbl_opt_${productId}_${safeId}`);
+    if (cardBadge) cardBadge.textContent = optVal;
+    const cardBtn = document.querySelector(`.option-choice-pill[data-prod-id="${productId}"][data-opt-name="${optName}"][data-opt-val="${optVal}"]`);
+    if (cardBtn) {
+        cardBtn.parentElement.querySelectorAll('.option-choice-pill').forEach(b => b.classList.remove('active'));
+        cardBtn.classList.add('active');
+    }
+}
+
+function submitModalAddToCart() {
+    if (!window.jj_modal_state) return;
+    const { product, qty, colorName } = window.jj_modal_state;
+
+    const cartName = product.cartName || product.cart_name || product.name;
+    const price = product.price;
+
+    // Direct color
+    let directColor = "";
+    const colorInput = document.querySelector(`input[name="${colorName}"]:checked`);
+    if (colorInput && colorInput.value) {
+        directColor = ` (ពណ៌: ${colorInput.value})`;
+    }
+
+    addToCart(cartName, price, null, product.id, null, qty, null, directColor);
+
+    const btn = document.getElementById('modal-add-to-cart-btn');
+    if (btn) {
+        btn.innerHTML = '<span>✅</span><span>Added to Cart!</span>';
+        setTimeout(() => {
+            closeProductPreviewModal();
+        }, 400);
+    }
 }
 
 // ============================================================
