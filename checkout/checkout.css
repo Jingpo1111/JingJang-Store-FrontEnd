@@ -194,18 +194,120 @@
     box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
 }
 
-/* សម្រាប់អេក្រង់ទូរស័ព្ទ */
+/* សម្រាប់អេក្រង់ទូរស័ព្ទ និង Android */
 @media (max-width: 768px) {
+    .modal-overlay {
+        align-items: flex-end;
+    }
+
     .modal-content {
         width: 100%;
         max-width: 100%;
         height: 100vh;
-        max-height: 100vh;
-        border-radius: 0;
-        padding: 30px 20px;
+        height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 16px 16px 0 0;
+        padding: 24px 18px calc(24px + env(safe-area-inset-bottom, 0px));
+        -webkit-overflow-scrolling: touch;
     }
 
-    .modal-overlay {
-        align-items: flex-end;
+    .close-modal {
+        top: 14px;
+        right: 16px;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f1f2f6;
+        border-radius: 50%;
+        font-size: 18px;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .modal-content h2 {
+        font-size: 20px;
+        margin-bottom: 18px;
+        padding-right: 30px;
+    }
+
+    .payment-info {
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+    }
+
+    .custom-select-box {
+        width: 100%;
+        max-width: 220px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    .qr-img {
+        max-width: 170px;
+        width: 65%;
+        height: auto;
+        aspect-ratio: 160/210;
+    }
+
+    .input-group label {
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .input-group input,
+    .input-group textarea {
+        font-size: 16px; /* Prevents auto-zoom on mobile/Android browsers */
+        padding: 11px 13px;
+    }
+
+    .input-group textarea {
+        height: 70px;
+    }
+
+    .submit-btn {
+        font-size: 16px;
+        padding: 14px;
+        min-height: 48px;
+        border-radius: 10px;
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
+/* Small Android Phones (<= 480px) */
+@media (max-width: 480px) {
+    .modal-content {
+        padding: 20px 14px calc(20px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .modal-content h2 {
+        font-size: 18px;
+    }
+
+    .qr-img {
+        max-width: 150px;
+    }
+
+    /* Stack address textarea and location button on small Android screens */
+    .input-group div[style*="display: flex"] {
+        flex-direction: column !important;
+        gap: 6px !important;
+    }
+
+    #btn-location {
+        width: 100% !important;
+        padding: 10px !important;
+        text-align: center;
+        justify-content: center;
+        font-size: 14px;
+        min-height: 42px;
+    }
+
+    #payment-link {
+        font-size: 13px;
+        padding: 6px 14px;
+        background: #e8f4fd;
+        border-radius: 16px;
     }
 }

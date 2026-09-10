@@ -6,6 +6,12 @@
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
 /* 2. Header Layout ទូទៅ */
 .site-header {
     display: flex;
@@ -57,6 +63,7 @@
     letter-spacing: 1px;
     background: linear-gradient(135deg, #ffffff 0%, #a8e6cf 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
     transition: all 0.3s ease;
@@ -210,13 +217,51 @@
     object-fit: contain;
 }
 
+/* --- ស្តាយ៍សម្រាប់ Cart Icon ថ្មី --- */
+.cart-icon {
+    font-size: 26px;
+    cursor: pointer;
+    position: relative;
+    color: #ffffff;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.cart-icon:hover {
+    transform: scale(1.15) rotate(5deg);
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+#cart-count {
+    background-color: #ff4757;
+    color: white;
+    border-radius: 20px;
+    padding: 2px 7px;
+    font-size: 12px;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-weight: bold;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    border: 2px solid #3b665b;
+}
+
 /* ========================================= */
-/* 6. Mobile Responsive Design */
+/* 6. Mobile Responsive Design (Android & iOS) */
 /* ========================================= */
 @media (max-width: 768px) {
     .site-header {
         flex-wrap: wrap;
-        padding: 10px 15px;
+        padding: 10px 16px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .logo {
@@ -233,15 +278,21 @@
     .cta-button {
         order: 2;
         margin-left: auto;
-        margin-right: 12px;
+        margin-right: 10px;
         gap: 8px !important;
     }
 
     .menu-toggle {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         order: 3;
         font-size: 24px;
-        padding: 4px;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        -webkit-tap-highlight-color: transparent;
     }
 
     .main-nav {
@@ -272,9 +323,10 @@
 
     .main-nav a {
         display: block;
-        padding: 12px 20px;
+        padding: 14px 20px;
         font-size: 16px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        -webkit-tap-highlight-color: transparent;
     }
 
     .main-nav ul li:last-child a {
@@ -307,94 +359,110 @@
     .cart-icon {
         padding: 0 !important;
         border-radius: 50% !important;
-        background: rgba(255, 255, 255, 0.1) !important;
+        background: rgba(255, 255, 255, 0.12) !important;
         border: none !important;
-        width: 38px !important;
-        height: 38px !important;
+        width: 40px !important;
+        height: 40px !important;
         font-size: 18px !important;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .logout-btn:hover,
     .header-profile-btn:hover,
     .cart-icon:hover {
-        background: rgba(255, 255, 255, 0.2) !important;
+        background: rgba(255, 255, 255, 0.22) !important;
     }
 
     .header-login-btn {
-        padding: 6px 14px !important;
-        font-size: 12px !important;
+        padding: 8px 16px !important;
+        font-size: 13px !important;
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-tap-highlight-color: transparent;
     }
 }
 
-/* --- ស្តាយ៍សម្រាប់ Cart Icon ថ្មី --- */
-.cart-icon {
-    font-size: 26px;
-    cursor: pointer;
-    position: relative;
-    color: #ffffff;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.cart-icon:hover {
-    transform: scale(1.15) rotate(5deg);
-    background-color: rgba(255, 255, 255, 0.2);
-}
-
-#cart-count {
-    background-color: #ff4757;
-    color: white;
-    border-radius: 20px;
-    padding: 2px 7px;
-    font-size: 12px;
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    font-weight: bold;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
-    border: 2px solid #3b665b;
-}
-
-/* Extra small devices (phones, iOS & Android) */
+/* Extra small mobile / Android devices */
 @media (max-width: 480px) {
     .site-header {
-        padding: 10px 12px !important;
+        padding: 8px 10px !important;
     }
 
     .logo {
         font-size: 18px !important;
+        gap: 6px !important;
+    }
+
+    .logo a {
+        font-size: 18px !important;
     }
 
     .logog {
-        width: 38px !important;
-        height: 38px !important;
+        width: 36px !important;
+        height: 36px !important;
     }
 
     .cta-button {
         gap: 6px !important;
-        margin-right: 8px !important;
+        margin-right: 6px !important;
     }
 
     .menu-toggle {
-        font-size: 22px !important;
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 20px !important;
     }
 
     .logout-btn,
     .header-profile-btn,
     .cart-icon {
-        width: 38px !important;
-        height: 38px !important;
+        width: 36px !important;
+        height: 36px !important;
         font-size: 16px !important;
     }
 
+    #cart-count {
+        padding: 1px 5px;
+        font-size: 11px;
+        top: -4px;
+        right: -4px;
+    }
+
     .header-login-btn {
-        padding: 5px 12px !important;
-        font-size: 11px !important;
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+        min-height: 34px;
+    }
+}
+
+/* Very narrow Android screens (<= 360px, e.g. Galaxy Fold outer, compact screens) */
+@media (max-width: 360px) {
+    .logo a {
+        max-width: 85px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 16px !important;
+    }
+
+    .logog {
+        width: 32px !important;
+        height: 32px !important;
+    }
+
+    .cta-button {
+        gap: 4px !important;
+        margin-right: 4px !important;
+    }
+
+    .logout-btn,
+    .header-profile-btn,
+    .cart-icon,
+    .menu-toggle {
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 15px !important;
     }
 }

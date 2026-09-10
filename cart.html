@@ -127,6 +127,25 @@
                 border-radius: 0;
             }
         }
+
+        @media (max-width: 480px) {
+            .back-to-shop {
+                padding: 12px 16px;
+            }
+
+            .cart-header {
+                padding: 14px 16px;
+            }
+
+            .cart-items {
+                padding: 12px 12px;
+            }
+
+            .cart-footer {
+                padding: 14px 16px;
+                padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+            }
+        }
     </style>
     <script src="config.js"></script>
 </head>

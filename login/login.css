@@ -643,26 +643,36 @@ body {
     text-underline-offset: 3px;
 }
 
-/* Responsive */
+/* Responsive (Mobile & Android) */
 @media (max-width: 480px) {
+    body {
+        padding: 20px 10px;
+    }
+
     .login-container {
-        width: 95%;
-        padding: 30px 22px;
+        width: 100%;
+        max-width: 400px;
+        padding: 28px 18px;
         border-radius: 18px;
     }
 
+    .input-wrapper input {
+        font-size: 16px; /* Prevents auto-zoom on mobile/Android Chrome */
+        padding: 12px 44px 12px 42px;
+    }
+
     .logo-section h1 {
-        font-size: 24px;
+        font-size: 22px;
     }
 
     .login-logo {
-        width: 65px;
-        height: 65px;
+        width: 60px;
+        height: 60px;
     }
 
     .user-id-display {
-        font-size: 26px;
-        padding: 14px 20px;
+        font-size: 24px;
+        padding: 12px 16px;
     }
 
     .otp-title {
@@ -672,12 +682,39 @@ body {
     .otp-icon {
         font-size: 40px;
     }
+
+    .login-btn {
+        min-height: 46px;
+        font-size: 15px;
+        border-radius: 10px;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .auth-tab {
+        padding: 10px 8px;
+        font-size: 13px;
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
+@media (max-width: 360px) {
+    .login-container {
+        padding: 22px 14px;
+    }
+
+    .logo-section h1 {
+        font-size: 20px;
+    }
+
+    .user-id-display {
+        font-size: 20px;
+    }
 }
 
 @media (max-height: 700px) {
     body {
         align-items: flex-start;
-        padding-top: 20px;
+        padding-top: 15px;
     }
 
     .login-container {

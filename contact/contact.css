@@ -127,3 +127,95 @@
     color: #555;
     font-size: 16px;
 }
+
+/* ==========================================================================
+   Mobile & Android Responsive Design
+   ========================================================================== */
+@media (max-width: 768px) {
+    .contact-container {
+        margin: 20px auto;
+        padding: 12px 16px;
+    }
+
+    .contact-header {
+        padding: 35px 20px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+    }
+
+    .contact-header h1 {
+        font-size: 26px;
+    }
+
+    .contact-content {
+        gap: 20px;
+    }
+
+    .contact-form,
+    .contact-info {
+        padding: 24px 20px;
+        border-radius: 12px;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+        font-size: 16px; /* Prevents auto-zoom on mobile/Android browsers */
+        padding: 12px 14px;
+    }
+
+    .contact-form button {
+        padding: 14px;
+        font-size: 15px;
+        min-height: 48px;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .contact-info h2 {
+        font-size: 20px;
+        margin-bottom: 14px;
+    }
+
+    .contact-info p {
+        font-size: 15px;
+        line-height: 1.65;
+    }
+}
+
+/* Small Android Phones (<= 480px) */
+@media (max-width: 480px) {
+    .contact-container {
+        margin: 12px auto;
+        padding: 8px 12px;
+    }
+
+    .contact-header {
+        padding: 26px 14px;
+        border-radius: 10px;
+    }
+
+    .contact-header h1 {
+        font-size: 22px;
+    }
+
+    .contact-form,
+    .contact-info {
+        padding: 18px 14px;
+        border-radius: 10px;
+    }
+
+    .contact-form {
+        gap: 14px;
+    }
+
+    .contact-form textarea {
+        min-height: 100px;
+    }
+
+    .contact-info h2 {
+        font-size: 18px;
+    }
+
+    .contact-info p {
+        font-size: 14px;
+    }
+}

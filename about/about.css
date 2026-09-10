@@ -96,19 +96,72 @@ body {
     line-height: 1.8;
 }
 
-/* សម្រាប់អេក្រង់ទូរស័ព្ទដៃ */
+/* សម្រាប់អេក្រង់ទូរស័ព្ទដៃ និង Android */
 @media (max-width: 768px) {
+    .about-container {
+        margin: 20px auto;
+        padding: 12px 16px;
+    }
+
     .about-header {
-        padding: 40px 20px;
+        padding: 35px 20px;
         border-radius: 12px;
+        margin-bottom: 24px;
     }
 
     .about-header h1 {
-        font-size: 28px;
+        font-size: 26px;
+    }
+
+    .about-content {
+        gap: 18px;
     }
 
     .about-card {
-        padding: 25px;
+        padding: 22px 18px;
         border-radius: 12px;
+    }
+
+    .about-card h2 {
+        font-size: 20px;
+    }
+
+    .about-card p {
+        font-size: 15px;
+    }
+}
+
+/* Small Android Phones (<= 480px) */
+@media (max-width: 480px) {
+    .about-container {
+        margin: 12px auto;
+        padding: 8px 12px;
+    }
+
+    .about-header {
+        padding: 26px 14px;
+        margin-bottom: 18px;
+        border-radius: 10px;
+    }
+
+    .about-header h1 {
+        font-size: 22px;
+        margin-bottom: 8px;
+    }
+
+    .about-card {
+        padding: 16px 14px;
+        border-radius: 10px;
+        border-left-width: 4px;
+    }
+
+    .about-card h2 {
+        font-size: 17px;
+        margin-bottom: 8px;
+    }
+
+    .about-card p {
+        font-size: 14px;
+        line-height: 1.6;
     }
 }
