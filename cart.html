@@ -10,6 +10,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="header/header.css">
+    <link rel="stylesheet" href="footer/footer.css">
+    <link rel="stylesheet" href="cart/cart.css">
     <style>
         html {
             scroll-behavior: smooth;
@@ -73,10 +76,58 @@
         .back-to-shop a:hover {
             transform: translateX(-4px);
         }
+
+        /* Full screen on mobile */
+        @media (max-width: 768px) {
+            body {
+                background-color: #ffffff;
+            }
+
+            .cart-page-content {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                flex: 1;
+            }
+
+            .cart-sidebar {
+                position: static !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+                top: auto !important;
+                right: auto !important;
+                left: auto !important;
+                transform: none !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                overflow: visible !important;
+            }
+
+            .back-to-shop {
+                padding: 16px 20px;
+                border-bottom: 1px solid #f1f2f6;
+            }
+
+            .cart-header {
+                padding: 18px 20px;
+                border-radius: 0;
+            }
+
+            .cart-items {
+                padding: 16px 15px;
+                flex: 1;
+            }
+
+            .cart-footer {
+                padding: 20px 16px;
+                border-radius: 0;
+            }
+        }
     </style>
-    <link rel="stylesheet" href="header/header.css">
-    <link rel="stylesheet" href="footer/footer.css">
-    <link rel="stylesheet" href="cart/cart.css">
     <script src="config.js"></script>
 </head>
 
