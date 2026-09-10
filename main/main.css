@@ -733,6 +733,66 @@
     transform: translateY(-1px);
 }
 
+/* Card Option Name Chips (Shows option names ONLY, no values) */
+.product-options-summary {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 6px 0 10px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.product-options-summary:hover {
+    opacity: 0.85;
+}
+
+.opt-summary-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.opt-chips-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.opt-name-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.product-card:hover .opt-name-chip {
+    background: #f1f5f9;
+    color: #0f172a;
+    border-color: #cbd5e1;
+}
+
+/* Button with Options vs Simple Button */
+.btn-choose-opts {
+    background: linear-gradient(135deg, #1e293b, #0f172a) !important;
+}
+
+.btn-choose-opts:hover {
+    background: linear-gradient(135deg, #0f172a, #020617) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.35) !important;
+}
+
 /* Preview Hover Badge on Card */
 .preview-zoom-hint {
     position: absolute;

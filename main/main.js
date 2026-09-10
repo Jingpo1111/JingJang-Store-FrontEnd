@@ -234,40 +234,16 @@ function renderSingleProductCard(product) {
         }
     }
 
-    let optionsPillsHtml = '';
+    // Show option names ONLY on the product card (NO values)
+    // Full interactive choice pills and details are displayed when user clicks on product to preview
+    let optionsBadgesHtml = '';
     if (productOptions.length > 0) {
-        optionsPillsHtml = `
-        <div class="product-options-container" onclick="event.stopPropagation();">
-            ${productOptions.map(opt => {
-                const optName = opt.name || 'Option';
-                const vals = Array.isArray(opt.values) ? opt.values : [];
-                if (vals.length === 0) return '';
-
-                if (!window.jj_selected_variants[product.id]) window.jj_selected_variants[product.id] = {};
-                if (!window.jj_selected_variants[product.id][optName]) {
-                    window.jj_selected_variants[product.id][optName] = vals[0];
-                }
-                const curVal = window.jj_selected_variants[product.id][optName];
-                const safeId = optName.replace(/[^a-zA-Z0-9]/g, '_');
-
-                return `
-                <div class="option-pill-group">
-                    <span class="option-pill-title">${optName}: <strong id="lbl_opt_${product.id}_${safeId}">${curVal}</strong></span>
-                    <div class="option-pills-row">
-                        ${vals.map(val => `
-                            <button type="button" 
-                                    class="option-choice-pill ${val === curVal ? 'active' : ''}" 
-                                    data-prod-id="${product.id}"
-                                    data-opt-name="${optName}"
-                                    data-opt-val="${val}"
-                                    onclick="selectCardOptionPill(this, ${product.id}, '${optName.replace(/'/g, "\\'")}', '${val.replace(/'/g, "\\'")}', event)">
-                                ${val}
-                            </button>
-                        `).join('')}
-                    </div>
-                </div>
-                `;
-            }).join('')}
+        optionsBadgesHtml = `
+        <div class="product-options-summary" onclick="openProductPreviewModal(${product.id}); event.stopPropagation();" title="Click to view full details & select options">
+            <span class="opt-summary-label">Options:</span>
+            <div class="opt-chips-wrap">
+                ${productOptions.map(opt => `<span class="opt-name-chip">🏷️ ${opt.name}</span>`).join('')}
+            </div>
         </div>
         `;
     }
@@ -293,8 +269,8 @@ function renderSingleProductCard(product) {
                     ${colorsHtml}
                 </div>
             </div>` : ''}
-            ${optionsPillsHtml}
-            <button class="add-to-cart" onclick="event.stopPropagation(); addToCart('${cartName}', ${product.price}, '${colorName}', ${product.id})">
+            ${optionsBadgesHtml}
+            <button class="add-to-cart" onclick="event.stopPropagation(); openProductPreviewModal(${product.id})" title="Quick View & Add to Cart">
                 <span class="cart-btn-icon">🛍️</span> Add to Cart
             </button>
         </div>
@@ -369,6 +345,9 @@ function openProductPreviewModal(productId) {
     // Build colors HTML
     let colorsHtml = '';
     if (colors.length > 0) {
+        let savedColor = null;
+        try { savedColor = sessionStorage.getItem('jj_color_' + product.id); } catch (e) { }
+
         colorsHtml = `
         <div class="modal-option-unit">
             <label>Color Variation:</label>
@@ -377,9 +356,10 @@ function openProductPreviewModal(productId) {
                     const cVal = c.value || c.name || 'Default';
                     const cCode = c.colorCode || c.color || '#2c2c2c';
                     const border = c.border ? 'border: 1.5px solid #cbd5e1;' : '';
+                    const isChecked = savedColor ? (savedColor === cVal) : (idx === 0);
                     return `
                     <label style="cursor:pointer; display:flex; align-items:center;">
-                        <input type="radio" name="${colorName}" value="${cVal}" ${idx === 0 ? 'checked' : ''} style="margin-right:4px;">
+                        <input type="radio" name="${colorName}" value="${cVal}" ${isChecked ? 'checked' : ''} style="margin-right:4px;">
                         <span class="color-swatch" style="background-color:${cCode}; ${border}" title="${cVal}"></span>
                     </label>
                     `;
@@ -411,7 +391,9 @@ function openProductPreviewModal(productId) {
                     ${vals.map(val => `
                         <button type="button" 
                                 class="option-choice-pill ${val === curVal ? 'active' : ''}" 
-                                onclick="selectModalOptionPill(this, ${product.id}, '${optName.replace(/'/g, "\\'")}', '${val.replace(/'/g, "\\'")}')">
+                                data-opt-name="${optName}"
+                                data-opt-val="${val}"
+                                onclick="selectModalOptionPill(this, ${product.id})">
                             ${val}
                         </button>
                     `).join('')}
@@ -448,7 +430,10 @@ function openProductPreviewModal(productId) {
         </div>
 
         <div class="modal-details-col">
-            <span class="modal-cat-tag">${categoryTag}</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <span class="modal-cat-tag">${categoryTag}</span>
+                <span style="font-size:11px; font-weight:800; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:12px; border:1px solid #a7f3d0; text-transform:uppercase; letter-spacing:0.5px;">🔍 Quick View</span>
+            </div>
             <h2 class="modal-prod-title">${product.name}</h2>
 
             <div class="modal-price-strip">
@@ -528,6 +513,10 @@ function stepModalQty(delta) {
 }
 
 function selectModalOptionPill(btn, productId, optName, optVal) {
+    if (!optName && btn) optName = btn.getAttribute('data-opt-name');
+    if (!optVal && btn) optVal = btn.getAttribute('data-opt-val');
+    if (!optName || !optVal) return;
+
     const parentRow = btn.parentElement;
     parentRow.querySelectorAll('.option-choice-pill').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -538,15 +527,6 @@ function selectModalOptionPill(btn, productId, optName, optVal) {
     const safeId = optName.replace(/[^a-zA-Z0-9]/g, '_');
     const badge = document.getElementById(`modal_lbl_opt_${safeId}`);
     if (badge) badge.textContent = optVal;
-
-    // Sync back to card on main grid if present
-    const cardBadge = document.getElementById(`lbl_opt_${productId}_${safeId}`);
-    if (cardBadge) cardBadge.textContent = optVal;
-    const cardBtn = document.querySelector(`.option-choice-pill[data-prod-id="${productId}"][data-opt-name="${optName}"][data-opt-val="${optVal}"]`);
-    if (cardBtn) {
-        cardBtn.parentElement.querySelectorAll('.option-choice-pill').forEach(b => b.classList.remove('active'));
-        cardBtn.classList.add('active');
-    }
 }
 
 function submitModalAddToCart() {
