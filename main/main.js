@@ -254,7 +254,7 @@ function renderSingleProductCard(product) {
             <span class="product-category-badge">${categoryTag}</span>
             ${imagesHtml}
             ${sliderButtons}
-            <div class="preview-zoom-hint">🔍 Quick View</div>
+            <div class="preview-zoom-hint"></div>
         </div>
         <div class="product-info">
             <h3 onclick="openProductPreviewModal(${product.id})" style="cursor: pointer;" title="Tap to preview large product & details">${product.name}</h3>
@@ -353,17 +353,17 @@ function openProductPreviewModal(productId) {
             <label>Color Variation:</label>
             <div style="display:flex; gap:10px; align-items:center;">
                 ${colors.map((c, idx) => {
-                    const cVal = c.value || c.name || 'Default';
-                    const cCode = c.colorCode || c.color || '#2c2c2c';
-                    const border = c.border ? 'border: 1.5px solid #cbd5e1;' : '';
-                    const isChecked = savedColor ? (savedColor === cVal) : (idx === 0);
-                    return `
+            const cVal = c.value || c.name || 'Default';
+            const cCode = c.colorCode || c.color || '#2c2c2c';
+            const border = c.border ? 'border: 1.5px solid #cbd5e1;' : '';
+            const isChecked = savedColor ? (savedColor === cVal) : (idx === 0);
+            return `
                     <label style="cursor:pointer; display:flex; align-items:center;">
                         <input type="radio" name="${colorName}" value="${cVal}" ${isChecked ? 'checked' : ''} style="margin-right:4px;">
                         <span class="color-swatch" style="background-color:${cCode}; ${border}" title="${cVal}"></span>
                     </label>
                     `;
-                }).join('')}
+        }).join('')}
             </div>
         </div>
         `;
