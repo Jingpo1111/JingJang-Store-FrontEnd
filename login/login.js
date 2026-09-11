@@ -422,8 +422,9 @@ function logout() {
 // 🔑 FORGOT PASSWORD FLOW
 // ============================================================
 
-// Email for the forgot password flow
+// Email & verified reset token for the forgot password flow
 let forgotEmail = '';
+let forgotResetToken = '';
 
 // Show Forgot Password Step 1
 function showForgotPassword() {
@@ -440,6 +441,8 @@ function showForgotPassword() {
 
 // Back to Login
 function backToLogin() {
+    forgotEmail = '';
+    forgotResetToken = '';
     document.getElementById('forgot-step1').style.display = 'none';
     document.getElementById('forgot-step2').style.display = 'none';
     document.getElementById('forgot-step3').style.display = 'none';
@@ -565,6 +568,7 @@ async function handleForgotVerifyOTP() {
         const data = await response.json();
 
         if (data.status === 'SUCCESS') {
+            forgotResetToken = data.resetToken || '';
             // Show Step 3: New Password
             document.getElementById('forgot-step2').style.display = 'none';
             document.getElementById('forgot-step3').style.display = 'flex';
@@ -613,6 +617,13 @@ async function handleForgotResetPassword() {
         return;
     }
 
+    if (!forgotResetToken) {
+        errorEl.textContent = 'Verification session expired. Please verify OTP again.';
+        errorEl.classList.add('shake');
+        setTimeout(() => errorEl.classList.remove('shake'), 500);
+        return;
+    }
+
     btn.querySelector('.btn-text').style.display = 'none';
     btn.querySelector('.btn-loader').style.display = 'inline';
     btn.disabled = true;
@@ -622,7 +633,8 @@ async function handleForgotResetPassword() {
             method: 'POST',
             body: JSON.stringify({
                 email: forgotEmail,
-                newPassword: newPassword
+                newPassword: newPassword,
+                resetToken: forgotResetToken
             }),
             headers: { 'Content-Type': 'application/json' }
         });
@@ -634,6 +646,7 @@ async function handleForgotResetPassword() {
             document.getElementById('forgot-step3').style.display = 'none';
             document.getElementById('forgot-success-modal').style.display = 'flex';
             forgotEmail = '';
+            forgotResetToken = '';
         } else {
             errorEl.textContent = result.message;
             errorEl.classList.add('shake');

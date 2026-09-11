@@ -543,14 +543,15 @@ async function handleProfileVerifyOTP() {
         const data = await response.json();
 
         if (data.status === 'SUCCESS') {
-            // 2. OTP is verified! Now update password in database
+            // 2. OTP is verified! Now update password in database with secure resetToken
             const pwResponse = await fetch(apiBase + '/user/reset-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email: pendingPasswordChange.email,
                     newPassword: pendingPasswordChange.newPw,
-                    userId: pendingPasswordChange.userId
+                    userId: pendingPasswordChange.userId,
+                    resetToken: data.resetToken
                 })
             });
 

@@ -9,7 +9,7 @@
 }
 
 /* ==========================================================================
-   SEARCH BAR (DIRECTLY ABOVE CATEGORY FILTER)
+ 
    ========================================================================== */
 .category-search-wrapper {
     max-width: 580px;
@@ -840,8 +840,13 @@
 }
 
 @keyframes previewFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .product-preview-modal-card {
@@ -864,6 +869,7 @@
         opacity: 0;
         transform: translateY(20px) scale(0.97);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -920,7 +926,7 @@
     max-height: 100%;
     object-fit: contain;
     transition: transform 0.3s ease;
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.06));
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.06));
 }
 
 .modal-nav-arrow {
@@ -939,7 +945,7 @@
     font-weight: bold;
     cursor: pointer;
     color: #1e293b;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
     z-index: 5;
 }
@@ -950,8 +956,13 @@
     transform: translateY(-50%) scale(1.1);
 }
 
-.modal-nav-arrow.prev { left: 4px; }
-.modal-nav-arrow.next { right: 4px; }
+.modal-nav-arrow.prev {
+    left: 4px;
+}
+
+.modal-nav-arrow.next {
+    right: 4px;
+}
 
 .modal-thumbs-row {
     display: flex;
@@ -971,7 +982,7 @@
     cursor: pointer;
     padding: 2px;
     background: #ffffff;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
     transition: all 0.2s ease;
 }
 
@@ -1162,20 +1173,25 @@
         max-height: 94vh;
         border-radius: 18px;
     }
+
     .modal-gallery-col {
         padding: 20px 16px 12px;
         border-right: none;
         border-bottom: 1px solid #f1f5f9;
     }
+
     .modal-stage-wrap {
         height: 240px;
     }
+
     .modal-details-col {
         padding: 16px 18px 22px;
     }
+
     .modal-prod-title {
         font-size: 17px;
     }
+
     .modal-price-val {
         font-size: 22px;
     }

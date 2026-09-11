@@ -71,12 +71,17 @@ function addToCart(name, price, colorGroupName, productId, optionName, quantity 
 
     const finalName = name + selectedOption + selectedColor;
     const itemPrice = parseFloat(price) || 0;
+    const parsedProdId = productId ? parseInt(productId, 10) : null;
     const existingItem = cart.find(item => item.name === finalName);
 
     if (existingItem) {
         existingItem.quantity = (parseInt(existingItem.quantity, 10) || 0) + addQty;
+        if (!existingItem.productId && parsedProdId) {
+            existingItem.productId = parsedProdId;
+        }
     } else {
         cart.push({
+            productId: parsedProdId,
             name: finalName,
             price: itemPrice,
             quantity: addQty
