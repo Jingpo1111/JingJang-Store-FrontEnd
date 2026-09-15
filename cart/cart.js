@@ -91,10 +91,13 @@ function addToCart(name, price, colorGroupName, productId, optionName, quantity 
     saveCartToLocalStorage();
     updateCartUI();
 
-    // Smoothly open the cart sidebar without redirecting
+    // Smoothly open the in-page cart drawer with overlay
     const sidebar = document.getElementById('cart-sidebar');
+    const overlay = document.getElementById('cart-overlay');
     if (sidebar) {
         sidebar.classList.add('open');
+        if (overlay) overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
     }
 }
 
@@ -121,6 +124,7 @@ function updateQuantity(index, change) {
 // 3. Render Cart UI Data & Quantities
 function updateCartUI() {
     const countEl = document.getElementById('cart-count');
+    const bottomCountEl = document.getElementById('bottom-cart-count');
     const itemsEl = document.getElementById('cart-items');
     const totalEl = document.getElementById('cart-total');
     const checkoutTotalEl = document.getElementById('checkout-total-price');
@@ -128,6 +132,10 @@ function updateCartUI() {
     // Total item count across all items
     const totalItems = cart.reduce((sum, item) => sum + (parseInt(item.quantity, 10) || 0), 0);
     if (countEl) countEl.innerText = totalItems;
+    if (bottomCountEl) {
+        bottomCountEl.innerText = totalItems;
+        bottomCountEl.style.display = totalItems > 0 ? 'flex' : 'none';
+    }
 
     // Total price
     const totalPrice = cart.reduce((sum, item) => {
@@ -170,11 +178,14 @@ function updateCartUI() {
     if (checkoutTotalEl) checkoutTotalEl.innerText = formattedTotal;
 }
 
-// 4. Toggle Cart Sidebar
+// 4. Toggle Cart Sidebar & Overlay
 function toggleCart() {
     const sidebar = document.getElementById('cart-sidebar');
+    const overlay = document.getElementById('cart-overlay');
     if (sidebar) {
-        sidebar.classList.toggle('open');
+        const isOpen = sidebar.classList.toggle('open');
+        if (overlay) overlay.classList.toggle('active', isOpen);
+        document.body.style.overflow = isOpen ? 'hidden' : '';
     }
 }
 

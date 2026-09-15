@@ -98,6 +98,20 @@ function closeProfile() {
     const sucEl = document.getElementById('password-success');
     if (errEl) errEl.textContent = '';
     if (sucEl) sucEl.textContent = '';
+
+    // Reset bottom nav active tab to shop/home
+    const ordersTab = document.getElementById('tab-orders');
+    const profileTab = document.getElementById('tab-profile');
+    if (ordersTab && ordersTab.classList.contains('active')) {
+        ordersTab.classList.remove('active');
+        const shopTab = document.getElementById('tab-shop');
+        if (shopTab) shopTab.classList.add('active');
+    }
+    if (profileTab && profileTab.classList.contains('active')) {
+        profileTab.classList.remove('active');
+        const shopTab = document.getElementById('tab-shop');
+        if (shopTab) shopTab.classList.add('active');
+    }
 }
 
 // ========================

@@ -49,6 +49,16 @@
 
         <!-- Settings Tab -->
         <div class="profile-tab-content" id="profile-settings">
+            <!-- Site Navigation Card -->
+            <div class="settings-card">
+                <h3>🧭 Navigation</h3>
+                <div style="display: flex; flex-direction: row; justify-content: space-between; gap: 8px; margin-top: 10px;">
+                    <button onclick="closeProfile(); showPage('home'); window.scrollTo({top:0, behavior:'smooth'})" style="flex: 1; padding: 10px 4px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; color: #333; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'"><span style="font-size: 18px;">🏠</span> Home</button>
+                    <button onclick="closeProfile(); showPage('about'); window.scrollTo({top:0, behavior:'smooth'})" style="flex: 1; padding: 10px 4px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; color: #333; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'"><span style="font-size: 18px;">ℹ️</span> About</button>
+                    <button onclick="closeProfile(); showPage('contact'); window.scrollTo({top:0, behavior:'smooth'})" style="flex: 1; padding: 10px 4px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; color: #333; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'"><span style="font-size: 18px;">📞</span> Contact</button>
+                </div>
+            </div>
+
             <!-- Account Info Card -->
             <div class="settings-card">
                 <h3>👤 Account Information</h3>

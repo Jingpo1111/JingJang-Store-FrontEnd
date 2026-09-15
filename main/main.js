@@ -270,12 +270,50 @@ function renderSingleProductCard(product) {
                 </div>
             </div>` : ''}
             ${optionsBadgesHtml}
-            <button class="add-to-cart" onclick="event.stopPropagation(); openProductPreviewModal(${product.id})" title="Quick View & Add to Cart">
+            <button class="add-to-cart" onclick="handleQuickAddToCart(${product.id}, event)" title="Add to Cart">
                 <span class="cart-btn-icon">🛍️</span> Add to Cart
             </button>
         </div>
     </div>
     `;
+}
+
+// Quick Add To Cart from Card directly
+function handleQuickAddToCart(productId, e) {
+    if (e) e.stopPropagation();
+    const product = productData.find(p => String(p.id) === String(productId));
+    if (!product) return;
+
+    if (localStorage.getItem('jj_loggedIn') !== 'true') {
+        if (confirm("You need to login first to add items to cart.\n\nGo to Login page?")) {
+            window.location.href = 'login/login.html';
+        }
+        return;
+    }
+
+    // Determine direct color
+    let directColor = "";
+    const colorName = product.colorName || product.color_name || `color_prod_${product.id}`;
+    const checkedRadio = document.querySelector(`input[name="${colorName}"]:checked`);
+    if (checkedRadio && checkedRadio.value) {
+        directColor = ` (ពណ៌: ${checkedRadio.value})`;
+    } else if (Array.isArray(product.colors) && product.colors.length > 0) {
+        const first = product.colors[0].value || product.colors[0].name;
+        if (first) directColor = ` (ពណ៌: ${first})`;
+    }
+
+    // Determine direct options
+    let directOption = "";
+    if (window.jj_selected_variants && window.jj_selected_variants[productId]) {
+        const parts = [];
+        for (const [k, v] of Object.entries(window.jj_selected_variants[productId])) {
+            if (v) parts.push(`${k}: ${v}`);
+        }
+        if (parts.length > 0) directOption = ` (${parts.join(', ')})`;
+    }
+
+    const cartName = product.cartName || product.cart_name || product.name;
+    addToCart(cartName, product.price, null, product.id, null, 1, directOption, directColor);
 }
 
 // ============================================================
@@ -632,10 +670,15 @@ function renderCategoryFilters() {
     const filterContainer = document.querySelector('.product-filter');
     if (!filterContainer || productData.length === 0) return;
 
-    const types = Array.from(new Set(productData.map(p => (p.category_name || p.type || '').trim()).filter(Boolean)));
+    const dbTypes = Array.from(new Set(productData.map(p => (p.category_name || p.type || '').trim()).filter(Boolean)));
+    const preferredOrder = ['Phone-case', 'Earphone', 'Mouse', 'Controller', 'Charger', 'Stand'];
+    const sortedTypes = [
+        ...preferredOrder.filter(t => dbTypes.some(d => d.toLowerCase() === t.toLowerCase())),
+        ...dbTypes.filter(d => !preferredOrder.some(p => p.toLowerCase() === d.toLowerCase()))
+    ];
 
-    let html = `<button class="filter-btn ${currentFilter === 'ALL' ? 'active' : ''}" onclick="filterProducts('ALL')">ALL</button>`;
-    types.forEach(t => {
+    let html = `<button class="filter-btn ${currentFilter.toUpperCase() === 'ALL' ? 'active' : ''}" onclick="filterProducts('ALL')">All</button>`;
+    sortedTypes.forEach(t => {
         const isActive = currentFilter.toLowerCase() === t.toLowerCase() ? 'active' : '';
         html += `<button class="filter-btn ${isActive}" onclick="filterProducts('${t}')">${t}</button>`;
     });

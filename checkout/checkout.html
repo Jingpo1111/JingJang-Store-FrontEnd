@@ -1,75 +1,119 @@
-<div id="checkout-modal" class="modal-overlay">
-    <div class="modal-content">
-        <span class="close-modal" onclick="closeCheckout()">✖</span>
-        <h2>Checkout & Payment</h2>
-
-        <div class="payment-info">
-            <p>Total to Pay: <strong style="color: #e74c3c;">$<span id="checkout-total-price">0.00</span></strong></p>
-
-            <div style="margin: 15px 0; font-size: 16px; display: flex; flex-direction: column; align-items: center;">
-                <p style="margin-bottom: 8px;">Method:</p>
-
-                <div class="custom-select-box" onclick="toggleBankMenu()">
-                    <div id="selected-bank">
-                        <img src="img/ABA.png" class="bank-icon"> ABA
-                    </div>
-                    <div id="bank-dropdown" class="bank-options" style="display: none;">
-                        <div onclick="chooseBank('aba', 'img/ABA.png', 'ABA')">
-                            <img src="img/ABA.png" class="bank-icon"> ABA
-                        </div>
-                        <div onclick="chooseBank('ac', 'img/AC.png', 'ACLEDA')">
-                            <img src="img/AC.png" class="bank-icon"> ACLEDA
-                        </div>
-                    </div>
-                </div>
-
-                <a id="payment-link" href="aba://pay" target="_blank"
-                    style="display: inline-block; margin-top: 10px; color: #005bb5; font-weight: bold; text-decoration: none;">
-                    🔗 Open ABA Link
-                </a>
+<!-- In-Page Mobile Checkout & Payment Modal -->
+<div id="checkout-modal" class="checkout-modal-overlay">
+    <div class="checkout-modal-content">
+        <!-- Modal Header -->
+        <div class="checkout-modal-header">
+            <div class="checkout-header-title-box">
+                <span class="checkout-header-badge">🔒 Secure Checkout</span>
+                <h2>Payment & Order</h2>
             </div>
-
-            <div class="qr-code-section">
-                <p>Scan QR to Pay:</p>
-                <img src="/img/Bank/abaqr.jpg" alt="QR Code" class="qr-img" id="qr-image">
-            </div>
+            <button type="button" class="checkout-close-btn" onclick="closeCheckout()" title="Close Checkout">✕</button>
         </div>
 
-        <form id="checkout-form" onsubmit="submitOrder(event)">
-            <div class="input-group">
-                <label>Full Name</label>
-                <input type="text" id="cus-name" required placeholder="Enter your name">
+        <div class="checkout-body">
+            <!-- Order Total Highlight Strip -->
+            <div class="checkout-total-strip">
+                <span class="total-label">Total Amount to Pay</span>
+                <span class="total-amount">$<span id="checkout-total-price">0.00</span></span>
             </div>
-            <div class="input-group">
-                <label>Phone Number</label>
-                <input type="tel" id="cus-phone" required placeholder="Enter your phone number">
-            </div>
-            <div class="input-group">
-                <label>Delivery Address</label>
-                <div style="display: flex; gap: 8px;">
-                    <textarea id="cus-address" required placeholder="Enter your full address"
-                        style="flex: 1;"></textarea>
 
-                    <button type="button" id="btn-location" onclick="getRealLocation()"
-                        style="padding: 10px 15px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap; height: fit-content;">
-                        📍 Location
+            <!-- Payment Methods & Bank Selection -->
+            <div class="payment-method-section">
+                <label class="section-subheading">Select Payment Method</label>
+                <div class="bank-selector-tabs">
+                    <button type="button" class="bank-tab-btn active" id="bank-tab-aba" onclick="selectBankMethod('aba', 'img/ABA.png', 'ABA Bank')">
+                        <img src="img/ABA.png" alt="ABA Bank" class="bank-tab-icon">
+                        <span>ABA Bank</span>
                     </button>
+                    <button type="button" class="bank-tab-btn" id="bank-tab-ac" onclick="selectBankMethod('ac', 'img/AC.png', 'ACLEDA Bank')">
+                        <img src="img/AC.png" alt="ACLEDA Bank" class="bank-tab-icon">
+                        <span>ACLEDA Bank</span>
+                    </button>
+                </div>
+
+                <!-- Active Bank Link & QR Presentation -->
+                <div class="qr-presentation-card">
+                    <div class="qr-frame">
+                        <img src="img/Bank/abaqr.jpg" alt="Payment QR Code" class="qr-img" id="qr-image" onerror="this.src='img/qrcode.JPG'">
+                    </div>
+                    <p class="qr-scan-instruction">Scan this KHQR with your mobile banking app to complete payment</p>
+                    <a id="payment-link" href="https://pay.ababank.com/oRF8/4y0ur1w1" target="_blank" class="bank-direct-link">
+                        <span>🔗 Open in Bank App</span>
+                    </a>
                 </div>
             </div>
 
-            <div class="input-group">
-                <label>Note (Optional)</label>
-                <textarea id="cus-note" placeholder="Example: Please deliver in the afternoon..."></textarea>
-            </div>
+            <!-- Checkout Information Form -->
+            <form id="checkout-form" onsubmit="submitOrder(event)">
+                <label class="section-subheading" style="margin-top: 20px;">Shipping Details</label>
 
-            <div class="input-group">
-                <label>Upload Payment Receipt</label>
-                <input type="file" id="receipt-upload" accept="image/*" required onchange="previewReceipt(event)">
-                <img id="receipt-preview"
-                    style="display:none; width:100%; max-height:200px; object-fit:contain; margin-top:10px; border-radius:5px; border: 1px solid #ddd;">
-            </div>
+                <div class="input-field-group">
+                    <label for="cus-name">Full Name <span class="required-star">*</span></label>
+                    <input type="text" id="cus-name" required placeholder="Enter your full name" autocomplete="name">
+                </div>
 
-            <button type="submit" class="btn submit-btn">Confirm Order</button>
-        </form>
+                <div class="input-field-group">
+                    <label for="cus-phone">Phone Number <span class="required-star">*</span></label>
+                    <input type="tel" id="cus-phone" required placeholder="e.g. 012 345 678" autocomplete="tel">
+                </div>
+
+                <div class="input-field-group">
+                    <label for="cus-address">Delivery Address <span class="required-star">*</span></label>
+                    <div class="address-input-wrapper">
+                        <textarea id="cus-address" required placeholder="House number, Street, Sangkat, Khan, City..." rows="2"></textarea>
+                        <button type="button" id="btn-location" class="location-btn" onclick="getRealLocation()" title="Use Current GPS Location">
+                            <span>📍</span> Auto GPS
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-field-group">
+                    <label for="cus-note">Delivery Note (Optional)</label>
+                    <textarea id="cus-note" placeholder="E.g. Please call before delivery or drop with receptionist" rows="2"></textarea>
+                </div>
+
+                <!-- Receipt Upload -->
+                <div class="input-field-group">
+                    <label>Payment Receipt Screenshot <span class="required-star">*</span></label>
+                    <div class="receipt-upload-box" onclick="document.getElementById('receipt-upload').click()">
+                        <input type="file" id="receipt-upload" accept="image/*" required onchange="previewReceipt(event)" style="display: none;">
+                        <div id="receipt-upload-placeholder" class="upload-placeholder">
+                            <span class="upload-icon">📸</span>
+                            <span class="upload-text">Tap to select payment screenshot</span>
+                            <span class="upload-hint">JPG, PNG, WebP accepted</span>
+                        </div>
+                        <div id="receipt-preview-wrapper" style="display: none; position: relative;">
+                            <img id="receipt-preview" class="receipt-preview-img" alt="Payment Receipt Preview">
+                            <button type="button" class="remove-receipt-btn" onclick="removeReceipt(event)">✕ Change</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="checkout-actions-row">
+                    <button type="submit" class="checkout-submit-btn" id="checkout-submit-button">
+                        <span id="submit-btn-spinner" class="btn-spinner" style="display: none;"></span>
+                        <span id="submit-btn-text">Confirm Order & Pay</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Order Success Modal (In-Page, Never Redirects Away) -->
+<div id="order-success-modal" class="order-success-modal-overlay" style="display: none;">
+    <div class="order-success-card">
+        <div class="success-icon-badge">🎉</div>
+        <h2>Order Received!</h2>
+        <p class="success-msg">Thank you for your purchase. We have received your order and payment receipt.</p>
+        <div class="order-id-box">
+            <span class="order-id-label">Order Reference ID:</span>
+            <strong id="success-order-id" class="order-id-val">JJ-XXXX</strong>
+        </div>
+        <p class="success-subtext">Our team will verify your receipt and process shipping immediately.</p>
+        <button type="button" class="success-done-btn" onclick="closeOrderSuccessModal()">
+            Done & Continue Shopping
+        </button>
     </div>
 </div>

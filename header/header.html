@@ -1,45 +1,50 @@
 <header class="site-header">
-    <div class="logo">
-        <img src="img/IMG_3840.PNG" alt="Logo" width="70" height="70" class="logog">
-        <a href="#" onclick="showPage('home')">JingJang</a>
-    </div>
-
-    <span class="menu-toggle" onclick="toggleMenu()">☰</span>
-
-    <nav class="main-nav" id="nav-menu">
-        <ul>
-            <li><a href="#" onclick="showPage('home')">Home</a></li>
-            <li><a href="#" onclick="showPage('about')">About</a></li>
-            <li><a href="#" onclick="showPage('contact')">Contact</a></li>
-        </ul>
-    </nav>
-    <div class="cta-button">
-        <!-- Login Button (shown when NOT logged in) -->
-        <a href="login/login.html" id="header-login-btn" class="header-login-btn" style="display: none;">
-            Login
-        </a>
-
-        <!-- User Info (shown when logged in) -->
-        <div class="user-info" id="header-user-info" style="display: none;">
-            <span id="header-username" class="header-username"></span>
-            <span id="header-user-id" class="header-user-id"></span>
+    <div class="header-top-row">
+        <!-- Brand Logo & Name -->
+        <div class="logo" onclick="showPage('home')" style="cursor: pointer;">
+            <img src="img/IMG_3840.PNG" alt="JingJang Logo" class="logog">
+            <span class="logo-text">JingJang</span>
         </div>
 
-        <!-- Profile Button (shown when logged in) -->
-        <div id="header-profile-btn" class="header-profile-btn" onclick="openProfile()" style="display: none;"
-            title="View Profile">
-            👤
+        <!-- Header Search Bar (Fully Responsive on Android & iOS) -->
+        <div class="header-search-box">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input type="text" id="store-search-input" placeholder="Search..." autocomplete="off"
+                aria-label="Search products"
+                oninput="handleCategorySearch(this.value)" onkeydown="if(event.key==='Enter') triggerCategorySearch()">
+            <button type="button" id="search-clear-btn" class="search-clear-btn" style="display:none;"
+                onclick="clearCategorySearch()" title="Clear Search" aria-label="Clear Search">✕</button>
+            <button type="button" class="header-search-btn" onclick="triggerCategorySearch()" title="Search" aria-label="Submit Search">
+                <span class="search-btn-text">Search</span>
+                <span class="search-btn-icon">🔍</span>
+            </button>
         </div>
 
-        <!-- Cart Icon -->
-        <div class="cart-icon" onclick="toggleCart()">
-            🛒 <span id="cart-count">0</span>
-        </div>
+        <!-- Right Side Actions: Logout (Replacing Cart) & Login -->
+        <div class="header-actions">
+            <!-- Hidden cart count element for legacy script safety -->
+            <span id="cart-count" style="display: none;">0</span>
 
-        <!-- Logout Button (shown when logged in) -->
-        <button id="header-logout-btn" onclick="logout()" class="logout-btn" style="display: none;" title="Logout">
-            <span class="logout-text">Logout</span>
-            <img src="img/logout.png" class="logout-icon" alt="Logout">
-        </button>
+            <!-- Logout Button (Shown when user is logged in, replacing cart) -->
+            <button id="header-logout-btn" onclick="logout()" class="header-logout-btn" style="display: none;"
+                title="Logout">
+                <span class="logout-icon-emoji">🚪</span>
+                <span class="logout-text">Logout</span>
+            </button>
+
+            <!-- Login Button (Shown when user is logged out) -->
+            <a href="login/login.html" id="header-login-btn" class="header-login-btn" style="display: none;">
+                Login
+            </a>
+
+            <!-- User Info -->
+            <div class="user-info" id="header-user-info" style="display: none;">
+                <span id="header-username" class="header-username"></span>
+                <span id="header-user-id" class="header-user-id" style="display:none;"></span>
+            </div>
+
+            <!-- Profile Avatar (legacy anchor) -->
+            <div id="header-profile-btn" style="display: none;"></div>
+        </div>
     </div>
 </header>
