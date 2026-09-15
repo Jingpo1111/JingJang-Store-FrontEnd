@@ -278,7 +278,7 @@ function renderSingleProductCard(product) {
     `;
 }
 
-// Quick Add To Cart from Card directly
+// Quick Add To Cart from Card directly - Now opens Quickview first
 function handleQuickAddToCart(productId, e) {
     if (e) e.stopPropagation();
     const product = productData.find(p => String(p.id) === String(productId));
@@ -291,29 +291,8 @@ function handleQuickAddToCart(productId, e) {
         return;
     }
 
-    // Determine direct color
-    let directColor = "";
-    const colorName = product.colorName || product.color_name || `color_prod_${product.id}`;
-    const checkedRadio = document.querySelector(`input[name="${colorName}"]:checked`);
-    if (checkedRadio && checkedRadio.value) {
-        directColor = ` (ពណ៌: ${checkedRadio.value})`;
-    } else if (Array.isArray(product.colors) && product.colors.length > 0) {
-        const first = product.colors[0].value || product.colors[0].name;
-        if (first) directColor = ` (ពណ៌: ${first})`;
-    }
-
-    // Determine direct options
-    let directOption = "";
-    if (window.jj_selected_variants && window.jj_selected_variants[productId]) {
-        const parts = [];
-        for (const [k, v] of Object.entries(window.jj_selected_variants[productId])) {
-            if (v) parts.push(`${k}: ${v}`);
-        }
-        if (parts.length > 0) directOption = ` (${parts.join(', ')})`;
-    }
-
-    const cartName = product.cartName || product.cart_name || product.name;
-    addToCart(cartName, product.price, null, product.id, null, 1, directOption, directColor);
+    // Open the Quickview modal instead of adding directly
+    openProductPreviewModal(productId);
 }
 
 // ============================================================
