@@ -137,82 +137,188 @@
         <div class="back-to-cart">
             <a href="cart.html" onclick="goBack('cart.html'); return false;">← Back to Cart</a>
         </div>
-        <!-- Reuse the exact same HTML structure as checkout.html partial -->
+        <!-- Reuse the exact same modern structure as checkout.html partial -->
         <div id="checkout-modal" class="modal-overlay">
-            <div class="modal-content">
-                <h2>Checkout & Payment</h2>
+            <div class="checkout-modal-content" style="box-shadow: none; border-radius: 0; max-width: 100%;">
+                <div class="checkout-body" style="padding: 10px 0;">
+                    <!-- Order Total Highlight Strip with Breakdown -->
+                    <div class="checkout-total-strip">
+                        <!-- Card Header -->
+                        <div class="summary-card-header">
+                            <span class="summary-card-title">
+                                <span class="summary-icon">🧾</span>
+                                <span>Order Summary</span>
+                            </span>
+                            <span id="checkout-items-count" class="summary-items-badge">Cart Items</span>
+                        </div>
 
-                <div class="payment-info">
-                    <p>Total to Pay: <strong style="color: #e74c3c;">$<span
-                                id="checkout-total-price">0.00</span></strong></p>
-
-                    <div
-                        style="margin: 15px 0; font-size: 16px; display: flex; flex-direction: column; align-items: center;">
-                        <p style="margin-bottom: 8px;">Method:</p>
-
-                        <div class="custom-select-box" onclick="toggleBankMenu()">
-                            <div id="selected-bank">
-                                <img src="img/ABA.png" class="bank-icon"> ABA
+                        <!-- Breakdown Section (Subtotal & Discount) -->
+                        <div id="checkout-promo-breakdown" class="checkout-promo-breakdown" style="display: none;">
+                            <div class="breakdown-row">
+                                <span class="breakdown-label">Original Subtotal</span>
+                                <span class="breakdown-val">$<span id="checkout-subtotal-price">0.00</span></span>
                             </div>
-                            <div id="bank-dropdown" class="bank-options" style="display: none;">
-                                <div onclick="chooseBank('aba', 'img/ABA.png', 'ABA')">
-                                    <img src="img/ABA.png" class="bank-icon"> ABA
-                                </div>
-                                <div onclick="chooseBank('ac', 'img/AC.png', 'ACLEDA')">
-                                    <img src="img/AC.png" class="bank-icon"> ACLEDA
-                                </div>
+                            <div class="breakdown-row discount-row">
+                                <span class="breakdown-label">
+                                    <span class="promo-tag-pill" id="checkout-promo-tag">🏷️ <span
+                                            id="checkout-promo-code-name">PROMO</span></span>
+                                    <span id="checkout-promo-label">Discount:</span>
+                                </span>
+                                <span class="breakdown-val discount-val">-$<span
+                                        id="checkout-discount-amount">0.00</span></span>
                             </div>
                         </div>
 
-                        <a id="payment-link" href="https://pay.ababank.com/oRF8/4y0ur1w1" target="_blank"
-                            style="display: inline-block; margin-top: 10px; color: #005bb5; font-weight: bold; text-decoration: none;">
-                            🔗 Open ABA Link
-                        </a>
+                        <!-- Main Total Row -->
+                        <div class="total-row-main">
+                            <div class="total-title-group">
+                                <span class="total-label">Total to Pay</span>
+                                <span class="total-tax-note">All taxes included</span>
+                            </div>
+                            <div class="total-price-box">
+                                <span class="currency-symbol">$</span>
+                                <span id="checkout-total-price" class="total-amount">0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Celebratory Savings Banner (When Promo Applied) -->
+                        <div id="checkout-savings-pill" class="checkout-savings-banner" style="display: none;">
+                            <span class="savings-icon">🎉</span>
+                            <span id="checkout-savings-text">Saved -$0.00 with promo code</span>
+                        </div>
                     </div>
 
-                    <div class="qr-code-section">
-                        <p>Scan QR to Pay:</p>
-                        <img src="/img/Bank/abaqr.jpg" alt="QR Code" class="qr-img" id="qr-image">
-                    </div>
-                </div>
-
-                <form id="checkout-form" onsubmit="submitOrder(event)">
-                    <div class="input-group">
-                        <label>Full Name</label>
-                        <input type="text" id="cus-name" required placeholder="Enter your name">
-                    </div>
-                    <div class="input-group">
-                        <label>Phone Number</label>
-                        <input type="tel" id="cus-phone" required placeholder="Enter your phone number">
-                    </div>
-                    <div class="input-group">
-                        <label>Delivery Address</label>
-                        <div style="display: flex; gap: 8px;">
-                            <textarea id="cus-address" required placeholder="Enter your full address"
-                                style="flex: 1;"></textarea>
-
-                            <button type="button" id="btn-location" onclick="getRealLocation()"
-                                style="padding: 10px 15px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap; height: fit-content;">
-                                📍 Location
+                    <!-- Payment Methods & Bank Selection -->
+                    <div class="payment-method-section">
+                        <label class="section-subheading">Select Payment Method</label>
+                        <div class="bank-selector-tabs">
+                            <button type="button" class="bank-tab-btn active" id="bank-tab-aba"
+                                onclick="selectBankMethod('aba', 'img/ABA.png', 'ABA Bank')">
+                                <div class="bank-tab-left">
+                                    <img src="img/ABA.png" alt="ABA Bank" class="bank-tab-icon">
+                                    <div class="bank-tab-info">
+                                        <span class="bank-name">ABA Bank</span>
+                                        <span class="bank-hint">KHQR Scan / Deep Link</span>
+                                    </div>
+                                </div>
+                                <span class="bank-tab-radio"></span>
+                            </button>
+                            <button type="button" class="bank-tab-btn" id="bank-tab-ac"
+                                onclick="selectBankMethod('ac', 'img/AC.png', 'ACLEDA Bank')">
+                                <div class="bank-tab-left">
+                                    <img src="img/AC.png" alt="ACLEDA Bank" class="bank-tab-icon">
+                                    <div class="bank-tab-info">
+                                        <span class="bank-name">ACLEDA Bank</span>
+                                        <span class="bank-hint">KHQR Scan / Deep Link</span>
+                                    </div>
+                                </div>
+                                <span class="bank-tab-radio"></span>
                             </button>
                         </div>
+
+                        <!-- Active Bank Link & QR Presentation -->
+                        <div class="qr-presentation-card">
+                            <div class="qr-header-pill">
+                                <span>🇰🇭 KHQR Official Payment</span>
+                            </div>
+                            <div class="qr-frame">
+                                <img src="img/Bank/abaqr.jpg" alt="Payment QR Code" class="qr-img" id="qr-image"
+                                    onerror="this.src='img/qrcode.JPG'">
+                            </div>
+                            <p class="qr-scan-instruction">Scan with ABA Mobile, Bakong, or any Cambodian mobile banking app to pay</p>
+                            <a id="payment-link" href="https://pay.ababank.com/oRF8/4y0ur1w1" target="_blank"
+                                class="bank-direct-link">
+                                <span>🔗 Open ABA App / Pay</span>
+                            </a>
+                        </div>
                     </div>
 
-                    <div class="input-group">
-                        <label>Note (Optional)</label>
-                        <textarea id="cus-note" placeholder="Example: Please deliver in the afternoon..."></textarea>
-                    </div>
+                    <!-- Checkout Information Form -->
+                    <form id="checkout-form" onsubmit="submitOrder(event)">
+                        <label class="section-subheading" style="margin-top: 20px;">Shipping Details</label>
 
-                    <div class="input-group">
-                        <label>Upload Payment Receipt</label>
-                        <input type="file" id="receipt-upload" accept="image/*" required
-                            onchange="previewReceipt(event)">
-                        <img id="receipt-preview"
-                            style="display:none; width:100%; max-height:200px; object-fit:contain; margin-top:10px; border-radius:5px; border: 1px solid #ddd;">
-                    </div>
+                        <div class="input-field-group">
+                            <label for="cus-name">Full Name <span class="required-star">*</span></label>
+                            <input type="text" id="cus-name" required placeholder="Enter your full name" autocomplete="name">
+                        </div>
 
-                    <button type="submit" class="btn submit-btn">Confirm Order</button>
-                </form>
+                        <div class="input-field-group">
+                            <label for="cus-phone">Phone Number <span class="required-star">*</span></label>
+                            <input type="tel" id="cus-phone" required placeholder="e.g. 012 345 678" autocomplete="tel">
+                        </div>
+
+                        <div class="input-field-group">
+                            <label for="cus-address">Delivery Address <span class="required-star">*</span></label>
+                            <div class="address-input-wrapper">
+                                <textarea id="cus-address" required placeholder="House number, Street, Sangkat, Khan, City..."
+                                    rows="2"></textarea>
+                                <button type="button" id="btn-location" class="location-btn" onclick="getRealLocation()"
+                                    title="Use Current GPS Location">
+                                    <span>📍</span> Auto GPS
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="input-field-group">
+                            <label for="cus-note">Delivery Note (Optional)</label>
+                            <textarea id="cus-note" placeholder="E.g. Please call before delivery or drop with receptionist"
+                                rows="2"></textarea>
+                        </div>
+
+                        <!-- Promotion / Coupon Code Section (Between Note & Receipt) -->
+                        <div class="input-field-group checkout-promo-box">
+                            <div class="promo-box-header">
+                                <label for="promo-code-input" class="promo-box-title">🎟️ Have a Promo Code?</label>
+                                <span class="promo-box-hint">Optional</span>
+                            </div>
+                            <div class="promo-input-group" id="promo-input-container">
+                                <div class="promo-input-wrap">
+                                    <span class="promo-input-icon">🏷️</span>
+                                    <input type="text" id="promo-code-input" placeholder="e.g. WELCOME10 or SAVE5" autocomplete="off"
+                                        style="text-transform:uppercase;">
+                                </div>
+                                <button type="button" id="btn-apply-promo" onclick="applyPromoCode()">Apply</button>
+                            </div>
+                            <div id="promo-applied-badge" class="promo-applied-badge" style="display:none;">
+                                <div class="promo-badge-info">
+                                    <span class="badge-icon">🏷️</span>
+                                    <div>
+                                        <strong id="applied-promo-code-display">WELCOME10</strong>
+                                        <span id="applied-promo-desc-display" class="badge-desc">Applied</span>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-remove-promo" onclick="removePromoCode()">✕ Remove</button>
+                            </div>
+                            <div id="promo-feedback-msg" class="promo-feedback-msg" style="display:none;"></div>
+                        </div>
+
+                        <!-- Receipt Upload -->
+                        <div class="input-field-group">
+                            <label>Payment Receipt Screenshot <span class="required-star">*</span></label>
+                            <div class="receipt-upload-box" onclick="document.getElementById('receipt-upload').click()">
+                                <input type="file" id="receipt-upload" accept="image/*" required
+                                    onchange="previewReceipt(event)" style="display: none;">
+                                <div id="receipt-upload-placeholder" class="upload-placeholder">
+                                    <div class="upload-icon-circle">📸</div>
+                                    <span class="upload-text">Tap to select payment screenshot</span>
+                                    <span class="upload-hint">JPG, PNG, WebP accepted (Max 5MB)</span>
+                                </div>
+                                <div id="receipt-preview-wrapper" style="display: none; position: relative;">
+                                    <img id="receipt-preview" class="receipt-preview-img" alt="Payment Receipt Preview">
+                                    <button type="button" class="remove-receipt-btn" onclick="removeReceipt(event)">✕ Change</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="checkout-actions-row">
+                            <button type="submit" class="checkout-submit-btn" id="checkout-submit-button">
+                                <span id="submit-btn-spinner" class="btn-spinner" style="display: none;"></span>
+                                <span id="submit-btn-text">Confirm Order & Pay</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

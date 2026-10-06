@@ -6,6 +6,77 @@
 let receiptBase64 = "";
 let receiptMimeType = "";
 let selectedBankKey = "aba";
+let appliedPromo = null;
+
+// Helper: Calculate total cart subtotal
+function getCartSubtotal() {
+    if (!cart || !Array.isArray(cart)) return 0;
+    return cart.reduce((sum, item) => {
+        const qty = parseInt(item.quantity, 10) || 0;
+        const price = parseFloat(item.price) || 0;
+        return sum + (price * qty);
+    }, 0);
+}
+
+// Helper: Re-calculate and update Checkout pricing display
+function updateCheckoutPricingUI() {
+    const subtotal = getCartSubtotal();
+    const checkoutTotalEl = document.getElementById('checkout-total-price');
+    const breakdownEl = document.getElementById('checkout-promo-breakdown');
+    const subtotalEl = document.getElementById('checkout-subtotal-price');
+    const discountEl = document.getElementById('checkout-discount-amount');
+    const promoLabelEl = document.getElementById('checkout-promo-label');
+    const promoCodeNameEl = document.getElementById('checkout-promo-code-name');
+    const savingsPillEl = document.getElementById('checkout-savings-pill');
+    const savingsTextEl = document.getElementById('checkout-savings-text');
+    const itemsCountEl = document.getElementById('checkout-items-count');
+
+    // Update items count in order summary header if present
+    if (itemsCountEl) {
+        const count = cart ? cart.reduce((sum, item) => sum + (parseInt(item.quantity, 10) || 0), 0) : 0;
+        itemsCountEl.innerText = `${count} ${count === 1 ? 'item' : 'items'}`;
+    }
+
+    if (!appliedPromo) {
+        if (checkoutTotalEl) checkoutTotalEl.innerText = subtotal.toFixed(2);
+        if (subtotalEl) subtotalEl.innerText = subtotal.toFixed(2);
+        if (breakdownEl) breakdownEl.style.display = 'none';
+        if (savingsPillEl) savingsPillEl.style.display = 'none';
+        return;
+    }
+
+    let discount = 0;
+    if (appliedPromo.discountType === 'percentage') {
+        discount = (subtotal * appliedPromo.discountValue) / 100;
+        if (appliedPromo.maxDiscount) {
+            discount = Math.min(discount, appliedPromo.maxDiscount);
+        }
+    } else {
+        discount = Math.min(appliedPromo.discountValue, subtotal);
+    }
+
+    discount = Math.round(discount * 100) / 100;
+    const finalTotal = Math.max(0, Math.round((subtotal - discount) * 100) / 100);
+
+    if (breakdownEl) breakdownEl.style.display = 'flex';
+    if (subtotalEl) subtotalEl.innerText = subtotal.toFixed(2);
+    if (discountEl) discountEl.innerText = discount.toFixed(2);
+    if (promoLabelEl) {
+        promoLabelEl.innerText = appliedPromo.discountType === 'percentage'
+            ? `Discount (${appliedPromo.discountValue}% off):`
+            : 'Discount:';
+    }
+    if (promoCodeNameEl) promoCodeNameEl.innerText = appliedPromo.code;
+    if (checkoutTotalEl) checkoutTotalEl.innerText = finalTotal.toFixed(2);
+    if (savingsPillEl) {
+        if (savingsTextEl) {
+            savingsTextEl.innerText = `You saved $${discount.toFixed(2)} with code ${appliedPromo.code}!`;
+        } else {
+            savingsPillEl.innerText = `🎉 Saved -$${discount.toFixed(2)}`;
+        }
+        savingsPillEl.style.display = 'flex';
+    }
+}
 
 // 1. Open In-Page Checkout Modal
 function openCheckout() {
@@ -21,11 +92,7 @@ function openCheckout() {
     if (cartOverlay) cartOverlay.classList.remove('active');
 
     // Update total price in checkout modal
-    const cartTotalEl = document.getElementById('cart-total');
-    const checkoutTotalEl = document.getElementById('checkout-total-price');
-    if (checkoutTotalEl && cartTotalEl) {
-        checkoutTotalEl.innerText = cartTotalEl.innerText;
-    }
+    updateCheckoutPricingUI();
 
     // Auto pre-fill customer name if logged in
     const savedName = localStorage.getItem('jj_username');
@@ -169,6 +236,111 @@ function getRealLocation() {
     }
 }
 
+// 5.5 Promo Code Management (Validate & Apply)
+async function applyPromoCode() {
+    const input = document.getElementById('promo-code-input');
+    const feedback = document.getElementById('promo-feedback-msg');
+    const applyBtn = document.getElementById('btn-apply-promo');
+    const inputContainer = document.getElementById('promo-input-container');
+    const badgeContainer = document.getElementById('promo-applied-badge');
+    const badgeCode = document.getElementById('applied-promo-code-display');
+    const badgeDesc = document.getElementById('applied-promo-desc-display');
+
+    if (!input || !input.value.trim()) {
+        if (feedback) {
+            feedback.className = 'promo-feedback-msg error';
+            feedback.innerText = 'Please enter a coupon code.';
+            feedback.style.display = 'block';
+        }
+        return;
+    }
+
+    const code = input.value.trim().toUpperCase();
+    const subtotal = getCartSubtotal();
+
+    if (subtotal <= 0) {
+        if (feedback) {
+            feedback.className = 'promo-feedback-msg error';
+            feedback.innerText = 'Your cart is empty.';
+            feedback.style.display = 'block';
+        }
+        return;
+    }
+
+    const apiBase = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE)
+        ? CONFIG.API_BASE
+        : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:'
+            ? 'http://localhost:3000'
+            : 'https://api.jingjangstore.com');
+
+    if (applyBtn) {
+        applyBtn.disabled = true;
+        applyBtn.innerText = 'Checking...';
+    }
+
+    try {
+        const response = await fetch(apiBase + '/promotion/validate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: code, subtotal: subtotal })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.valid) {
+            appliedPromo = data;
+            updateCheckoutPricingUI();
+
+            if (inputContainer) inputContainer.style.display = 'none';
+            if (badgeContainer) badgeContainer.style.display = 'flex';
+            if (badgeCode) badgeCode.innerText = data.code;
+            if (badgeDesc) badgeDesc.innerText = data.description || (data.discountType === 'percentage' ? `${data.discountValue}% discount applied` : `$${data.discountAmount.toFixed(2)} off applied`);
+
+            if (feedback) {
+                feedback.className = 'promo-feedback-msg success';
+                feedback.innerText = data.message || 'Promo code applied successfully!';
+                feedback.style.display = 'block';
+            }
+        } else {
+            if (feedback) {
+                feedback.className = 'promo-feedback-msg error';
+                feedback.innerText = data.message || 'Invalid promotion code.';
+                feedback.style.display = 'block';
+            }
+        }
+    } catch (err) {
+        console.error('Promo validation error:', err);
+        if (feedback) {
+            feedback.className = 'promo-feedback-msg error';
+            feedback.innerText = 'Could not validate promo code. Check connection.';
+            feedback.style.display = 'block';
+        }
+    } finally {
+        if (applyBtn) {
+            applyBtn.disabled = false;
+            applyBtn.innerText = 'Apply';
+        }
+    }
+}
+
+function removePromoCode() {
+    appliedPromo = null;
+    updateCheckoutPricingUI();
+
+    const input = document.getElementById('promo-code-input');
+    const feedback = document.getElementById('promo-feedback-msg');
+    const inputContainer = document.getElementById('promo-input-container');
+    const badgeContainer = document.getElementById('promo-applied-badge');
+
+    if (input) input.value = '';
+    if (inputContainer) inputContainer.style.display = 'flex';
+    if (badgeContainer) badgeContainer.style.display = 'none';
+    if (feedback) {
+        feedback.style.display = 'none';
+        feedback.innerText = '';
+    }
+}
+
 // 6. Submit Order Flow (Fully In-Page, Never Redirects)
 async function submitOrder(event) {
     event.preventDefault();
@@ -187,7 +359,7 @@ async function submitOrder(event) {
         ? CONFIG.API_BASE
         : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:'
             ? 'http://localhost:3000'
-            : 'https://jingjang-store-backend.onrender.com');
+            : 'https://api.jingjangstore.com');
 
     const API_URL = apiBase + '/order';
 
@@ -201,6 +373,8 @@ async function submitOrder(event) {
 
     const userId = localStorage.getItem('jj_userId') || 'GUEST';
     const totalVal = document.getElementById('checkout-total-price')?.innerText || '0.00';
+    const discountVal = appliedPromo ? (document.getElementById('checkout-discount-amount')?.innerText || '0.00') : '0.00';
+    const subtotalVal = getCartSubtotal().toFixed(2);
 
     const orderData = {
         userid: userId,
@@ -209,6 +383,9 @@ async function submitOrder(event) {
         Address: document.getElementById('cus-address')?.value || '',
         Note: document.getElementById('cus-note')?.value || 'None',
         Total: totalVal,
+        subtotal: subtotalVal,
+        promo_code: appliedPromo ? appliedPromo.code : null,
+        discount_amount: discountVal,
         Items: JSON.stringify(cart),
         Receipt: receiptBase64 || 'No Receipt'
     };
@@ -222,6 +399,10 @@ async function submitOrder(event) {
 
         const result = await response.json();
 
+        if (!response.ok) {
+            throw new Error(result.message || 'Could not submit order');
+        }
+
         const orderId = result.orderId || ('JJ-' + Math.floor(100000 + Math.random() * 900000));
 
         // Clear user cart safely
@@ -229,9 +410,10 @@ async function submitOrder(event) {
         saveCartToLocalStorage();
         updateCartUI();
 
-        // Reset form
+        // Reset form & promo
         document.getElementById('checkout-form')?.reset();
         removeReceipt();
+        removePromoCode();
 
         // Close checkout modal without any redirection
         closeCheckout();
