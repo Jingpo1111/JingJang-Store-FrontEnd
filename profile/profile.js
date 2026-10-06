@@ -8,6 +8,16 @@ const ORDER_API_BASE = API_BASE_PROFILE + '/order'; // /order, /order/user/:id
 const AUTH_API_BASE = API_BASE_PROFILE + '/user';  // /user/login, /user/change-password
 const OTP_API_BASE = API_BASE_PROFILE + '/otp';   // /otp/generate, /otp/verify
 
+function escapeProfileHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // Cooldown timer for change-password OTP modal
 let profileOtpTimer = null;
 function startProfileOtpCountdown(seconds = 60) {
@@ -313,10 +323,10 @@ async function loadProfileOrders(forceRefresh = false) {
             try {
                 const itemsArr = JSON.parse(order.items);
                 itemsArr.forEach(item => {
-                    itemsHtml += `<li>${item.name} (x${item.quantity})</li>`;
+                    itemsHtml += `<li>${escapeProfileHtml(item.name)} (x${escapeProfileHtml(item.quantity)})</li>`;
                 });
             } catch (e) {
-                itemsHtml = `<li>${order.items}</li>`;
+                itemsHtml = `<li>${escapeProfileHtml(order.items)}</li>`;
             }
 
             const statusVal = order.status || 'Pending';
@@ -331,26 +341,31 @@ async function loadProfileOrders(forceRefresh = false) {
 
             let historyJson = order.history || '[]';
             let encodedHistory = encodeURIComponent(historyJson);
+            const safeOrderId = escapeProfileHtml(order.orderId || 'N/A');
+            const safeDate = escapeProfileHtml(order.date || '—');
+            const safeTotal = parseFloat(order.total || 0).toFixed(2);
+            const safeNote = escapeProfileHtml(order.note || 'គ្មាន');
+            const safeStatus = escapeProfileHtml(statusVal);
 
             html += `
                 <div class="order-card" style="margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #f1f1f1;">
                     <div class="order-card-header">
-                        <span class="order-id-label">🆔 ${order.orderId || 'N/A'}</span>
-                        <button class="order-status-pill" style="color: ${pillColor}; background: ${pillBg}; border: ${border}; box-shadow: ${shadow};" onclick="openTimeline('${encodedHistory}', '${statusVal}')">
-                            ${statusVal}
+                        <span class="order-id-label">🆔 ${safeOrderId}</span>
+                        <button class="order-status-pill" style="color: ${pillColor}; background: ${pillBg}; border: ${border}; box-shadow: ${shadow};" onclick="openTimeline('${encodedHistory}', '${encodeURIComponent(statusVal)}')">
+                            ${safeStatus}
                         </button>
                     </div>
                     <div class="order-detail-row">
                         <span class="order-detail-label">Date</span>
-                        <span class="order-detail-value">${order.date || '—'}</span>
+                        <span class="order-detail-value">${safeDate}</span>
                     </div>
                     <div class="order-detail-row">
                         <span class="order-detail-label">Total</span>
-                        <span class="order-detail-value" style="color:#e74c3c;">$${order.total || '0'}</span>
+                        <span class="order-detail-value" style="color:#e74c3c;">$${safeTotal}</span>
                     </div>
                     <div class="order-detail-row">
                         <span class="order-detail-label">Note</span>
-                        <span class="order-detail-value">${order.note || 'គ្មាន'}</span>
+                        <span class="order-detail-value">${safeNote}</span>
                     </div>
                     <div class="order-items-list">
                         <ul>
