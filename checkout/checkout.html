@@ -11,52 +11,6 @@
         </div>
 
         <div class="checkout-body">
-            <!-- Order Total Highlight Strip with Breakdown -->
-            <div class="checkout-total-strip">
-                <!-- Card Header -->
-                <div class="summary-card-header">
-                    <span class="summary-card-title">
-                        <span class="summary-icon">🧾</span>
-                        <span>Order Summary</span>
-                    </span>
-                    <span id="checkout-items-count" class="summary-items-badge">Cart Items</span>
-                </div>
-
-                <!-- Breakdown Section (Subtotal & Discount) -->
-                <div id="checkout-promo-breakdown" class="checkout-promo-breakdown" style="display: none;">
-                    <div class="breakdown-row">
-                        <span class="breakdown-label">Original Subtotal</span>
-                        <span class="breakdown-val">$<span id="checkout-subtotal-price">0.00</span></span>
-                    </div>
-                    <div class="breakdown-row discount-row">
-                        <span class="breakdown-label">
-                            <span class="promo-tag-pill" id="checkout-promo-tag">🏷️ <span
-                                    id="checkout-promo-code-name">PROMO</span></span>
-                            <span id="checkout-promo-label">Discount:</span>
-                        </span>
-                        <span class="breakdown-val discount-val">-$<span
-                                id="checkout-discount-amount">0.00</span></span>
-                    </div>
-                </div>
-
-                <!-- Main Total Row -->
-                <div class="total-row-main">
-                    <div class="total-title-group">
-                        <span class="total-label">Total to Pay</span>
-                        <span class="total-tax-note">All taxes included</span>
-                    </div>
-                    <div class="total-price-box">
-                        <span class="currency-symbol">$</span>
-                        <span id="checkout-total-price" class="total-amount">0.00</span>
-                    </div>
-                </div>
-
-                <!-- Celebratory Savings Banner (When Promo Applied) -->
-                <div id="checkout-savings-pill" class="checkout-savings-banner" style="display: none;">
-                    <span class="savings-icon">🎉</span>
-                    <span id="checkout-savings-text">Saved -$0.00 with promo code</span>
-                </div>
-            </div>
 
 
 
@@ -162,6 +116,52 @@
                         <button type="button" class="btn-remove-promo" onclick="removePromoCode()">✕ Remove</button>
                     </div>
                     <div id="promo-feedback-msg" class="promo-feedback-msg" style="display:none;"></div>
+                </div>
+                <!-- Order Total Highlight Strip with Breakdown -->
+                <div class="checkout-total-strip">
+                    <!-- Card Header -->
+                    <div class="summary-card-header">
+                        <span class="summary-card-title">
+                            <span class="summary-icon">🧾</span>
+                            <span>Order Summary</span>
+                        </span>
+                        <span id="checkout-items-count" class="summary-items-badge">Cart Items</span>
+                    </div>
+
+                    <!-- Breakdown Section (Subtotal & Discount) -->
+                    <div id="checkout-promo-breakdown" class="checkout-promo-breakdown" style="display: none;">
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">Original Subtotal</span>
+                            <span class="breakdown-val">$<span id="checkout-subtotal-price">0.00</span></span>
+                        </div>
+                        <div class="breakdown-row discount-row">
+                            <span class="breakdown-label">
+                                <span class="promo-tag-pill" id="checkout-promo-tag">🏷️ <span
+                                        id="checkout-promo-code-name">PROMO</span></span>
+                                <span id="checkout-promo-label">Discount:</span>
+                            </span>
+                            <span class="breakdown-val discount-val">-$<span
+                                    id="checkout-discount-amount">0.00</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Main Total Row -->
+                    <div class="total-row-main">
+                        <div class="total-title-group">
+                            <span class="total-label">Total to Pay</span>
+                            <span class="total-tax-note">All taxes included</span>
+                        </div>
+                        <div class="total-price-box">
+                            <span class="currency-symbol">$</span>
+                            <span id="checkout-total-price" class="total-amount">0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Celebratory Savings Banner (When Promo Applied) -->
+                    <div id="checkout-savings-pill" class="checkout-savings-banner" style="display: none;">
+                        <span class="savings-icon">🎉</span>
+                        <span id="checkout-savings-text">Saved -$0.00 with promo code</span>
+                    </div>
                 </div>
 
 
