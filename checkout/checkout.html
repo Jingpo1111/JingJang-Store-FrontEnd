@@ -58,7 +58,9 @@
                 </div>
             </div>
 
-            <!-- Payment Methods & Bank Selection -->
+
+
+            <!-- Payment Methods & Bank Selection
             <div class="payment-method-section">
                 <label class="section-subheading">Select Payment Method</label>
                 <div class="bank-selector-tabs">
@@ -84,10 +86,10 @@
                         </div>
                         <span class="bank-tab-radio"></span>
                     </button>
-                </div>
+                </div> -->
 
-                <!-- Active Bank Link & QR Presentation -->
-                <div class="qr-presentation-card">
+            <!-- Active Bank Link & QR Presentation -->
+            <!-- <div class="qr-presentation-card">
                     <div class="qr-header-pill">
                         <span>🇰🇭 KHQR Official Payment</span>
                     </div>
@@ -101,7 +103,7 @@
                         <span>🔗 Open ABA App / Pay</span>
                     </a>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Checkout Information Form -->
             <form id="checkout-form" onsubmit="submitOrder(event)">
@@ -144,8 +146,8 @@
                     <div class="promo-input-group" id="promo-input-container">
                         <div class="promo-input-wrap">
                             <span class="promo-input-icon">🏷️</span>
-                            <input type="text" id="promo-code-input" placeholder="e.g. WELCOME10 or SAVE5" autocomplete="off"
-                                style="text-transform:uppercase;">
+                            <input type="text" id="promo-code-input" placeholder="e.g. WELCOME10 or SAVE5"
+                                autocomplete="off" style="text-transform:uppercase;">
                         </div>
                         <button type="button" id="btn-apply-promo" onclick="applyPromoCode()">Apply</button>
                     </div>
@@ -162,6 +164,39 @@
                     <div id="promo-feedback-msg" class="promo-feedback-msg" style="display:none;"></div>
                 </div>
 
+
+
+                <!-- Payment Method (ABA only) -->
+                <div class="payment-method-section">
+                    <label class="section-subheading">Payment Method</label>
+
+                    <div class="bank-single-card">
+                        <img src="img/ABA.png" alt="ABA Bank" class="bank-tab-icon">
+                        <div class="bank-tab-info">
+                            <span class="bank-name">ABA Bank</span>
+                            <span class="bank-hint">KHQR Scan / Deep Link</span>
+                        </div>
+                    </div>
+
+                    <div class="qr-presentation-card">
+                        <div class="qr-header-pill">
+                            <span>🇰🇭 KHQR Official Payment</span>
+                        </div>
+                        <div class="qr-frame">
+                            <img src="img/Bank/abaqr.jpg" alt="Payment QR Code" class="qr-img" id="qr-image"
+                                onerror="this.src='img/qrcode.JPG'">
+                        </div>
+                        <p class="qr-scan-instruction">Scan with ABA Mobile, Bakong, or any Cambodian mobile banking app
+                            to
+                            pay</p>
+                        <a id="payment-link" href="https://pay.ababank.com/oRF8/4y0ur1w1" target="_blank"
+                            class="bank-direct-link">
+                            <span>🔗 Open ABA App</span>
+                        </a>
+                    </div>
+                </div>
+
+
                 <!-- Receipt Upload -->
                 <div class="input-field-group">
                     <label>Payment Receipt Screenshot <span class="required-star">*</span></label>
@@ -175,7 +210,8 @@
                         </div>
                         <div id="receipt-preview-wrapper" style="display: none; position: relative;">
                             <img id="receipt-preview" class="receipt-preview-img" alt="Payment Receipt Preview">
-                            <button type="button" class="remove-receipt-btn" onclick="removeReceipt(event)">✕ Change</button>
+                            <button type="button" class="remove-receipt-btn" onclick="removeReceipt(event)">✕
+                                Change</button>
                         </div>
                     </div>
                 </div>

@@ -126,35 +126,56 @@ function closeCheckout() {
     }
 }
 
-// 3. Bank Selection Tabs (ABA / ACLEDA)
-function selectBankMethod(method, img, name) {
-    selectedBankKey = method;
+// // 3. Bank Selection Tabs (ABA / ACLEDA)
+// function selectBankMethod(method, img, name) {
+//     selectedBankKey = method;
 
-    // Toggle active tab buttons
+//     // Toggle active tab buttons
+//     const btnAba = document.getElementById('bank-tab-aba');
+//     const btnAc = document.getElementById('bank-tab-ac');
+//     if (btnAba) btnAba.classList.toggle('active', method === 'aba');
+//     if (btnAc) btnAc.classList.toggle('active', method === 'ac');
+
+//     const link = document.getElementById('payment-link');
+//     const qrImage = document.getElementById('qr-image');
+
+//     if (method === 'aba') {
+//         if (link) {
+//             link.href = "https://pay.ababank.com/oRF8/4y0ur1w1";
+//             link.innerHTML = "<span>🔗 Open ABA App / Pay</span>";
+//         }
+//         if (qrImage) {
+//             qrImage.src = "img/Bank/abaqr.jpg";
+//         }
+//     } else if (method === 'ac') {
+//         if (link) {
+//             link.href = "https://acledabank.com.kh/acleda?payment_data=qWY5B2SAUfIhLblxzOtfu5ckLzMHjaSki6Ru0bsOyNK+ylPBgZ0sHH6BeGUscKoE58OqGYCB+0+/7oWYyz8zgsTJ6N1UFR6fIgKzYTC4dNA+H3HDmFtNdaTGeaC33xpV6rCwitYe2fTeUBvJ4vj/Hmgxn5Q0fK8JnIUsIRRUfbbAXOWG8G8Zmx250X7rpRvY8O74OMfCDKeJu3nBu08j7lLxGxvnvBJZhfDdJt3urffF2r6v8pr4q3eq0AaRb4Yo&key=khqr";
+//             link.innerHTML = "<span>🔗 Open ACLEDA App / Pay</span>";
+//         }
+//         if (qrImage) {
+//             qrImage.src = "img/Bank/acqr.jpg";
+//         }
+//     }
+// }
+
+
+
+// 3. Bank Selection (ABA only)
+function selectBankMethod(method, img, name) {
+    selectedBankKey = 'aba';
+
     const btnAba = document.getElementById('bank-tab-aba');
-    const btnAc = document.getElementById('bank-tab-ac');
-    if (btnAba) btnAba.classList.toggle('active', method === 'aba');
-    if (btnAc) btnAc.classList.toggle('active', method === 'ac');
+    if (btnAba) btnAba.classList.add('active');
 
     const link = document.getElementById('payment-link');
     const qrImage = document.getElementById('qr-image');
 
-    if (method === 'aba') {
-        if (link) {
-            link.href = "https://pay.ababank.com/oRF8/4y0ur1w1";
-            link.innerHTML = "<span>🔗 Open ABA App / Pay</span>";
-        }
-        if (qrImage) {
-            qrImage.src = "img/Bank/abaqr.jpg";
-        }
-    } else if (method === 'ac') {
-        if (link) {
-            link.href = "https://acledabank.com.kh/acleda?payment_data=qWY5B2SAUfIhLblxzOtfu5ckLzMHjaSki6Ru0bsOyNK+ylPBgZ0sHH6BeGUscKoE58OqGYCB+0+/7oWYyz8zgsTJ6N1UFR6fIgKzYTC4dNA+H3HDmFtNdaTGeaC33xpV6rCwitYe2fTeUBvJ4vj/Hmgxn5Q0fK8JnIUsIRRUfbbAXOWG8G8Zmx250X7rpRvY8O74OMfCDKeJu3nBu08j7lLxGxvnvBJZhfDdJt3urffF2r6v8pr4q3eq0AaRb4Yo&key=khqr";
-            link.innerHTML = "<span>🔗 Open ACLEDA App / Pay</span>";
-        }
-        if (qrImage) {
-            qrImage.src = "img/Bank/acqr.jpg";
-        }
+    if (link) {
+        link.href = "https://pay.ababank.com/oRF8/4y0ur1w1";
+        link.innerHTML = "<span>🔗 Open ABA App / Pay</span>";
+    }
+    if (qrImage) {
+        qrImage.src = "img/Bank/abaqr.jpg";
     }
 }
 
