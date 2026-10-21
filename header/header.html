@@ -1,7 +1,7 @@
 <header class="site-header">
     <div class="header-top-row">
         <!-- Brand Logo & Name -->
-        <div class="logo" onclick="showPage('home')" style="cursor: pointer;">
+        <div class="logo" onclick="if(typeof showPage==='function'){showPage('home');}else{window.location.href='index.html';}" style="cursor: pointer;" title="Go to Store">
             <img src="img/IMG_3840.PNG" alt="JingJang Logo" class="logog">
             <span class="logo-text">JingJang</span>
         </div>

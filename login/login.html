@@ -24,10 +24,10 @@
 
     <div class="login-container">
         <!-- Back Button -->
-        <a href="../index.html" class="back-btn">← Back</a>
+        <a href="../index.html" class="back-btn" onclick="goBack('../index.html'); return false;">← Back to Store</a>
 
         <!-- Logo Section -->
-        <div class="logo-section">
+        <div class="logo-section" onclick="window.location.href='../index.html'" style="cursor: pointer;" title="Back to Store">
             <img src="../img/IMG_3840.PNG" alt="JingJang Logo" class="login-logo">
             <h1>JingJang Store</h1>
             <p class="subtitle">Welcome back! Please sign in to continue.</p>
@@ -244,6 +244,18 @@
 
     <script src="../config.js"></script>
     <script src="login.js"></script>
+    <script>
+        function goBack(fallbackUrl = '../index.html') {
+            if (document.referrer && document.referrer.includes(window.location.host)) {
+                history.back();
+            } else {
+                window.location.href = fallbackUrl;
+            }
+        }
+        function showPage(page) {
+            goBack('../index.html');
+        }
+    </script>
 </body>
 
 </html>

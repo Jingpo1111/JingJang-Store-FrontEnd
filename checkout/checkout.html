@@ -11,57 +11,9 @@
         </div>
 
         <div class="checkout-body">
-
-
-
-            <!-- Payment Methods & Bank Selection
-            <div class="payment-method-section">
-                <label class="section-subheading">Select Payment Method</label>
-                <div class="bank-selector-tabs">
-                    <button type="button" class="bank-tab-btn active" id="bank-tab-aba"
-                        onclick="selectBankMethod('aba', 'img/ABA.png', 'ABA Bank')">
-                        <div class="bank-tab-left">
-                            <img src="img/ABA.png" alt="ABA Bank" class="bank-tab-icon">
-                            <div class="bank-tab-info">
-                                <span class="bank-name">ABA Bank</span>
-                                <span class="bank-hint">KHQR Scan / Deep Link</span>
-                            </div>
-                        </div>
-                        <span class="bank-tab-radio"></span>
-                    </button>
-                    <button type="button" class="bank-tab-btn" id="bank-tab-ac"
-                        onclick="selectBankMethod('ac', 'img/AC.png', 'ACLEDA Bank')">
-                        <div class="bank-tab-left">
-                            <img src="img/AC.png" alt="ACLEDA Bank" class="bank-tab-icon">
-                            <div class="bank-tab-info">
-                                <span class="bank-name">ACLEDA Bank</span>
-                                <span class="bank-hint">KHQR Scan / Deep Link</span>
-                            </div>
-                        </div>
-                        <span class="bank-tab-radio"></span>
-                    </button>
-                </div> -->
-
-            <!-- Active Bank Link & QR Presentation -->
-            <!-- <div class="qr-presentation-card">
-                    <div class="qr-header-pill">
-                        <span>🇰🇭 KHQR Official Payment</span>
-                    </div>
-                    <div class="qr-frame">
-                        <img src="img/Bank/abaqr.jpg" alt="Payment QR Code" class="qr-img" id="qr-image"
-                            onerror="this.src='img/qrcode.JPG'">
-                    </div>
-                    <p class="qr-scan-instruction">Scan with ABA Mobile, Bakong, or any Cambodian mobile banking app to pay</p>
-                    <a id="payment-link" href="https://pay.ababank.com/oRF8/4y0ur1w1" target="_blank"
-                        class="bank-direct-link">
-                        <span>🔗 Open ABA App / Pay</span>
-                    </a>
-                </div>
-            </div> -->
-
             <!-- Checkout Information Form -->
-            <form id="checkout-form" onsubmit="submitOrder(event)">
-                <label class="section-subheading" style="margin-top: 20px;">Shipping Details</label>
+            <form id="checkout-form" onsubmit="proceedToPayment(event)">
+                <label class="section-subheading" style="margin-top: 5px;">Shipping Details</label>
 
                 <div class="input-field-group">
                     <label for="cus-name">Full Name <span class="required-star">*</span></label>
@@ -91,7 +43,7 @@
                         rows="2"></textarea>
                 </div>
 
-                <!-- Promotion / Coupon Code Section (Between Note & Receipt) -->
+                <!-- Promotion / Coupon Code Section -->
                 <div class="input-field-group checkout-promo-box">
                     <div class="promo-box-header">
                         <label for="promo-code-input" class="promo-box-title">🎟️ Have a Promo Code?</label>
@@ -117,6 +69,7 @@
                     </div>
                     <div id="promo-feedback-msg" class="promo-feedback-msg" style="display:none;"></div>
                 </div>
+
                 <!-- Order Total Highlight Strip with Breakdown -->
                 <div class="checkout-total-strip">
                     <!-- Card Header -->
@@ -164,63 +117,10 @@
                     </div>
                 </div>
 
-
-
-                <!-- Payment Method (ABA only) -->
-                <div class="payment-method-section">
-                    <label class="section-subheading">Payment Method</label>
-
-                    <div class="bank-single-card">
-                        <img src="img/ABA.png" alt="ABA Bank" class="bank-tab-icon">
-                        <div class="bank-tab-info">
-                            <span class="bank-name">ABA Bank</span>
-                            <span class="bank-hint">KHQR Scan / Deep Link</span>
-                        </div>
-                    </div>
-
-                    <div class="qr-presentation-card">
-                        <div class="qr-header-pill">
-                            <span>🇰🇭 KHQR Official Payment</span>
-                        </div>
-                        <div class="qr-frame">
-                            <img src="img/Bank/abaqr.jpg" alt="Payment QR Code" class="qr-img" id="qr-image"
-                                onerror="this.src='img/qrcode.JPG'">
-                        </div>
-                        <p class="qr-scan-instruction">Scan with ABA Mobile, Bakong, or any Cambodian mobile banking app
-                            to
-                            pay</p>
-                        <a id="payment-link" href="https://pay.ababank.com/oRF8/4y0ur1w1" target="_blank"
-                            class="bank-direct-link">
-                            <span>🔗 Open ABA App</span>
-                        </a>
-                    </div>
-                </div>
-
-
-                <!-- Receipt Upload -->
-                <div class="input-field-group">
-                    <label>Payment Receipt Screenshot <span class="required-star">*</span></label>
-                    <div class="receipt-upload-box" onclick="document.getElementById('receipt-upload').click()">
-                        <input type="file" id="receipt-upload" accept="image/*" required
-                            onchange="previewReceipt(event)" style="display: none;">
-                        <div id="receipt-upload-placeholder" class="upload-placeholder">
-                            <div class="upload-icon-circle">📸</div>
-                            <span class="upload-text">Tap to select payment screenshot</span>
-                            <span class="upload-hint">JPG, PNG, WebP accepted (Max 5MB)</span>
-                        </div>
-                        <div id="receipt-preview-wrapper" style="display: none; position: relative;">
-                            <img id="receipt-preview" class="receipt-preview-img" alt="Payment Receipt Preview">
-                            <button type="button" class="remove-receipt-btn" onclick="removeReceipt(event)">✕
-                                Change</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Submit Button -->
+                <!-- Proceed to Payment Action Button -->
                 <div class="checkout-actions-row">
-                    <button type="submit" class="checkout-submit-btn" id="checkout-submit-button">
-                        <span id="submit-btn-spinner" class="btn-spinner" style="display: none;"></span>
-                        <span id="submit-btn-text">Confirm Order & Pay</span>
+                    <button type="submit" class="checkout-submit-btn" id="checkout-submit-button" onclick="proceedToPayment(event)">
+                        <span id="submit-btn-text">Proceed to Payment (ABA / ACLEDA KHQR) →</span>
                     </button>
                 </div>
             </form>

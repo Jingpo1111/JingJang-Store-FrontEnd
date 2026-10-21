@@ -125,7 +125,6 @@
         }
     </style>
     <link rel="stylesheet" href="header/header.css">
-    <link rel="stylesheet" href="footer/footer.css">
     <link rel="stylesheet" href="checkout/checkout.css">
     <script src="config.js"></script>
 </head>
@@ -188,54 +187,9 @@
                         </div>
                     </div>
 
-                    <!-- Payment Methods & Bank Selection -->
-                    <div class="payment-method-section">
-                        <label class="section-subheading">Select Payment Method</label>
-                        <div class="bank-selector-tabs">
-                            <button type="button" class="bank-tab-btn active" id="bank-tab-aba"
-                                onclick="selectBankMethod('aba', 'img/ABA.png', 'ABA Bank')">
-                                <div class="bank-tab-left">
-                                    <img src="img/ABA.png" alt="ABA Bank" class="bank-tab-icon">
-                                    <div class="bank-tab-info">
-                                        <span class="bank-name">ABA Bank</span>
-                                        <span class="bank-hint">KHQR Scan / Deep Link</span>
-                                    </div>
-                                </div>
-                                <span class="bank-tab-radio"></span>
-                            </button>
-                            <button type="button" class="bank-tab-btn" id="bank-tab-ac"
-                                onclick="selectBankMethod('ac', 'img/AC.png', 'ACLEDA Bank')">
-                                <div class="bank-tab-left">
-                                    <img src="img/AC.png" alt="ACLEDA Bank" class="bank-tab-icon">
-                                    <div class="bank-tab-info">
-                                        <span class="bank-name">ACLEDA Bank</span>
-                                        <span class="bank-hint">KHQR Scan / Deep Link</span>
-                                    </div>
-                                </div>
-                                <span class="bank-tab-radio"></span>
-                            </button>
-                        </div>
-
-                        <!-- Active Bank Link & QR Presentation -->
-                        <div class="qr-presentation-card">
-                            <div class="qr-header-pill">
-                                <span>🇰🇭 KHQR Official Payment</span>
-                            </div>
-                            <div class="qr-frame">
-                                <img src="img/Bank/abaqr.jpg" alt="Payment QR Code" class="qr-img" id="qr-image"
-                                    onerror="this.src='img/qrcode.JPG'">
-                            </div>
-                            <p class="qr-scan-instruction">Scan with ABA Mobile, Bakong, or any Cambodian mobile banking app to pay</p>
-                            <a id="payment-link" href="https://pay.ababank.com/oRF8/4y0ur1w1" target="_blank"
-                                class="bank-direct-link">
-                                <span>🔗 Open ABA App / Pay</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Checkout Information Form -->
-                    <form id="checkout-form" onsubmit="submitOrder(event)">
-                        <label class="section-subheading" style="margin-top: 20px;">Shipping Details</label>
+                    <!-- Checkout Information Form (Step 1) -->
+                    <form id="checkout-form" onsubmit="proceedToPayment(event)">
+                        <label class="section-subheading" style="margin-top: 15px;">Shipping Details</label>
 
                         <div class="input-field-group">
                             <label for="cus-name">Full Name <span class="required-star">*</span></label>
@@ -265,7 +219,7 @@
                                 rows="2"></textarea>
                         </div>
 
-                        <!-- Promotion / Coupon Code Section (Between Note & Receipt) -->
+                        <!-- Promotion / Coupon Code Section -->
                         <div class="input-field-group checkout-promo-box">
                             <div class="promo-box-header">
                                 <label for="promo-code-input" class="promo-box-title">🎟️ Have a Promo Code?</label>
@@ -292,29 +246,10 @@
                             <div id="promo-feedback-msg" class="promo-feedback-msg" style="display:none;"></div>
                         </div>
 
-                        <!-- Receipt Upload -->
-                        <div class="input-field-group">
-                            <label>Payment Receipt Screenshot <span class="required-star">*</span></label>
-                            <div class="receipt-upload-box" onclick="document.getElementById('receipt-upload').click()">
-                                <input type="file" id="receipt-upload" accept="image/*" required
-                                    onchange="previewReceipt(event)" style="display: none;">
-                                <div id="receipt-upload-placeholder" class="upload-placeholder">
-                                    <div class="upload-icon-circle">📸</div>
-                                    <span class="upload-text">Tap to select payment screenshot</span>
-                                    <span class="upload-hint">JPG, PNG, WebP accepted (Max 5MB)</span>
-                                </div>
-                                <div id="receipt-preview-wrapper" style="display: none; position: relative;">
-                                    <img id="receipt-preview" class="receipt-preview-img" alt="Payment Receipt Preview">
-                                    <button type="button" class="remove-receipt-btn" onclick="removeReceipt(event)">✕ Change</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Submit Button -->
+                        <!-- Proceed to Payment Action Button -->
                         <div class="checkout-actions-row">
-                            <button type="submit" class="checkout-submit-btn" id="checkout-submit-button">
-                                <span id="submit-btn-spinner" class="btn-spinner" style="display: none;"></span>
-                                <span id="submit-btn-text">Confirm Order & Pay</span>
+                            <button type="submit" class="checkout-submit-btn" id="checkout-submit-button" onclick="proceedToPayment(event)">
+                                <span id="submit-btn-text">Proceed to Payment (ABA / ACLEDA KHQR) →</span>
                             </button>
                         </div>
                     </form>
@@ -323,7 +258,22 @@
         </div>
     </div>
 
-    <div id="footer-container"></div>
+    <!-- Order Success Modal (In-Page, Never Redirects Away) -->
+    <div id="order-success-modal" class="order-success-modal-overlay" style="display: none;">
+        <div class="order-success-card">
+            <div class="success-icon-badge">🎉</div>
+            <h2>Order Received!</h2>
+            <p class="success-msg">Thank you for your purchase. We have received your order and payment receipt.</p>
+            <div class="order-id-box">
+                <span class="order-id-label">Order Reference ID:</span>
+                <strong id="success-order-id" class="order-id-val">JJ-XXXX</strong>
+            </div>
+            <p class="success-subtext">Our team will verify your receipt and process shipping immediately.</p>
+            <button type="button" class="success-done-btn" onclick="closeOrderSuccessModal()">
+                Done & Continue Shopping
+            </button>
+        </div>
+    </div>
 
     <script src="cart/cart.js"></script>
     <script src="checkout/checkout.js"></script>
@@ -338,9 +288,13 @@
             }
         }
 
-        // Inline routing helpers for header buttons on standalone page
+        // Inline routing helpers: on checkout page (has back button), clicking Home also goes back
         function showPage(page) {
-            window.location.href = `index.html?page=${page}`;
+            if (page === 'home' || !page) {
+                goBack('cart.html');
+            } else {
+                window.location.href = `index.html?page=${page}`;
+            }
         }
         function openProfile() {
             window.location.href = 'index.html?openProfile=true';
@@ -382,7 +336,7 @@
         }
 
         async function fetchAndCacheHtml(url, containerId, postProcessFn = null) {
-            const cacheKey = 'jj_html_' + url;
+            const cacheKey = 'jj_html_v4_' + url;
             const cachedHtml = localStorage.getItem(cacheKey);
             const container = document.getElementById(containerId);
 
@@ -409,14 +363,19 @@
         }
 
         async function loadComponents() {
-            await Promise.all([
-                fetchAndCacheHtml('header/header.html', 'header-container', () => {
-                    updateHeaderAuthUI();
-                    updateCartUI();
-                }),
-                fetchAndCacheHtml('footer/footer.html', 'footer-container')
-            ]);
+            await fetchAndCacheHtml('header/header.html', 'header-container', () => {
+                updateHeaderAuthUI();
+                updateCartUI();
+            });
             updateCartUI();
+            if (typeof updateCheckoutPricingUI === 'function') {
+                updateCheckoutPricingUI();
+            }
+            const savedName = localStorage.getItem('jj_username');
+            const nameInput = document.getElementById('cus-name');
+            if (nameInput && savedName && !nameInput.value) {
+                nameInput.value = savedName;
+            }
         }
 
         loadComponents();

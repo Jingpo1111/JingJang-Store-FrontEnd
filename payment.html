@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment • JingJang Store Official KHQR</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Kantumruy+Pro:wght@400;600;700;800&family=JetBrains+Mono:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="header/header.css">
+    <link rel="stylesheet" href="payment.css">
+
+    <!-- High-res visual exporter for Standee PNG downloads -->
+    <script src="html2canvas.min.js"></script>
+    <script src="config.js"></script>
+</head>
+
+<body>
+    <!-- Top Navigation Header Container -->
+    <div id="header-container"></div>
+
+    <main class="payment-page-container">
+        <!-- Multi-Step Progress Indicator -->
+        <div class="payment-step-bar">
+            <div class="step-item completed">
+                <span class="step-circle">✓</span>
+                <span>1. Shipping Details</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item active">
+                <span class="step-circle">2</span>
+                <span>2. KHQR Payment</span>
+            </div>
+        </div>
+
+        <!-- Navigation Row -->
+        <div class="payment-top-row">
+            <a href="checkout.html" class="back-to-checkout-btn" onclick="goBack('checkout.html'); return false;">
+                <span>← Edit Shipping Information</span>
+            </a>
+            <div class="secure-badge">
+                <span>🔒 Secure KHQR Payment • Official Beneficiary</span>
+            </div>
+        </div>
+
+        <!-- Main Layout Grid -->
+        <div class="payment-grid">
+
+            <!-- LEFT COLUMN: Authentic KHQR Standee Display & Download -->
+            <section class="standee-wrapper">
+
+                <!-- Bank Switcher Tabs -->
+                <div class="bank-tabs-wrapper">
+                    <button type="button" class="bank-tab-button active aba-active" id="tab-btn-aba"
+                        onclick="switchBank('aba')">
+                        <img src="img/ABA.png" alt="ABA Bank">
+                        <span>ABA' QR</span>
+                    </button>
+                    <button type="button" class="bank-tab-button acleda-active" id="tab-btn-acleda"
+                        onclick="switchBank('acleda')">
+                        <img src="img/AC.png" alt="ACLEDA Bank">
+                        <span>ACLEDA Bank</span>
+                    </button>
+                </div>
+
+                <!-- ============================================== -->
+                <!-- STANDEE 1: OFFICIAL ABA' QR STAND (Exact Match)-->
+                <!-- ============================================== -->
+                <div id="poster-aba-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+                    <div class="aba-poster" id="poster-aba">
+                        <!-- Loading Overlay -->
+                        <div class="standee-loading" id="loading-aba" style="display: none;">
+                            <div class="standee-spinner"></div>
+                            <span style="font-size: 12px; font-weight: 700; color: #003853;">Generating Live KHQR...</span>
+                        </div>
+
+                        <!-- Top Header: ABA' QR -->
+                        <div class="aba-poster-header">
+                            <div class="aba-qr-logo-text">
+                                <span class="aba-letters">ABA</span>
+                                <span class="aba-apostrophe">'</span>
+                                <span class="aba-qr-part">QR</span>
+                            </div>
+                        </div>
+
+                        <!-- Center White Card with Signature Red Banner -->
+                        <div class="khqr-white-card">
+                            <div class="card-red-banner-svg">
+                                <svg viewBox="0 0 336 52" width="100%" height="52" style="display:block;">
+                                    <path d="M 0 0 L 310 0 L 336 26 L 336 52 L 0 52 Z" fill="#E11926" />
+                                    <g fill="#ffffff" transform="translate(111, 13)">
+                                        <!-- K -->
+                                        <path d="M 0 0 h 6 v 10 l 9 -10 h 7.5 l -10.5 11.5 l 11.5 14.5 h -7.5 l -10 -13 v 13 h -6 z" />
+                                        <!-- H -->
+                                        <path d="M 30 0 h 6 v 10 h 10 v -10 h 6 v 26 h -6 v -11 h -10 v 11 h -6 z" />
+                                        <!-- Q -->
+                                        <path d="M 72 0 c 7 0 12 5.5 12 13 c 0 3.5 -1.2 6.5 -3.5 9 l 4.5 4 h -7.5 l -2.5 -2.5 c -1 0.4 -2 0.5 -3 0.5 c -7 0 -12 -5.5 -12 -13 c 0 -7.5 5 -13 12 -13 z m 0 5.5 c -4 0 -6.5 3 -6.5 7.5 c 0 4.5 2.5 7.5 6.5 7.5 c 4 0 6.5 -3 6.5 -7.5 c 0 -4.5 -2.5 -7.5 -6.5 -7.5 z" />
+                                        <!-- R -->
+                                        <path d="M 92 0 h 12 c 5.5 0 9.5 3.5 9.5 8.5 c 0 3.5 -2 6.5 -5.5 7.5 l 7 10 h -7.5 l -6.5 -9.5 h -3 v 9.5 h -6 z m 6 5 v 6.5 h 6 c 2 0 3.5 -1.2 3.5 -3.2 c 0 -2 -1.5 -3.3 -3.5 -3.3 z" />
+                                    </g>
+                                </svg>
+                            </div>
+
+                            <div class="card-content-body">
+                                <div class="card-merchant-name">JingJang Store</div>
+                                <div class="card-amount-line">
+                                    <span id="disp-amount-num-aba">0.00</span>
+                                    <span class="card-amount-currency" id="disp-amount-curr-aba">USD</span>
+                                </div>
+                                <div class="card-dashed-divider"></div>
+
+                                <!-- QR Canvas with Embedded Logo Badge -->
+                                <div class="qr-canvas-holder">
+                                    <img id="qr-img-aba" class="qr-main-image" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='270' height='270'></svg>" alt="ABA KHQR Payment Code">
+                                    <div class="center-logo-badge">
+                                        <img src="favicon.png" alt="Store Logo">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Row -->
+                        <div class="aba-account-row">
+                            <div class="aba-acc-left">
+                                <div class="aba-curr-icon-circle">$</div>
+                                <div class="aba-account-text">គណនី USD:</div>
+                            </div>
+                            <div class="aba-account-num">010 777 268</div>
+                        </div>
+
+                        <!-- Bottom Footer Bar -->
+                        <div class="aba-bottom-bar">
+                            <div class="aba-bank-name">
+                                <span>ABA</span><span class="aba-apostrophe-sm">'</span><span>BANK</span>
+                            </div>
+                            <div class="aba-bank-pipe">|</div>
+                            <div class="aba-nbc-group">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="#E11926">
+                                    <rect x="4" y="4" width="7" height="7" rx="1" />
+                                    <rect x="13" y="4" width="7" height="7" rx="1" />
+                                    <rect x="4" y="13" width="7" height="7" rx="1" />
+                                </svg>
+                                <span>NATIONAL BANK<br>OF CANADA GROUP</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Download Buttons for ABA -->
+                    <div class="download-actions-group">
+                        <button type="button" class="btn-download-standee primary" id="btn-dl-standee-aba" onclick="downloadPoster('aba')">
+                            <span>⬇️ Download ABA Standee (PNG)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ============================================== -->
+                <!-- STANDEE 2: OFFICIAL ACLEDA BANK (Exact Match)  -->
+                <!-- ============================================== -->
+                <div id="poster-acleda-wrapper" style="display: none; flex-direction: column; align-items: center; gap: 14px;">
+                    <div class="acleda-poster" id="poster-acleda">
+                        <!-- Loading Overlay -->
+                        <div class="standee-loading" id="loading-acleda" style="display: none;">
+                            <div class="standee-spinner"></div>
+                            <span style="font-size: 12px; font-weight: 700; color: #ffffff;">Generating Live KHQR...</span>
+                        </div>
+
+                        <!-- Top Header: ACLEDA Brand & Bird Logo -->
+                        <div class="acleda-poster-header">
+                            <div class="acleda-header-text">
+                                <div class="acleda-khmer-brand">អេស៊ីលីដា</div>
+                                <div class="acleda-sub-brand">
+                                    <span class="acleda-gold-bar"></span>
+                                    <span>ACLEDA BANK</span>
+                                </div>
+                            </div>
+                            <svg class="acleda-bird-icon" viewBox="0 0 100 100" fill="#F59E0B">
+                                <path d="M50 15 C58 24 72 25 85 20 C78 35 68 45 52 50 C62 55 75 52 88 48 C78 68 60 78 40 78 C25 78 12 70 8 58 C15 62 25 62 35 55 C22 52 14 42 12 30 C20 35 30 35 38 28 C28 24 22 15 25 5 C32 12 40 18 50 15 Z" />
+                            </svg>
+                        </div>
+
+                        <!-- Center White Card with Signature Red Banner -->
+                        <div class="khqr-white-card acleda-card">
+                            <div class="card-red-banner-svg">
+                                <svg viewBox="0 0 336 52" width="100%" height="52" style="display:block;">
+                                    <path d="M 0 0 L 310 0 L 336 26 L 336 52 L 0 52 Z" fill="#E11926" />
+                                    <g fill="#ffffff" transform="translate(111, 13)">
+                                        <!-- K -->
+                                        <path d="M 0 0 h 6 v 10 l 9 -10 h 7.5 l -10.5 11.5 l 11.5 14.5 h -7.5 l -10 -13 v 13 h -6 z" />
+                                        <!-- H -->
+                                        <path d="M 30 0 h 6 v 10 h 10 v -10 h 6 v 26 h -6 v -11 h -10 v 11 h -6 z" />
+                                        <!-- Q -->
+                                        <path d="M 72 0 c 7 0 12 5.5 12 13 c 0 3.5 -1.2 6.5 -3.5 9 l 4.5 4 h -7.5 l -2.5 -2.5 c -1 0.4 -2 0.5 -3 0.5 c -7 0 -12 -5.5 -12 -13 c 0 -7.5 5 -13 12 -13 z m 0 5.5 c -4 0 -6.5 3 -6.5 7.5 c 0 4.5 2.5 7.5 6.5 7.5 c 4 0 6.5 -3 6.5 -7.5 c 0 -4.5 -2.5 -7.5 -6.5 -7.5 z" />
+                                        <!-- R -->
+                                        <path d="M 92 0 h 12 c 5.5 0 9.5 3.5 9.5 8.5 c 0 3.5 -2 6.5 -5.5 7.5 l 7 10 h -7.5 l -6.5 -9.5 h -3 v 9.5 h -6 z m 6 5 v 6.5 h 6 c 2 0 3.5 -1.2 3.5 -3.2 c 0 -2 -1.5 -3.3 -3.5 -3.3 z" />
+                                    </g>
+                                </svg>
+                            </div>
+
+                            <div class="card-content-body">
+                                <div class="card-merchant-name">JingJang Store</div>
+                                <div class="card-amount-line">
+                                    <span class="card-amount-khmer" id="disp-amount-num-acleda">0.00 ដុល្លារ</span>
+                                </div>
+                                <div class="card-dashed-divider"></div>
+
+                                <!-- QR Canvas with Embedded Logo Badge -->
+                                <div class="qr-canvas-holder">
+                                    <img id="qr-img-acleda" class="qr-main-image" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='270' height='270'></svg>" alt="ACLEDA KHQR Payment Code">
+                                    <div class="center-logo-badge">
+                                        <img src="favicon.png" alt="Store Logo">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Under Card Footer Label -->
+                        <div class="acleda-footer-text-row">
+                            ស្កេនទូទាត់ ជាមួយគ្រប់កម្មវិធីទូរសព្ទដែលគាំទ្រ KHQR
+                        </div>
+                    </div>
+
+                    <!-- Download Buttons for ACLEDA -->
+                    <div class="download-actions-group">
+                        <button type="button" class="btn-download-standee primary" id="btn-dl-standee-acleda" onclick="downloadPoster('acleda')">
+                            <span>⬇️ Download ACLEDA Standee (PNG)</span>
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- RIGHT COLUMN: Order Total & Receipt Screenshot Upload -->
+            <section class="payment-details-panel">
+
+                <!-- Receipt Upload Card -->
+                <div class="panel-card" id="receipt-upload-box">
+                    <div class="panel-title">
+                        <h3><span>📸 Upload Payment Screenshot</span></h3>
+                        <span style="font-size: 11px; color: #ef4444; font-weight: 700;">* Required</span>
+                    </div>
+
+                    <!-- Total To Pay Highlight -->
+                    <div class="payment-total-highlight" style="margin-bottom: 16px;">
+                        <div class="total-left-label">Total to Pay:</div>
+                        <div class="total-right-price" id="pay-summary-total">$0.00</div>
+                    </div>
+                    <p style="font-size: 12px; color: #64748b; margin-bottom: 12px; line-height: 1.4;">
+                        After scanning the KHQR code and completing transfer on your mobile banking app, upload the transaction receipt screenshot below:
+                    </p>
+
+                    <!-- Hidden file input -->
+                    <input type="file" id="receipt-upload" accept="image/*" onchange="previewReceipt(event)" style="display: none;">
+
+                    <!-- Drag & Drop Dropzone -->
+                    <div class="receipt-dropzone" onclick="document.getElementById('receipt-upload').click()">
+                        <div class="receipt-placeholder" id="receipt-placeholder">
+                            <div class="receipt-icon-circle">📷</div>
+                            <div class="receipt-main-text">Tap or drop transaction screenshot here</div>
+                            <div class="receipt-sub-text">PNG, JPG, WebP accepted (Max 5MB)</div>
+                        </div>
+
+                        <div class="receipt-preview-wrap" id="receipt-preview-wrap" style="display: none;">
+                            <img id="receipt-preview" class="receipt-preview-img" alt="Payment Receipt Preview">
+                            <button type="button" class="receipt-remove-btn" onclick="removeReceipt(event)">✕ Change Receipt</button>
+                        </div>
+                    </div>
+
+                    <!-- Confirm Order & Submit Button -->
+                    <button type="button" class="btn-confirm-order" id="btn-confirm-order" onclick="confirmOrder()">
+                        <span id="confirm-btn-spinner" class="standee-spinner" style="width: 20px; height: 20px; border-width: 2.5px; border-top-color: #fff; display: none;"></span>
+                        <span id="confirm-btn-text">Confirm Order & Submit Receipt</span>
+                    </button>
+                </div>
+
+            </section>
+
+        </div>
+    </main>
+
+    <!-- In-Page Order Received Celebration Modal -->
+    <div id="order-success-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #ffffff; border-radius: 24px; padding: 36px 28px; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.25); animation: popIn 0.3s ease;">
+            <div style="width: 72px; height: 72px; border-radius: 50%; background: #dcfce7; color: #16a34a; font-size: 36px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                🎉
+            </div>
+            <h2 style="font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">Order Placed Successfully!</h2>
+            <p style="font-size: 13.5px; color: #64748b; line-height: 1.5; margin-bottom: 18px;">
+                Thank you for your purchase. We have received your order details and payment screenshot.
+            </p>
+            <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 12px; margin-bottom: 20px;">
+                <div style="font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase;">Order Reference ID</div>
+                <div id="success-order-id" style="font-size: 20px; font-weight: 900; color: #0f172a; font-family: 'JetBrains Mono', monospace; margin-top: 4px;">JJ-000000</div>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin-bottom: 24px;">Our store team will verify your receipt and dispatch your package promptly.</p>
+            <button type="button" class="btn-confirm-order" onclick="closeOrderSuccessModal()">
+                Done & Continue Shopping
+            </button>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="html2canvas.min.js"></script>
+    <script src="cart/cart.js"></script>
+    <script src="payment.js"></script>
+    <script>
+        // Go back using browser history to avoid reloading the page
+        function goBack(fallbackUrl = 'checkout.html') {
+            if (document.referrer && document.referrer.includes(window.location.host)) {
+                history.back();
+            } else {
+                window.location.href = fallbackUrl;
+            }
+        }
+
+        // Navigation routing helpers: on payment page (has back button), clicking Home also goes back
+        function showPage(page) {
+            if (page === 'home' || !page) {
+                goBack('checkout.html');
+            } else {
+                window.location.href = `index.html?page=${page}`;
+            }
+        }
+        function openProfile() {
+            window.location.href = 'index.html?openProfile=true';
+        }
+        function logout() {
+            window.location.href = 'index.html?logout=true';
+        }
+
+        // Header Auth State
+        function updateHeaderAuthUI() {
+            var isLoggedIn = localStorage.getItem('jj_loggedIn') === 'true';
+            var username = localStorage.getItem('jj_username');
+            var userId = localStorage.getItem('jj_userId');
+
+            var loginBtn = document.getElementById('header-login-btn');
+            var userInfo = document.getElementById('header-user-info');
+            var profileBtn = document.getElementById('header-profile-btn');
+            var logoutBtn = document.getElementById('header-logout-btn');
+
+            if (isLoggedIn && username && userId) {
+                if (userInfo) userInfo.style.display = 'flex';
+                if (profileBtn) profileBtn.style.display = 'flex';
+                if (logoutBtn) logoutBtn.style.display = 'block';
+                if (loginBtn) loginBtn.style.display = 'none';
+
+                var nameEl = document.getElementById('header-username');
+                var idEl = document.getElementById('header-user-id');
+                if (nameEl) nameEl.textContent = username;
+                if (idEl) idEl.textContent = userId;
+            } else {
+                if (loginBtn) loginBtn.style.display = 'block';
+                if (userInfo) userInfo.style.display = 'none';
+                if (profileBtn) profileBtn.style.display = 'none';
+                if (logoutBtn) logoutBtn.style.display = 'none';
+            }
+        }
+
+        async function fetchAndCacheHtml(url, containerId, postProcessFn = null) {
+            const cacheKey = 'jj_html_v4_' + url;
+            const cachedHtml = localStorage.getItem(cacheKey);
+            const container = document.getElementById(containerId);
+
+            if (cachedHtml && container) {
+                container.innerHTML = cachedHtml;
+                if (postProcessFn) postProcessFn();
+            }
+
+            try {
+                const fetchUrl = url.includes('?') ? url + '&_t=' + Date.now() : url + '?_t=' + Date.now();
+                const response = await fetch(fetchUrl);
+                const newHtml = await response.text();
+
+                if (newHtml !== cachedHtml) {
+                    localStorage.setItem(cacheKey, newHtml);
+                    if (container) {
+                        container.innerHTML = newHtml;
+                        if (postProcessFn) postProcessFn();
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching " + url, err);
+            }
+        }
+
+        async function loadComponents() {
+            await fetchAndCacheHtml('header/header.html', 'header-container', () => {
+                updateHeaderAuthUI();
+                if (typeof updateCartUI === 'function') updateCartUI();
+            });
+            if (typeof updateCartUI === 'function') updateCartUI();
+        }
+
+        loadComponents();
+    </script>
+</body>
+
+</html>

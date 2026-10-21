@@ -92,12 +92,16 @@ function addToCart(name, price, colorGroupName, productId, optionName, quantity 
     updateCartUI();
 
     // Smoothly open the in-page cart drawer with overlay
-    const sidebar = document.getElementById('cart-sidebar');
-    const overlay = document.getElementById('cart-overlay');
-    if (sidebar) {
-        sidebar.classList.add('open');
-        if (overlay) overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
+    if (typeof openCart === 'function') {
+        openCart();
+    } else {
+        const sidebar = document.getElementById('cart-sidebar');
+        const overlay = document.getElementById('cart-overlay');
+        if (sidebar) {
+            sidebar.classList.add('open');
+            if (overlay) overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
     }
 }
 
@@ -178,14 +182,44 @@ function updateCartUI() {
     if (checkoutTotalEl) checkoutTotalEl.innerText = formattedTotal;
 }
 
-// 4. Toggle Cart Sidebar & Overlay
-function toggleCart() {
+// 4. Open, Close & Toggle Cart Sidebar & Overlay
+function openCart() {
     const sidebar = document.getElementById('cart-sidebar');
     const overlay = document.getElementById('cart-overlay');
     if (sidebar) {
-        const isOpen = sidebar.classList.toggle('open');
-        if (overlay) overlay.classList.toggle('active', isOpen);
-        document.body.style.overflow = isOpen ? 'hidden' : '';
+        sidebar.classList.add('open');
+        if (overlay) overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    const cartTab = document.getElementById('tab-cart');
+    if (cartTab) {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        cartTab.classList.add('active');
+    }
+}
+
+function closeCart() {
+    const sidebar = document.getElementById('cart-sidebar');
+    const overlay = document.getElementById('cart-overlay');
+    if (sidebar) {
+        sidebar.classList.remove('open');
+        if (overlay) overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    const cartTab = document.getElementById('tab-cart');
+    if (cartTab && cartTab.classList.contains('active')) {
+        cartTab.classList.remove('active');
+        const homeTab = document.getElementById('tab-home');
+        if (homeTab) homeTab.classList.add('active');
+    }
+}
+
+function toggleCart() {
+    const sidebar = document.getElementById('cart-sidebar');
+    if (sidebar && sidebar.classList.contains('open')) {
+        closeCart();
+    } else {
+        openCart();
     }
 }
 

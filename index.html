@@ -151,7 +151,6 @@
         }
     </style>
     <link rel="stylesheet" href="header/header.css">
-    <link rel="stylesheet" href="footer/footer.css">
     <link rel="stylesheet" href="main/main.css">
     <link rel="stylesheet" href="cart/cart.css">
     <link rel="stylesheet" href="checkout/checkout.css">
@@ -171,7 +170,6 @@
     <main id="main-container" class="page-active"></main>
     <div id="about-container" style="display: none;"></div>
     <div id="contact-container" style="display: none;"></div>
-    <div id="footer-container"></div>
     <div id="cart-container"></div>
     <div id="checkout-container"></div>
     <div id="profile-container"></div>
@@ -281,14 +279,19 @@
         // Mobile Bottom Navbar Tab Switcher
         function navTabClick(tab, event) {
             if (event) event.preventDefault();
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            const clicked = document.getElementById('tab-' + tab);
-            if (clicked) clicked.classList.add('active');
 
             if (tab === 'home') {
+                if (typeof closeCart === 'function') closeCart();
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                const clicked = document.getElementById('tab-home');
+                if (clicked) clicked.classList.add('active');
                 showPage('home');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             } else if (tab === 'shop') {
+                if (typeof closeCart === 'function') closeCart();
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                const clicked = document.getElementById('tab-shop');
+                if (clicked) clicked.classList.add('active');
                 showPage('home');
                 const filterEl = document.querySelector('.product-filter-wrapper') || document.querySelector('.product-filter');
                 if (filterEl) {
@@ -297,12 +300,21 @@
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
             } else if (tab === 'cart') {
-                if (typeof toggleCart === 'function') {
-                    toggleCart();
+                const sidebar = document.getElementById('cart-sidebar');
+                if (sidebar && sidebar.classList.contains('open')) {
+                    if (typeof closeCart === 'function') closeCart();
+                } else {
+                    if (typeof openCart === 'function') openCart();
+                    else if (typeof toggleCart === 'function') toggleCart();
                 }
             } else if (tab === 'orders') {
+                if (typeof closeCart === 'function') closeCart();
                 openOrdersView();
             } else if (tab === 'profile') {
+                if (typeof closeCart === 'function') closeCart();
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                const clicked = document.getElementById('tab-profile');
+                if (clicked) clicked.classList.add('active');
                 if (typeof openProfile === 'function') {
                     openProfile();
                 } else {
@@ -331,7 +343,7 @@
         }
 
         async function fetchAndCacheHtml(url, containerId, postProcessFn = null) {
-            const cacheKey = 'jj_html_v3_' + url;
+            const cacheKey = 'jj_html_v4_' + url;
             const cachedHtml = localStorage.getItem(cacheKey);
             const container = document.getElementById(containerId);
 
@@ -368,8 +380,7 @@
                         updateHeaderAuthUI();
                         if (typeof updateCartUI === 'function') updateCartUI();
                     }),
-                    fetchAndCacheHtml('main/main.html', 'main-container', () => { if (typeof renderProducts === 'function') renderProducts(); }),
-                    fetchAndCacheHtml('footer/footer.html', 'footer-container')
+                    fetchAndCacheHtml('main/main.html', 'main-container', () => { if (typeof renderProducts === 'function') renderProducts(); })
                 ]);
 
                 // Load non-critical components after critical ones finish fetching
@@ -411,6 +422,9 @@
     </script>
     <script>
         function showPage(page) {
+            if (typeof closeCart === 'function') {
+                closeCart();
+            }
             const main = document.getElementById('main-container');
             const about = document.getElementById('about-container');
             const contact = document.getElementById('contact-container');
