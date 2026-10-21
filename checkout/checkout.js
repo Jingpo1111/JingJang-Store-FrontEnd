@@ -419,6 +419,11 @@ function closeCheckout() {
     } else {
         document.body.style.overflow = '';
     }
+    const homeTab = document.getElementById('tab-home');
+    if (homeTab) {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        homeTab.classList.add('active');
+    }
 }
 
 // ==========================================================================

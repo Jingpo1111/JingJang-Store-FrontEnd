@@ -22,7 +22,58 @@
 
 <body>
     <!-- Top Navigation Header Container -->
-    <div id="header-container"></div>
+    <div id="header-container">
+        <header class="site-header">
+            <div class="header-top-row">
+                <!-- Brand Logo & Name -->
+                <div class="logo" onclick="if(typeof showPage==='function'){showPage('home');}else{window.location.href='index.html';}" style="cursor: pointer;" title="Go to Store">
+                    <img src="img/IMG_3840.PNG" alt="JingJang Logo" class="logog">
+                    <span class="logo-text">JingJang</span>
+                </div>
+
+                <!-- Header Search Bar (Fully Responsive on Android & iOS) -->
+                <div class="header-search-box">
+                    <span class="search-icon" aria-hidden="true">🔍</span>
+                    <input type="text" id="store-search-input" placeholder="Search..." autocomplete="off"
+                        aria-label="Search products"
+                        oninput="handleCategorySearch(this.value)" onkeydown="if(event.key==='Enter') triggerCategorySearch()">
+                    <button type="button" id="search-clear-btn" class="search-clear-btn" style="display:none;"
+                        onclick="clearCategorySearch()" title="Clear Search" aria-label="Clear Search">✕</button>
+                    <button type="button" class="header-search-btn" onclick="triggerCategorySearch()" title="Search" aria-label="Submit Search">
+                        <span class="search-btn-text">Search</span>
+                        <span class="search-btn-icon">🔍</span>
+                    </button>
+                </div>
+
+                <!-- Right Side Actions: Logout (Replacing Cart) & Login -->
+                <div class="header-actions">
+                    <!-- Hidden cart count element for legacy script safety -->
+                    <span id="cart-count" style="display: none;">0</span>
+
+                    <!-- Logout Button (Shown when user is logged in, replacing cart) -->
+                    <button id="header-logout-btn" onclick="logout()" class="header-logout-btn" style="display: none;"
+                        title="Logout">
+                        <span class="logout-icon-emoji">🚪</span>
+                        <span class="logout-text">Logout</span>
+                    </button>
+
+                    <!-- Login Button (Shown when user is logged out) -->
+                    <a href="login/login.html" id="header-login-btn" class="header-login-btn" style="display: none;">
+                        Login
+                    </a>
+
+                    <!-- User Info -->
+                    <div class="user-info" id="header-user-info" style="display: none;">
+                        <span id="header-username" class="header-username"></span>
+                        <span id="header-user-id" class="header-user-id" style="display:none;"></span>
+                    </div>
+
+                    <!-- Profile Avatar (legacy anchor) -->
+                    <div id="header-profile-btn" style="display: none;"></div>
+                </div>
+            </div>
+        </header>
+    </div>
 
     <main class="payment-page-container">
         <!-- Multi-Step Progress Indicator -->
@@ -303,6 +354,31 @@
         </div>
     </div>
 
+    <!-- Fixed Mobile Bottom Navigation Bar (Matching Cart & Store) -->
+    <nav class="mobile-bottom-navbar" id="mobile-bottom-navbar">
+        <a href="index.html" class="nav-tab" id="tab-home" onclick="showPage('home'); return false;">
+            <span class="tab-icon">🏠</span>
+            <span class="tab-label">Home</span>
+        </a>
+        <a href="index.html?page=shop" class="nav-tab" id="tab-shop" onclick="window.location.href='index.html'; return false;">
+            <span class="tab-icon">📦</span>
+            <span class="tab-label">Shop</span>
+        </a>
+        <a href="cart.html" class="nav-tab" id="tab-cart" onclick="window.location.href='cart.html'; return false;">
+            <span class="tab-icon-wrap">
+                <span class="tab-icon">🛒</span>
+                <span id="bottom-cart-count" class="tab-badge" style="display: none;">0</span>
+            </span>
+            <span class="tab-label">Cart</span>
+        </a>
+        <a href="index.html?openProfile=true" class="nav-tab" id="tab-profile" onclick="window.location.href='index.html?openProfile=true'; return false;">
+            <span class="tab-icon-wrap" id="bottom-nav-avatar">
+                <span class="tab-icon">👤</span>
+            </span>
+            <span class="tab-label">Profile</span>
+        </a>
+    </nav>
+
     <script src="config.js"></script>
     <script src="html2canvas.min.js"></script>
     <script src="cart/cart.js"></script>
@@ -320,7 +396,7 @@
         // Navigation routing helpers: on payment page (has back button), clicking Home also goes back
         function showPage(page) {
             if (page === 'home' || !page) {
-                goBack('checkout.html');
+                goBack('index.html');
             } else {
                 window.location.href = `index.html?page=${page}`;
             }
@@ -337,11 +413,13 @@
             var isLoggedIn = localStorage.getItem('jj_loggedIn') === 'true';
             var username = localStorage.getItem('jj_username');
             var userId = localStorage.getItem('jj_userId');
+            var avatar = localStorage.getItem('jj_avatar');
 
             var loginBtn = document.getElementById('header-login-btn');
             var userInfo = document.getElementById('header-user-info');
             var profileBtn = document.getElementById('header-profile-btn');
             var logoutBtn = document.getElementById('header-logout-btn');
+            var bottomAvatar = document.getElementById('bottom-nav-avatar');
 
             if (isLoggedIn && username && userId) {
                 if (userInfo) userInfo.style.display = 'flex';
@@ -353,50 +431,35 @@
                 var idEl = document.getElementById('header-user-id');
                 if (nameEl) nameEl.textContent = username;
                 if (idEl) idEl.textContent = userId;
+
+                if (bottomAvatar) {
+                    if (avatar) {
+                        bottomAvatar.innerHTML = `<img src="${avatar}" alt="Avatar" style="width: 22px; height: 22px; border-radius: 50%; object-fit: cover; border: 1.5px solid #3b665b;">`;
+                    } else {
+                        bottomAvatar.innerHTML = `<span class="tab-icon">👤</span>`;
+                    }
+                }
             } else {
                 if (loginBtn) loginBtn.style.display = 'block';
                 if (userInfo) userInfo.style.display = 'none';
                 if (profileBtn) profileBtn.style.display = 'none';
                 if (logoutBtn) logoutBtn.style.display = 'none';
-            }
-        }
-
-        async function fetchAndCacheHtml(url, containerId, postProcessFn = null) {
-            const cacheKey = 'jj_html_v4_' + url;
-            const cachedHtml = localStorage.getItem(cacheKey);
-            const container = document.getElementById(containerId);
-
-            if (cachedHtml && container) {
-                container.innerHTML = cachedHtml;
-                if (postProcessFn) postProcessFn();
-            }
-
-            try {
-                const fetchUrl = url.includes('?') ? url + '&_t=' + Date.now() : url + '?_t=' + Date.now();
-                const response = await fetch(fetchUrl);
-                const newHtml = await response.text();
-
-                if (newHtml !== cachedHtml) {
-                    localStorage.setItem(cacheKey, newHtml);
-                    if (container) {
-                        container.innerHTML = newHtml;
-                        if (postProcessFn) postProcessFn();
-                    }
+                if (bottomAvatar) {
+                    bottomAvatar.innerHTML = `<span class="tab-icon">👤</span>`;
                 }
-            } catch (err) {
-                console.error("Error fetching " + url, err);
             }
         }
 
-        async function loadComponents() {
-            await fetchAndCacheHtml('header/header.html', 'header-container', () => {
-                updateHeaderAuthUI();
-                if (typeof updateCartUI === 'function') updateCartUI();
-            });
+        function loadComponents() {
+            updateHeaderAuthUI();
             if (typeof updateCartUI === 'function') updateCartUI();
         }
 
-        loadComponents();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadComponents);
+        } else {
+            loadComponents();
+        }
     </script>
 </body>
 
