@@ -166,13 +166,500 @@
 </head>
 
 <body>
-    <div id="header-container"></div>
-    <main id="main-container" class="page-active"></main>
-    <div id="about-container" style="display: none;"></div>
-    <div id="contact-container" style="display: none;"></div>
-    <div id="cart-container"></div>
-    <div id="checkout-container"></div>
-    <div id="profile-container"></div>
+    <!-- 1. Header Component -->
+    <div id="header-container">
+        <header class="site-header">
+            <div class="header-top-row">
+                <!-- Brand Logo & Name -->
+                <div class="logo" onclick="if(typeof showPage==='function'){showPage('home');}else{window.location.href='index.html';}" style="cursor: pointer;" title="Go to Store">
+                    <img src="img/IMG_3840.PNG" alt="JingJang Logo" class="logog">
+                    <span class="logo-text">JingJang</span>
+                </div>
+
+                <!-- Header Search Bar (Fully Responsive on Android & iOS) -->
+                <div class="header-search-box">
+                    <span class="search-icon" aria-hidden="true">🔍</span>
+                    <input type="text" id="store-search-input" placeholder="Search..." autocomplete="off"
+                        aria-label="Search products"
+                        oninput="handleCategorySearch(this.value)" onkeydown="if(event.key==='Enter') triggerCategorySearch()">
+                    <button type="button" id="search-clear-btn" class="search-clear-btn" style="display:none;"
+                        onclick="clearCategorySearch()" title="Clear Search" aria-label="Clear Search">✕</button>
+                    <button type="button" class="header-search-btn" onclick="triggerCategorySearch()" title="Search" aria-label="Submit Search">
+                        <span class="search-btn-text">Search</span>
+                        <span class="search-btn-icon">🔍</span>
+                    </button>
+                </div>
+
+                <!-- Right Side Actions: Logout (Replacing Cart) & Login -->
+                <div class="header-actions">
+                    <!-- Hidden cart count element for legacy script safety -->
+                    <span id="cart-count" style="display: none;">0</span>
+
+                    <!-- Logout Button (Shown when user is logged in, replacing cart) -->
+                    <button id="header-logout-btn" onclick="logout()" class="header-logout-btn" style="display: none;"
+                        title="Logout">
+                        <span class="logout-icon-emoji">🚪</span>
+                        <span class="logout-text">Logout</span>
+                    </button>
+
+                    <!-- Login Button (Shown when user is logged out) -->
+                    <a href="login/login.html" id="header-login-btn" class="header-login-btn" style="display: none;">
+                        Login
+                    </a>
+
+                    <!-- User Info -->
+                    <div class="user-info" id="header-user-info" style="display: none;">
+                        <span id="header-username" class="header-username"></span>
+                        <span id="header-user-id" class="header-user-id" style="display:none;"></span>
+                    </div>
+
+                    <!-- Profile Avatar (legacy anchor) -->
+                    <div id="header-profile-btn" style="display: none;"></div>
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <!-- 2. Main Store Component -->
+    <main id="main-container" class="page-active">
+        <div class="main-content">
+            <!-- Category Filter Pills (Horizontal Scrollable Pills as in Photo) -->
+            <div class="product-filter-wrapper">
+                <div class="product-filter">
+                    <button class="filter-btn active" onclick="filterProducts('ALL')">All</button>
+                    <button class="filter-btn" onclick="filterProducts('Phone-case')">Phone-case</button>
+                    <button class="filter-btn" onclick="filterProducts('Earphone')">Earphone</button>
+                    <button class="filter-btn" onclick="filterProducts('Mouse')">Mouse</button>
+                    <button class="filter-btn" onclick="filterProducts('Controller')">Controller</button>
+                    <button class="filter-btn" onclick="filterProducts('Charger')">Charger</button>
+                    <button class="filter-btn" onclick="filterProducts('Stand')">Stand</button>
+                </div>
+            </div>
+
+            <!-- Featured Products Section Header (as in Photo) -->
+            <div class="featured-heading-row">
+                <span class="heading-accent-bar"></span>
+                <h2 class="featured-title">Featured Products</h2>
+            </div>
+
+            <!-- Product Grid: 2-Column on Mobile as in Photo -->
+            <section class="product-grid">
+            </section>
+        </div>
+    </main>
+
+    <!-- 3. About Component -->
+    <div id="about-container" style="display: none;">
+        <div class="about-container">
+            <div class="about-header">
+                <h1>About Us</h1>
+                <p>ស្វែងយល់បន្ថែមអំពីយើង និងបេសកកម្មរបស់យើង</p>
+            </div>
+
+            <div class="about-content">
+                <div class="about-card">
+                    <h2>ប្រវត្តិរបស់យើង (Our Story)</h2>
+                    <p>យើងផ្តល់ជូននូវផលិតផលដែលមានគុណភាពខ្ពស់ ព្រមទាំងសេវាកម្មដ៏ល្អឥតខ្ចោះដល់អតិថិជន។</p>
+                    <h2>📦 លក្ខខណ្ឌកម្មង់ទំនិញពីប្រទេសចិន 🇨🇳</h2>
+                    <p><strong>💳 1. បង់ប្រាក់មុន</strong></p>
+                    <p>• អតិថិជនត្រូវបង់ប្រាក់ 100% មុនពេលហាងដាក់កម្មង់។</p>
+                    <p><strong>🛍️ 2. ទំនិញជាប្រភេទ Pre-Order</strong></p>
+                    <p>• ទំនិញត្រូវកម្មង់ផ្ទាល់ពីប្រទេសចិន តាមការកម្មង់របស់អតិថិជន។</p>
+                    <p><strong>🚚 3. រយៈពេលរង់ចាំ</strong></p>
+                    <p>• ទំនិញនឹងមកដល់ក្នុងរយៈពេលប្រហែល 20 ថ្ងៃ (អាចលឿន ឬយឺតជាងនេះបន្តិច)។</p>
+                    <p><strong>⚠️ 4. ករណីអាចពន្យារពេល</strong></p>
+                    <p>ការដឹកជញ្ជូនអាចយឺតដោយសារតែ៖</p>
+                    <p>• 🎉 ថ្ងៃបុណ្យនៅប្រទេសចិន</p>
+                    <p>• 🌧️ អាកាសធាតុមិនល្អ</p>
+                    <p>• 🛃 ការត្រួតពិនិត្យគយ</p>
+                    <p>• 🚛 ការពន្យារពេលពីក្រុមហ៊ុនដឹកជញ្ជូន</p>
+                    <p><strong>❌ 5. មិនអាចលុប ឬប្ដូរកម្មង់បាន</strong></p>
+                    <p>• បន្ទាប់ពីហាងបានដាក់កម្មង់រួច មិនអាចលុប ឬប្ដូរពណ៌ ម៉ូដែល ឬទំហំបានទេ។</p>
+                    <p><strong>💰 6. គោលការណ៍សងប្រាក់</strong></p>
+                    <p>ហាងនឹងសងប្រាក់វិញ តែក្នុងករណី៖</p>
+                    <p>✅ អ្នកផ្គត់ផ្គង់មិនអាចផ្ញើទំនិញបាន</p>
+                    <p>✅ ទំនិញបាត់បង់ក្នុងការដឹកជញ្ជូន</p>
+                    <p><strong>📦 7. ទំនិញខូច ឬខុស</strong></p>
+                    <p>• សូមជូនដំណឹងក្នុងរយៈពេល 24 ម៉ោង បន្ទាប់ពីទទួលទំនិញ។</p>
+                    <p>• សូមភ្ជាប់រូបភាព និងវីដេអូជាភស្តុតាង។</p>
+                    <p><strong>🚚 8. ថ្លៃដឹកជញ្ជូនក្នុងស្រុក</strong></p>
+                    <p>• ថ្លៃដឹកជញ្ជូននៅកម្ពុជាគិតតាមតម្លៃរបស់ក្រុមហ៊ុនដឹកជញ្ជូន ឬតាមការជូនដំណឹងរបស់ហាង(2$)</p>
+                    <p><strong>🤝 9. ការយល់ព្រម</strong></p>
+                    <p>ការធ្វើកម្មង់មានន័យថា អតិថិជនបានអាន និងយល់ព្រមលើលក្ខខណ្ឌទាំងអស់របស់ហាង។</p>
+                    <p><strong>💖 សូមអរគុណចំពោះការជឿទុកចិត្ត និងគាំទ្រហាងរបស់យើង! 🙏🇰🇭</strong></p>
+                </div>
+                <div class="about-card">
+                    <h2>ទំនាក់ទំនង (Contact Us)</h2>
+                    <p>📍 ទីតាំង: រាជធានីភ្នំពេញ, កម្ពុជា(នៅជិតសាលា តិចណូ)</p>
+                    <p>📞 ទូរស័ព្ទ: 016 44 16 53</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Contact Component -->
+    <div id="contact-container" style="display: none;">
+        <div class="contact-container">
+            <div class="contact-header">
+                <h1>Contact Us</h1>
+                <p>ទាក់ទងមកយើងខ្ញុំសម្រាប់ព័ត៌មានបន្ថែម ឬសួរសំណួរផ្សេងៗ</p>
+            </div>
+
+            <div class="contact-content">
+                <form class="contact-form" onsubmit="return sendMessage(event)">
+                    <input type="text" name="name" placeholder="ឈ្មោះរបស់អ្នក (Name)" required>
+                    <input type="email" name="email" placeholder="អ៊ីមែល (Email)" required>
+                    <input type="tel" name="phone" placeholder="លេខទូរស័ព្ទ (Phone Number)" required pattern="[0-9+ ]{8,15}">
+                    <input type="hidden" name="title" value="New Contact Form Message">
+                    <textarea name="message" placeholder="សាររបស់អ្នក (Message)" rows="5" required></textarea>
+                    <button type="submit">ផ្ញើសារ (Send Message)</button>
+                </form>
+
+                <div class="contact-info">
+                    <h2>ព័ត៌មានលម្អិត</h2>
+                    <p>📍 ទីតាំង: រាជធានីភ្នំពេញ, កម្ពុជា</p>
+                    <p>📞 ទូរស័ព្ទ: 016 44 16 53</p>
+                    <p>📧 អ៊ីមែល: <a href="mailto:phaijingpo016441653@gmail.com" target="_blank">support@jingjang.com</a></p>
+                    <p>✈️ Telegram: <a href="https://t.me/Jingpophai" target="_blank">PHAI JINGPO</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Cart Component -->
+    <div id="cart-container">
+        <!-- Cart Overlay & Slide-in / Bottom Sheet -->
+        <div id="cart-overlay" class="cart-overlay" onclick="closeCart()"></div>
+
+        <div id="cart-sidebar" class="cart-sidebar">
+            <div class="cart-header">
+                <div class="cart-header-title">
+                    <span class="cart-header-icon">🛍️</span>
+                    <h2>Your Shopping Cart</h2>
+                </div>
+                <button type="button" class="close-cart-btn" onclick="closeCart()" title="Close Cart">✕</button>
+            </div>
+
+            <div id="cart-items" class="cart-items">
+                <p style="text-align:center; color:#94a3b8; padding: 40px 0; font-size: 15px; font-weight: 600;">Your cart is currently empty.</p>
+            </div>
+
+            <div class="cart-footer">
+                <div class="cart-summary-row">
+                    <span class="cart-subtotal-label">Subtotal</span>
+                    <span class="cart-total-val">$<span id="cart-total">0.00</span></span>
+                </div>
+                <button type="button" class="cart-checkout-btn" onclick="openCheckout()">
+                    <span>Proceed to Checkout</span>
+                    <span class="checkout-arrow">→</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Checkout Component -->
+    <div id="checkout-container">
+        <!-- In-Page Mobile Checkout & Payment Modal -->
+        <div id="checkout-modal" class="checkout-modal-overlay">
+            <div class="checkout-modal-content">
+                <!-- Modal Header -->
+                <div class="checkout-modal-header">
+                    <div class="checkout-header-title-box">
+                        <span class="checkout-header-badge">🔒 Secure Checkout</span>
+                        <h2>Payment & Order</h2>
+                    </div>
+                    <button type="button" class="checkout-close-btn" onclick="closeCheckout()" title="Close Checkout">✕</button>
+                </div>
+
+                <div class="checkout-body">
+                    <!-- Checkout Information Form -->
+                    <form id="checkout-form" onsubmit="proceedToPayment(event)">
+                        <label class="section-subheading" style="margin-top: 5px;">Shipping Details</label>
+
+                        <div class="input-field-group">
+                            <label for="cus-name">Full Name <span class="required-star">*</span></label>
+                            <input type="text" id="cus-name" required placeholder="Enter your full name" autocomplete="name">
+                        </div>
+
+                        <div class="input-field-group">
+                            <label for="cus-phone">Phone Number <span class="required-star">*</span></label>
+                            <input type="tel" id="cus-phone" required placeholder="e.g. 012 345 678" autocomplete="tel">
+                        </div>
+
+                        <div class="input-field-group">
+                            <label for="cus-address">Delivery Address <span class="required-star">*</span></label>
+                            <div class="address-input-wrapper">
+                                <textarea id="cus-address" required placeholder="House number, Street, Sangkat, Khan, City..."
+                                    rows="2"></textarea>
+                                <button type="button" id="btn-location" class="location-btn" onclick="getRealLocation()"
+                                    title="Use Current GPS Location">
+                                    <span>📍</span> Auto GPS
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="input-field-group">
+                            <label for="cus-note">Delivery Note (Optional)</label>
+                            <textarea id="cus-note" placeholder="E.g. Please call before delivery or drop with receptionist"
+                                rows="2"></textarea>
+                        </div>
+
+                        <!-- Promotion / Coupon Code Section -->
+                        <div class="input-field-group checkout-promo-box">
+                            <div class="promo-box-header">
+                                <label for="promo-code-input" class="promo-box-title">🎟️ Have a Promo Code?</label>
+                                <span class="promo-box-hint">Optional</span>
+                            </div>
+                            <div class="promo-input-group" id="promo-input-container">
+                                <div class="promo-input-wrap">
+                                    <span class="promo-input-icon">🏷️</span>
+                                    <input type="text" id="promo-code-input" placeholder="e.g. WELCOME10 or SAVE5"
+                                        autocomplete="off" style="text-transform:uppercase;">
+                                </div>
+                                <button type="button" id="btn-apply-promo" onclick="applyPromoCode()">Apply</button>
+                            </div>
+                            <div id="promo-applied-badge" class="promo-applied-badge" style="display:none;">
+                                <div class="promo-badge-info">
+                                    <span class="badge-icon">🏷️</span>
+                                    <div>
+                                        <strong id="applied-promo-code-display">WELCOME10</strong>
+                                        <span id="applied-promo-desc-display" class="badge-desc">Applied</span>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-remove-promo" onclick="removePromoCode()">✕ Remove</button>
+                            </div>
+                            <div id="promo-feedback-msg" class="promo-feedback-msg" style="display:none;"></div>
+                        </div>
+
+                        <!-- Order Total Highlight Strip with Breakdown -->
+                        <div class="checkout-total-strip">
+                            <!-- Card Header -->
+                            <div class="summary-card-header">
+                                <span class="summary-card-title">
+                                    <span class="summary-icon">🧾</span>
+                                    <span>Order Summary</span>
+                                </span>
+                                <span id="checkout-items-count" class="summary-items-badge">Cart Items</span>
+                            </div>
+
+                            <!-- Breakdown Section (Subtotal & Discount) -->
+                            <div id="checkout-promo-breakdown" class="checkout-promo-breakdown" style="display: none;">
+                                <div class="breakdown-row">
+                                    <span class="breakdown-label">Original Subtotal</span>
+                                    <span class="breakdown-val">$<span id="checkout-subtotal-price">0.00</span></span>
+                                </div>
+                                <div class="breakdown-row discount-row">
+                                    <span class="breakdown-label">
+                                        <span class="promo-tag-pill" id="checkout-promo-tag">🏷️ <span
+                                                id="checkout-promo-code-name">PROMO</span></span>
+                                        <span id="checkout-promo-label">Discount:</span>
+                                    </span>
+                                    <span class="breakdown-val discount-val">-$<span
+                                            id="checkout-discount-amount">0.00</span></span>
+                                </div>
+                            </div>
+
+                            <!-- Main Total Row -->
+                            <div class="total-row-main">
+                                <div class="total-title-group">
+                                    <span class="total-label">Total to Pay</span>
+                                    <span class="total-tax-note">All taxes included</span>
+                                </div>
+                                <div class="total-price-box">
+                                    <span class="currency-symbol">$</span>
+                                    <span id="checkout-total-price" class="total-amount">0.00</span>
+                                </div>
+                            </div>
+
+                            <!-- Celebratory Savings Banner (When Promo Applied) -->
+                            <div id="checkout-savings-pill" class="checkout-savings-banner" style="display: none;">
+                                <span class="savings-icon">🎉</span>
+                                <span id="checkout-savings-text">Saved -$0.00 with promo code</span>
+                            </div>
+                        </div>
+
+                        <!-- Proceed to Payment Action Button -->
+                        <div class="checkout-actions-row">
+                            <button type="submit" class="checkout-submit-btn" id="checkout-submit-button" onclick="proceedToPayment(event)">
+                                <span id="submit-btn-text">Proceed to Payment (ABA / ACLEDA KHQR) →</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Success Modal (In-Page, Never Redirects Away) -->
+        <div id="order-success-modal" class="order-success-modal-overlay" style="display: none;">
+            <div class="order-success-card">
+                <div class="success-icon-badge">🎉</div>
+                <h2>Order Received!</h2>
+                <p class="success-msg">Thank you for your purchase. We have received your order and payment receipt.</p>
+                <div class="order-id-box">
+                    <span class="order-id-label">Order Reference ID:</span>
+                    <strong id="success-order-id" class="order-id-val">JJ-XXXX</strong>
+                </div>
+                <p class="success-subtext">Our team will verify your receipt and process shipping immediately.</p>
+                <button type="button" class="success-done-btn" onclick="closeOrderSuccessModal()">
+                    Done & Continue Shopping
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Profile Component -->
+    <div id="profile-container">
+        <div id="profile-modal" class="profile-overlay">
+            <div class="profile-panel">
+                <button class="profile-close" onclick="closeProfile()">✖</button>
+
+                <!-- Profile Header -->
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profile-avatar">JJ</div>
+                    <h2 id="profile-name">Username</h2>
+                    <span class="profile-badge" id="profile-id">JJ-0001</span>
+                    <p class="profile-joined" id="profile-joined">Member since: —</p>
+                </div>
+
+                <!-- Profile Tabs -->
+                <div class="profile-tabs">
+                    <button class="profile-tab active" onclick="showProfileTab('orders')" ondblclick="handleOrdersTabDblClick()"
+                        id="ptab-orders">📦 My Orders</button>
+                    <button class="profile-tab" onclick="showProfileTab('settings')" id="ptab-settings">⚙️ Settings</button>
+                </div>
+
+                <!-- Orders Tab -->
+                <div class="profile-tab-content active" id="profile-orders">
+                    <div class="orders-summary">
+                        <div class="summary-card active-filter" id="card-all" onclick="filterByStatus('all')">
+                            <span class="summary-num" id="total-orders">0</span>
+                            <span class="summary-label">Total Orders</span>
+                        </div>
+                        <div class="summary-card" id="card-pending" onclick="filterByStatus('pending')">
+                            <span class="summary-num" id="pending-orders">0</span>
+                            <span class="summary-label">Pending</span>
+                        </div>
+                        <div class="summary-card success-card" id="card-completed" onclick="filterByStatus('completed')">
+                            <span class="summary-num" id="success-orders">0</span>
+                            <span class="summary-label">Completed</span>
+                        </div>
+                    </div>
+
+                    <!-- Order Search Bar -->
+                    <div class="profile-search-container" style="margin-bottom: 15px;">
+                        <input type="text" id="profile-order-search" autocomplete="off" placeholder="🔍 Search your Order ID..."
+                            onkeyup="filterProfileOrders()"
+                            style="width: 100%; padding: 10px 15px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.3s;"
+                            onfocus="this.style.borderColor='#3b665b'" onblur="this.style.borderColor='#e0e0e0'">
+                    </div>
+
+                    <div id="profile-order-list" class="profile-order-list">
+                        <p style="text-align:center; color:#999; padding: 30px 0;">Loading orders...</p>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div class="profile-tab-content" id="profile-settings">
+                    <!-- Site Navigation Card -->
+                    <div class="settings-card">
+                        <h3>🧭 Navigation</h3>
+                        <div style="display: flex; flex-direction: row; justify-content: space-between; gap: 8px; margin-top: 10px;">
+                            <button onclick="closeProfile(); showPage('home'); window.scrollTo({top:0, behavior:'smooth'})" style="flex: 1; padding: 10px 4px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; color: #333; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'"><span style="font-size: 18px;">🏠</span> Home</button>
+                            <button onclick="closeProfile(); showPage('about'); window.scrollTo({top:0, behavior:'smooth'})" style="flex: 1; padding: 10px 4px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; color: #333; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'"><span style="font-size: 18px;">ℹ️</span> About</button>
+                            <button onclick="closeProfile(); showPage('contact'); window.scrollTo({top:0, behavior:'smooth'})" style="flex: 1; padding: 10px 4px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; color: #333; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'"><span style="font-size: 18px;">📞</span> Contact</button>
+                        </div>
+                    </div>
+
+                    <!-- Account Info Card -->
+                    <div class="settings-card">
+                        <h3>👤 Account Information</h3>
+                        <div class="info-row">
+                            <span class="info-label">Username</span>
+                            <span class="info-value" id="settings-username">—</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">User ID</span>
+                            <span class="info-value" id="settings-userid">—</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Registered</span>
+                            <span class="info-value" id="settings-regdate">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Change Password Card -->
+                    <div class="settings-card">
+                        <h3>🔒 Change Password via Email OTP</h3>
+                        <p style="font-size: 13px; color: #7f8c8d; margin-bottom: 14px; line-height: 1.4;">
+                            Just like Forgot Password, verify your registered email with a 6-digit code to securely set a new
+                            password.
+                        </p>
+                        <form id="change-password-form" onsubmit="handleChangePassword(event)">
+                            <div class="settings-input-group">
+                                <label>New Password</label>
+                                <input type="password" id="new-password" required
+                                    placeholder="Enter new password (min 4 chars)">
+                            </div>
+                            <div class="settings-input-group">
+                                <label>Confirm New Password</label>
+                                <input type="password" id="confirm-new-password" required placeholder="Confirm new password">
+                            </div>
+                            <div id="password-error" class="password-msg error"></div>
+                            <div id="password-success" class="password-msg success"></div>
+                            <button type="submit" class="change-pw-btn" id="change-pw-btn">
+                                <span class="btn-text">📨 Send OTP & Change Password</span>
+                                <span class="btn-loader" style="display:none;">⏳ Sending OTP...</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Modal -->
+        <div id="timeline-modal" class="timeline-modal">
+            <div class="timeline-content">
+                <button class="timeline-close" onclick="closeTimeline()">✖</button>
+                <h3 class="timeline-title">Order Status</h3>
+                <div class="stepper" id="timeline-stepper">
+                    <!-- Timeline steps will be injected here via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Password OTP Modal -->
+        <div id="profile-otp-modal" class="timeline-modal"
+            style="display: none; align-items: center; justify-content: center; z-index: 10000;">
+            <div class="timeline-content" style="max-width: 400px; text-align: center; padding: 30px;">
+                <h3 class="timeline-title" style="margin-bottom: 10px;">Verify Your Email</h3>
+                <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
+                    We sent a 6-digit code to <br><b id="profile-otp-email" style="color:#2c3e50;"></b>
+                </p>
+
+                <input type="text" id="profile-otp-input" maxlength="6" placeholder="Enter 6-digit code"
+                    style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; text-align: center; font-size: 18px; letter-spacing: 5px;">
+
+                <div id="profile-otp-error" style="color: #e74c3c; font-size: 13px; min-height: 20px; margin-bottom: 15px;">
+                </div>
+
+                <button onclick="handleProfileVerifyOTP()" id="profile-otp-verify-btn"
+                    style="width: 100%; padding: 12px; background: #3b665b; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background 0.3s; margin-bottom: 10px;">
+                    <span class="btn-text">Verify & Change Password</span>
+                    <span class="btn-loader" style="display:none;">⏳ Verifying...</span>
+                </button>
+
+                <button onclick="handleProfileResendOTP()" id="profile-otp-resend-btn"
+                    style="background: none; border: none; color: #3b665b; cursor: pointer; font-size: 14px; text-decoration: underline;">
+                    Didn't receive it? Resend OTP
+                </button>
+
+                <button onclick="closeProfileOTPModal()"
+                    style="margin-top: 20px; background: none; border: none; color: #999; cursor: pointer; font-size: 14px;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Fixed Mobile Bottom Navigation Bar (Matching Reference Photo + View Order) -->
     <nav class="mobile-bottom-navbar" id="mobile-bottom-navbar">
@@ -372,30 +859,12 @@
             }
         }
 
-        async function loadComponents() {
+        function loadComponents() {
             try {
-                // Load critical components first (network priority)
-                await Promise.all([
-                    fetchAndCacheHtml('header/header.html', 'header-container', () => {
-                        updateHeaderAuthUI();
-                        if (typeof updateCartUI === 'function') updateCartUI();
-                    }),
-                    fetchAndCacheHtml('main/main.html', 'main-container', () => { if (typeof renderProducts === 'function') renderProducts(); })
-                ]);
-
-                // Load non-critical components after critical ones finish fetching
-                await Promise.all([
-                    fetchAndCacheHtml('cart/cart.html', 'cart-container', () => { if (typeof updateCartUI === 'function') updateCartUI(); }),
-                    fetchAndCacheHtml('checkout/checkout.html', 'checkout-container'),
-                    fetchAndCacheHtml('profile/profile.html', 'profile-container', () => {
-                        const urlParams = new URLSearchParams(window.location.search);
-                        if (urlParams.get('openProfile') === 'true') {
-                            if (typeof openProfile === 'function') openProfile();
-                        }
-                    }),
-                    fetchAndCacheHtml('about/about.html', 'about-container'),
-                    fetchAndCacheHtml('contact/contact.html', 'contact-container')
-                ]);
+                // All components are inlined directly in index.html for instant Vercel static loading
+                updateHeaderAuthUI();
+                if (typeof updateCartUI === 'function') updateCartUI();
+                if (typeof renderProducts === 'function') renderProducts();
 
                 // Query Parameter Routing on load
                 const urlParams = new URLSearchParams(window.location.search);
@@ -403,17 +872,23 @@
                 if (pageParam && typeof showPage === 'function') {
                     showPage(pageParam);
                 }
+                if (urlParams.get('openProfile') === 'true') {
+                    if (typeof openProfile === 'function') openProfile();
+                }
                 if (urlParams.get('logout') === 'true') {
                     if (typeof logout === 'function') logout();
                 }
-
             } catch (error) {
                 console.error("Error in loadComponents:", error);
             }
         }
 
-        // Start loading as soon as this script executes
-        loadComponents();
+        // Initialize immediately
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadComponents);
+        } else {
+            loadComponents();
+        }
     </script>
     <script>
         function toggleMenu() {
