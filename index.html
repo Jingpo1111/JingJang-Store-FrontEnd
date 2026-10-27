@@ -481,7 +481,7 @@
                         <!-- Proceed to Payment Action Button -->
                         <div class="checkout-actions-row">
                             <button type="submit" class="checkout-submit-btn" id="checkout-submit-button" onclick="proceedToPayment(event)">
-                                <span id="submit-btn-text">Proceed to Payment (ABA / ACLEDA KHQR) →</span>
+                                <span id="submit-btn-text">Proceed to Payment (ABA KHQR) →</span>
                             </button>
                         </div>
                     </form>
@@ -732,16 +732,26 @@
                 if (profileBtn) {
                     profileBtn.style.display = 'flex';
                     if (avatar) {
-                        profileBtn.innerHTML = `<img src="${avatar}" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #3b665b;">`;
+                        profileBtn.innerHTML = `<img src="${avatar}" alt="Avatar" referrerpolicy="no-referrer" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #3b665b;">`;
                     } else {
                         profileBtn.innerHTML = '👤';
                     }
                 }
                 if (bottomAvatar) {
+                    // Initials circle (same as the profile page), used for email login or if the photo fails to load
+                    var initials = document.createElement('span');
+                    initials.textContent = username.substring(0, 2).toUpperCase();
+                    initials.style.cssText = 'width: 24px; height: 24px; border-radius: 50%; background: #3b665b; color: #ffffff; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center;';
                     if (avatar) {
-                        bottomAvatar.innerHTML = `<img src="${avatar}" alt="Avatar" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid #3b665b;">`;
+                        var avatarImg = document.createElement('img');
+                        avatarImg.alt = 'Avatar';
+                        avatarImg.referrerPolicy = 'no-referrer'; // Google photos can be blocked when a referrer is sent
+                        avatarImg.style.cssText = 'width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid #3b665b;';
+                        avatarImg.onerror = function () { bottomAvatar.replaceChildren(initials); };
+                        avatarImg.src = avatar;
+                        bottomAvatar.replaceChildren(avatarImg);
                     } else {
-                        bottomAvatar.innerHTML = `<span class="tab-icon">👤</span>`;
+                        bottomAvatar.replaceChildren(initials);
                     }
                 }
                 if (logoutBtn) logoutBtn.style.display = 'inline-flex';

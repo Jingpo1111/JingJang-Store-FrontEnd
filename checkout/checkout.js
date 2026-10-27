@@ -1,6 +1,6 @@
 // ==========================================================================
 // JingJang Store — In-Page Checkout & Payment Logic (checkout.js)
-// Dynamic KHQR Payment Generation for ABA Bank & ACLEDA Bank (Auto by Last Price)
+// Dynamic KHQR Payment Generation for ABA Bank (Auto by Last Price)
 // ==========================================================================
 
 let receiptBase64 = "";
@@ -172,11 +172,9 @@ async function autoGenerateCheckoutQR(forcedAmount = null) {
 }
 
 // ==========================================================================
-// 2. Render Active Bank KHQR (ABA vs ACLEDA)
+// 2. Render ABA Bank KHQR
 // ==========================================================================
 function renderCurrentBankQR() {
-    const isAcleda = (selectedBankKey === 'ac' || selectedBankKey === 'acleda');
-
     const qrImage = document.getElementById('qr-image');
     const paymentLink = document.getElementById('payment-link');
     const qrBeneficiary = document.getElementById('qr-beneficiary');
@@ -190,76 +188,41 @@ function renderCurrentBankQR() {
         qrPayAmount.innerText = `$${totalToPay.toFixed(2)} USD`;
     }
 
-    if (!isAcleda) {
-        // ---- ABA Bank ----
-        if (qrBankTag) qrBankTag.innerText = '🇰🇭 ABA Bank KHQR';
-        if (qrBeneficiary) qrBeneficiary.innerText = 'JINGPO PHAI';
-        if (qrAccount) qrAccount.innerText = 'Acc: 010 777 268 (USD)';
-        if (paymentLink) {
-            paymentLink.href = 'https://pay.ababank.com/oRF8/4y0ur1w1';
-            paymentLink.innerHTML = '<span>🔗 Open ABA App</span>';
-            paymentLink.classList.remove('acleda-theme');
-        }
-        if (qrInstruction) {
-            qrInstruction.innerText = 'Scan with ABA Mobile, Bakong, or any Cambodian mobile banking app to pay exact amount';
-        }
+    if (qrBankTag) qrBankTag.innerText = '🇰🇭 ABA Bank KHQR';
+    if (qrBeneficiary) qrBeneficiary.innerText = 'JINGPO PHAI';
+    if (qrAccount) qrAccount.innerText = 'Acc: 010 777 268 (USD)';
+    if (paymentLink) {
+        paymentLink.href = 'https://pay.ababank.com/oRF8/4y0ur1w1';
+        paymentLink.innerHTML = '<span>🔗 Open ABA App</span>';
+    }
+    if (qrInstruction) {
+        qrInstruction.innerText = 'Scan with ABA Mobile, Bakong, or any Cambodian mobile banking app to pay exact amount';
+    }
 
-        if (currentPaymentData && currentPaymentData.aba && currentPaymentData.aba.image) {
-            if (qrImage) qrImage.src = currentPaymentData.aba.image;
-            if (qrBeneficiary && currentPaymentData.aba.beneficiary) {
-                qrBeneficiary.innerText = currentPaymentData.aba.beneficiary;
-            }
-            if (qrAccount && currentPaymentData.aba.account) {
-                qrAccount.innerText = `Acc: ${currentPaymentData.aba.account}`;
-            }
-            if (qrPayAmount && currentPaymentData.formatted_amount) {
-                qrPayAmount.innerText = currentPaymentData.formatted_amount;
-            }
-        } else {
-            if (qrImage) qrImage.src = 'img/Bank/abaqr.jpg';
+    if (currentPaymentData && currentPaymentData.aba && currentPaymentData.aba.image) {
+        if (qrImage) qrImage.src = currentPaymentData.aba.image;
+        if (qrBeneficiary && currentPaymentData.aba.beneficiary) {
+            qrBeneficiary.innerText = currentPaymentData.aba.beneficiary;
+        }
+        if (qrAccount && currentPaymentData.aba.account) {
+            qrAccount.innerText = `Acc: ${currentPaymentData.aba.account}`;
+        }
+        if (qrPayAmount && currentPaymentData.formatted_amount) {
+            qrPayAmount.innerText = currentPaymentData.formatted_amount;
         }
     } else {
-        // ---- ACLEDA Bank ----
-        if (qrBankTag) qrBankTag.innerText = '🇰🇭 ACLEDA Bank KHQR';
-        if (qrBeneficiary) qrBeneficiary.innerText = 'PHAI JINGPO';
-        if (qrAccount) qrAccount.innerText = 'Acc: 011 185 517 829 743';
-        if (paymentLink) {
-            paymentLink.href = 'https://acledabank.com.kh/acleda?payment_data=qWY5B2SAUfIhLblxzOtfu5ckLzMHjaSki6Ru0bsOyNK+ylPBgZ0sHH6BeGUscKoE58OqGYCB+0+/7oWYyz8zgsTJ6N1UFR6fIgKzYTC4dNA+H3HDmFtNdaTGeaC33xpV6rCwitYe2fTeUBvJ4vj/Hmgxn5Q0fK8JnIUsIRRUfbbAXOWG8G8Zmx250X7rpRvY8O74OMfCDKeJu3nBu08j7lLxGxvnvBJZhfDdJt3urffF2r6v8pr4q3eq0AaRb4Yo&key=khqr';
-            paymentLink.innerHTML = '<span>🔗 Open ACLEDA App</span>';
-            paymentLink.classList.add('acleda-theme');
-        }
-        if (qrInstruction) {
-            qrInstruction.innerText = 'Scan with ACLEDA Mobile, Bakong, or any Cambodian mobile banking app to pay exact amount';
-        }
-
-        if (currentPaymentData && currentPaymentData.acleda && currentPaymentData.acleda.image) {
-            if (qrImage) qrImage.src = currentPaymentData.acleda.image;
-            if (qrBeneficiary && currentPaymentData.acleda.beneficiary) {
-                qrBeneficiary.innerText = currentPaymentData.acleda.beneficiary;
-            }
-            if (qrAccount && currentPaymentData.acleda.account) {
-                qrAccount.innerText = `Acc: ${currentPaymentData.acleda.account}`;
-            }
-            if (qrPayAmount && currentPaymentData.formatted_amount) {
-                qrPayAmount.innerText = currentPaymentData.formatted_amount;
-            }
-        } else {
-            if (qrImage) qrImage.src = 'img/Bank/acqr.jpg';
-        }
+        if (qrImage) qrImage.src = 'img/Bank/abaqr.jpg';
     }
 }
 
 // ==========================================================================
-// 3. Bank Switcher: ABA & ACLEDA
+// 3. Bank Selection (ABA only)
 // ==========================================================================
 function selectBankMethod(method, img, name) {
-    selectedBankKey = (method === 'ac' || method === 'acleda') ? 'ac' : 'aba';
+    selectedBankKey = 'aba';
 
-    // Toggle active tab buttons
     const btnAba = document.getElementById('bank-tab-aba');
-    const btnAc = document.getElementById('bank-tab-ac');
-    if (btnAba) btnAba.classList.toggle('active', selectedBankKey === 'aba');
-    if (btnAc) btnAc.classList.toggle('active', selectedBankKey === 'ac');
+    if (btnAba) btnAba.classList.add('active');
 
     renderCurrentBankQR();
 }
@@ -278,7 +241,7 @@ function downloadCurrentQR() {
         return;
     }
 
-    const bankName = selectedBankKey === 'ac' ? 'ACLEDA' : 'ABA';
+    const bankName = 'ABA';
     const amountVal = getCheckoutFinalTotal().toFixed(2);
     const link = document.createElement('a');
     link.download = `KHQR-${bankName}-$${amountVal}.png`;

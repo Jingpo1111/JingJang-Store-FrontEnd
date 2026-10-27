@@ -361,3 +361,82 @@ html, body {
         padding: 0 6px;
     }
 }
+/* ==========================================================================
+   Desktop (>= 1024px): Move the bottom tab bar into the fixed top header
+   Logo | Home Shop Cart Profile | Search | Actions
+   ========================================================================== */
+@media (min-width: 1024px) {
+    /* Reserve a fixed slot after the logo for the tabs */
+    .site-header .logo {
+        width: 150px;
+        margin-right: 424px;
+    }
+
+    nav.mobile-bottom-navbar {
+        top: env(safe-area-inset-top, 0px);
+        bottom: auto;
+        right: auto;
+        left: calc(max(0px, (100% - 1260px) / 2) + 12px + 150px + 12px);
+        width: 410px;
+        height: 58px;
+        padding: 0;
+        justify-content: flex-start;
+        gap: 4px;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border-top: none;
+        box-shadow: none;
+        z-index: 1001;
+    }
+
+    nav.mobile-bottom-navbar .nav-tab {
+        flex: 0 0 auto;
+        flex-direction: row;
+        gap: 7px;
+        height: 40px;
+        padding: 0 16px;
+        border-radius: 50px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #475569;
+        cursor: pointer;
+    }
+
+    nav.mobile-bottom-navbar .nav-tab .tab-icon {
+        font-size: 16px;
+        margin-bottom: 0;
+    }
+
+    nav.mobile-bottom-navbar .nav-tab:hover {
+        background: #f1f5f9;
+        color: #3b665b;
+    }
+
+    nav.mobile-bottom-navbar .nav-tab.active {
+        background: rgba(59, 102, 91, 0.1);
+        color: #3b665b;
+    }
+
+    nav.mobile-bottom-navbar .nav-tab.active .tab-icon {
+        transform: none;
+    }
+
+    /* Only one profile on desktop: the Profile tab (with avatar) replaces the header name & icon.
+       !important because the auth script sets these with inline display styles. */
+    .site-header #header-user-info,
+    .site-header #header-profile-btn {
+        display: none !important;
+    }
+
+    /* Cart & checkout pages: clear the fixed 58px header */
+    body .cart-page-content,
+    body .checkout-page-content {
+        margin-top: 88px;
+    }
+
+    /* No bottom bar on desktop, so drop the space reserved for it */
+    html body:has(nav.mobile-bottom-navbar) {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+}

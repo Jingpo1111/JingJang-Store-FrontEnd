@@ -182,7 +182,13 @@ function loadProfileData() {
     const avatarEl = document.getElementById('profile-avatar');
     if (avatarEl) {
         if (avatar) {
-            avatarEl.innerHTML = `<img src="${avatar}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            const img = document.createElement('img');
+            img.alt = 'Avatar';
+            img.referrerPolicy = 'no-referrer'; // Google photos can be blocked when a referrer is sent
+            img.style.cssText = 'width: 100%; height: 100%; border-radius: 50%; object-fit: cover;';
+            img.onerror = () => { avatarEl.textContent = username.substring(0, 2).toUpperCase(); };
+            img.src = avatar;
+            avatarEl.replaceChildren(img);
         } else {
             avatarEl.textContent = username.substring(0, 2).toUpperCase();
         }
@@ -677,21 +683,24 @@ function openTimeline(encodedHistory, currentStatus) {
         "Will be send to you"
     ];
 
+    // The caller passes the status URL-encoded ("In%20China"); decode it or it never matches a step
+    try {
+        currentStatus = decodeURIComponent(currentStatus || '');
+    } catch (e) { }
+    const currentIndex = allStatuses.indexOf(currentStatus);
+
     let stepperHtml = '';
-    let hasReachedCurrent = false;
 
     allStatuses.forEach((status, index) => {
         let historyEntry = history.find(h => h.status === status);
-        let isCurrent = (status === currentStatus);
 
+        // Steps before the current one are done. If the status is not one of the steps
+        // (e.g. Cancelled), only steps the order actually went through are marked done.
         let stepClass = '';
-        if (isCurrent) {
+        if (index === currentIndex) {
             stepClass = 'current';
-            hasReachedCurrent = true;
-        } else if (!hasReachedCurrent) {
+        } else if (currentIndex >= 0 ? index < currentIndex : !!historyEntry) {
             stepClass = 'completed';
-        } else {
-            stepClass = '';
         }
 
         let timeStr = historyEntry ? historyEntry.date : 'Not yet reached';
@@ -712,6 +721,19 @@ function openTimeline(encodedHistory, currentStatus) {
             </div>
         `;
     });
+
+    if (currentStatus === 'Cancelled') {
+        const cancelEntry = history.find(h => h.status === 'Cancelled');
+        stepperHtml += `
+            <div class="step current">
+                <div class="step-icon">✕</div>
+                <div class="step-content">
+                    <div class="step-title">Cancelled</div>
+                    <div class="step-time">${cancelEntry ? cancelEntry.date : 'Unknown time'}</div>
+                </div>
+            </div>
+        `;
+    }
 
     document.getElementById('timeline-stepper').innerHTML = stepperHtml;
     const modal = document.getElementById('timeline-modal');

@@ -1,9 +1,8 @@
 // ==========================================================================
 // JingJang Store — Dedicated Payment & KHQR Logic (payment.js)
-// Auto-generates official ABA & ACLEDA KHQR standees by last price
+// Auto-generates official ABA KHQR standee by last price
 // ==========================================================================
 
-let currentBank = 'aba';
 let currentCurrency = 'USD';
 let currentPaymentData = null;
 let receiptBase64 = '';
@@ -62,7 +61,7 @@ function initPaymentPage() {
   // Render Customer & Order details in right panel
   renderOrderSummaryUI();
 
-  // Generate the authentic KHQR for both ABA & ACLEDA
+  // Generate the authentic ABA KHQR
   fetchAndRenderKHQR();
 }
 
@@ -125,13 +124,16 @@ function buildClientABAKHQR(amount, currency = 'USD') {
   const amt = isUSD ? Number(amount).toFixed(2) : String(Math.round(amount));
 
   const bankId = 'abaakhppxxx@abaa';
+  const bakongAccountId = '008473255'; // Bakong Account ID: MUST be 008473255 so other Bakong banks can scan
   const accountNumber = '010777270';
   const accountDual = '010777268';
   const p2pToken = '6C87B76C22F9';
   const beneficiaryName = 'JINGPO PHAI';
   const merchantCity = 'Phnom Penh';
 
-  const tag29Data = '00' + len(bankId) + bankId + '01' + len(accountNumber) + accountNumber + '0208ABA Bank';
+  // Tag 29: Bakong Account for all Bakong member banks
+  const tag29Data = '00' + len(bankId) + bankId + '01' + len(bakongAccountId) + bakongAccountId + '0208ABA Bank';
+  // Tag 40: ABA P2P & Dual currency token for ABA Mobile app
   const tag40Data = '0006abaP2P0112' + p2pToken + '02' + len(accountNumber) + accountNumber + '03' + len(accountDual) + accountDual + '0404Dual';
   const poi = Number(amount) > 0 ? '12' : '11';
 
@@ -147,45 +149,17 @@ function buildClientABAKHQR(amount, currency = 'USD') {
 
   s += '5802KH'
     + '59' + len(beneficiaryName) + beneficiaryName
-    + '6010' + merchantCity
-    + '6304';
+    + '6010' + merchantCity;
 
-  return s + clientCRC16(s);
-}
-
-function buildClientACLEDAPayload(amount, currency = 'USD', billNumber = '') {
-  const len = s => String(s.length).padStart(2, '0');
-  const isUSD = currency.toUpperCase() === 'USD';
-  const cur = isUSD ? '840' : '116';
-  const amt = isUSD ? Number(amount).toFixed(2) : String(Math.round(amount));
-  const sanitizedBill = String(billNumber || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 25);
-  const serviceTag = '016441653';
-  const extra = (sanitizedBill ? '01' + len(sanitizedBill) + sanitizedBill : '') + '0209' + serviceTag;
-
-  const bankId = 'khqr@aclb';
-  const accountNumber = '011185517829743';
-  const beneficiaryName = 'PHAI JINGPO';
-  const merchantCity = 'Phnom Penh';
-
-  const tag29Data = '00' + len(bankId) + bankId + '01' + len(accountNumber) + accountNumber + '0206ACLEDA';
-  const poi = Number(amount) > 0 ? '12' : '11';
-
-  let s = '0002010102' + poi
-    + '29' + len(tag29Data) + tag29Data
-    + '391300042CCY01014'
-    + '52045999'
-    + '5303' + cur;
-
-  if (Number(amount) > 0) {
-    s += '54' + len(amt) + amt;
+  // Tag 99: Mandatory 13-digit millisecond timestamps for Dynamic QR (010212)
+  if (poi === '12') {
+    const now = Date.now();
+    const expiry = now + (15 * 60 * 1000);
+    const tag99Data = '0013' + String(now) + '0113' + String(expiry);
+    s += '99' + len(tag99Data) + tag99Data;
   }
 
-  s += '5802KH'
-    + '59' + len(beneficiaryName) + beneficiaryName
-    + '6010' + merchantCity
-    + '62' + len(extra) + extra
-    + '6304';
-
+  s += '6304';
   return s + clientCRC16(s);
 }
 
@@ -199,17 +173,13 @@ async function fetchAndRenderKHQR() {
   // Update Standee Text Amounts immediately
   const dispAbaAmount = document.getElementById('disp-amount-num-aba');
   const dispAbaCurr = document.getElementById('disp-amount-curr-aba');
-  const dispAcledaAmount = document.getElementById('disp-amount-num-acleda');
 
   if (dispAbaAmount) dispAbaAmount.textContent = amountVal.toFixed(2);
   if (dispAbaCurr) dispAbaCurr.textContent = 'USD';
-  if (dispAcledaAmount) dispAcledaAmount.textContent = `${amountVal.toFixed(2)} ដុល្លារ`;
 
-  // Show Loading Spinner on standees
+  // Show Loading Spinner on standee
   const loadingAba = document.getElementById('loading-aba');
-  const loadingAcleda = document.getElementById('loading-acleda');
   if (loadingAba) loadingAba.style.display = 'flex';
-  if (loadingAcleda) loadingAcleda.style.display = 'flex';
 
   const apiBase = getApiBase();
   try {
@@ -230,18 +200,14 @@ async function fetchAndRenderKHQR() {
 
     // Apply Pure QR Matrix Images
     const qrImgAba = document.getElementById('qr-img-aba');
-    const qrImgAcleda = document.getElementById('qr-img-acleda');
     if (qrImgAba) qrImgAba.src = data.aba.image;
-    if (qrImgAcleda) qrImgAcleda.src = data.acleda.image;
 
   } catch (err) {
     console.warn('Backend /api/qr unreachable, generating dynamic KHQR with exact price:', err);
     // Instant dynamic fallback: calculate EMVCo KHQR with exact amount ($4.00)
     const abaPayload = buildClientABAKHQR(amountVal, 'USD');
-    const acledaPayload = buildClientACLEDAPayload(amountVal, 'USD', `JJ-${Date.now().toString().slice(-6)}`);
 
     const abaQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=480x480&margin=2&ecc=H&data=${encodeURIComponent(abaPayload)}`;
-    const acledaQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=480x480&margin=2&ecc=H&data=${encodeURIComponent(acledaPayload)}`;
 
     currentPaymentData = {
       amount: amountVal,
@@ -250,45 +216,20 @@ async function fetchAndRenderKHQR() {
         bank: 'ABA Bank',
         text: abaPayload,
         image: abaQrUrl
-      },
-      acleda: {
-        bank: 'ACLEDA Bank',
-        text: acledaPayload,
-        image: acledaQrUrl
       }
     };
 
     const qrImgAba = document.getElementById('qr-img-aba');
-    const qrImgAcleda = document.getElementById('qr-img-acleda');
     if (qrImgAba) qrImgAba.src = abaQrUrl;
-    if (qrImgAcleda) qrImgAcleda.src = acledaQrUrl;
   } finally {
     if (loadingAba) loadingAba.style.display = 'none';
-    if (loadingAcleda) loadingAcleda.style.display = 'none';
   }
 }
 
-// 4. Switch Between ABA and ACLEDA Standees
-function switchBank(bank) {
-  currentBank = (bank === 'ac' || bank === 'acleda') ? 'acleda' : 'aba';
-
-  const tabAba = document.getElementById('tab-btn-aba');
-  const tabAcleda = document.getElementById('tab-btn-acleda');
-  const posterAba = document.getElementById('poster-aba-wrapper');
-  const posterAcleda = document.getElementById('poster-acleda-wrapper');
-
-  if (tabAba) tabAba.classList.toggle('active', currentBank === 'aba');
-  if (tabAcleda) tabAcleda.classList.toggle('active', currentBank === 'acleda');
-
-  if (posterAba) posterAba.style.display = currentBank === 'aba' ? 'flex' : 'none';
-  if (posterAcleda) posterAcleda.style.display = currentBank === 'acleda' ? 'flex' : 'none';
-}
-
-// 5. Download Standee Poster (High-Res 3x PNG via html2canvas)
+// 4. Download Standee Poster (High-Res 3x PNG via html2canvas)
 async function downloadPoster(bank) {
-  const targetBank = bank || currentBank;
-  const posterId = targetBank === 'aba' ? 'poster-aba' : 'poster-acleda';
-  const posterElem = document.getElementById(posterId);
+  const targetBank = bank || 'aba';
+  const posterElem = document.getElementById('poster-aba');
   if (!posterElem) return;
 
   const btn = document.getElementById(`btn-dl-standee-${targetBank}`);
@@ -328,15 +269,15 @@ async function downloadPoster(bank) {
   }
 }
 
-// 6. Download Pure QR Code Only
+// 5. Download Pure QR Code Only
 function downloadQROnly(bank) {
-  const targetBank = bank || currentBank;
+  const targetBank = bank || 'aba';
   let imgSrc = '';
 
   if (currentPaymentData) {
-    imgSrc = targetBank === 'aba' ? currentPaymentData.aba.image : currentPaymentData.acleda.image;
+    imgSrc = currentPaymentData.aba.image;
   } else {
-    const qrImgEl = document.getElementById(targetBank === 'aba' ? 'qr-img-aba' : 'qr-img-acleda');
+    const qrImgEl = document.getElementById('qr-img-aba');
     if (qrImgEl) imgSrc = qrImgEl.src;
   }
 
@@ -353,7 +294,7 @@ function downloadQROnly(bank) {
   document.body.removeChild(dlLink);
 }
 
-// 7. Receipt Screenshot Upload & Preview
+// 6. Receipt Screenshot Upload & Preview
 function previewReceipt(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -391,7 +332,7 @@ function removeReceipt(e) {
   receiptBase64 = '';
 }
 
-// 8. Confirm Order & Submit Receipt to Backend (/order)
+// 7. Confirm Order & Submit Receipt to Backend (/order)
 async function confirmOrder() {
   if (!pendingOrderData) {
     alert("Session expired. Please restart checkout.");
@@ -426,7 +367,7 @@ async function confirmOrder() {
     subtotal: pendingOrderData.subtotal || pendingOrderData.total || '0.00',
     promo_code: pendingOrderData.promo_code || null,
     discount_amount: pendingOrderData.discount_amount || '0.00',
-    bank_method: currentBank === 'acleda' ? 'ACLEDA Bank' : 'ABA Bank',
+    bank_method: 'ABA Bank',
     Items: JSON.stringify(pendingOrderData.items || []),
     Receipt: receiptBase64
   };
@@ -467,7 +408,7 @@ async function confirmOrder() {
   }
 }
 
-// 9. Order Success Modal
+// 8. Order Success Modal
 function showOrderSuccessModal(orderId) {
   const modal = document.getElementById('order-success-modal');
   const idEl = document.getElementById('success-order-id');

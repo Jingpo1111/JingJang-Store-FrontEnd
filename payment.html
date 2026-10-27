@@ -105,20 +105,6 @@
             <!-- LEFT COLUMN: Authentic KHQR Standee Display & Download -->
             <section class="standee-wrapper">
 
-                <!-- Bank Switcher Tabs -->
-                <div class="bank-tabs-wrapper">
-                    <button type="button" class="bank-tab-button active aba-active" id="tab-btn-aba"
-                        onclick="switchBank('aba')">
-                        <img src="img/ABA.png" alt="ABA Bank">
-                        <span>ABA' QR</span>
-                    </button>
-                    <button type="button" class="bank-tab-button acleda-active" id="tab-btn-acleda"
-                        onclick="switchBank('acleda')">
-                        <img src="img/AC.png" alt="ACLEDA Bank">
-                        <span>ACLEDA Bank</span>
-                    </button>
-                </div>
-
                 <!-- ============================================== -->
                 <!-- STANDEE 1: OFFICIAL ABA' QR STAND (Exact Match)-->
                 <!-- ============================================== -->
@@ -205,80 +191,6 @@
                     <div class="download-actions-group">
                         <button type="button" class="btn-download-standee primary" id="btn-dl-standee-aba" onclick="downloadPoster('aba')">
                             <span>⬇️ Download ABA Standee (PNG)</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- ============================================== -->
-                <!-- STANDEE 2: OFFICIAL ACLEDA BANK (Exact Match)  -->
-                <!-- ============================================== -->
-                <div id="poster-acleda-wrapper" style="display: none; flex-direction: column; align-items: center; gap: 14px;">
-                    <div class="acleda-poster" id="poster-acleda">
-                        <!-- Loading Overlay -->
-                        <div class="standee-loading" id="loading-acleda" style="display: none;">
-                            <div class="standee-spinner"></div>
-                            <span style="font-size: 12px; font-weight: 700; color: #ffffff;">Generating Live KHQR...</span>
-                        </div>
-
-                        <!-- Top Header: ACLEDA Brand & Bird Logo -->
-                        <div class="acleda-poster-header">
-                            <div class="acleda-header-text">
-                                <div class="acleda-khmer-brand">អេស៊ីលីដា</div>
-                                <div class="acleda-sub-brand">
-                                    <span class="acleda-gold-bar"></span>
-                                    <span>ACLEDA BANK</span>
-                                </div>
-                            </div>
-                            <svg class="acleda-bird-icon" viewBox="0 0 100 100" fill="#F59E0B">
-                                <path d="M50 15 C58 24 72 25 85 20 C78 35 68 45 52 50 C62 55 75 52 88 48 C78 68 60 78 40 78 C25 78 12 70 8 58 C15 62 25 62 35 55 C22 52 14 42 12 30 C20 35 30 35 38 28 C28 24 22 15 25 5 C32 12 40 18 50 15 Z" />
-                            </svg>
-                        </div>
-
-                        <!-- Center White Card with Signature Red Banner -->
-                        <div class="khqr-white-card acleda-card">
-                            <div class="card-red-banner-svg">
-                                <svg viewBox="0 0 336 52" width="100%" height="52" style="display:block;">
-                                    <path d="M 0 0 L 310 0 L 336 26 L 336 52 L 0 52 Z" fill="#E11926" />
-                                    <g fill="#ffffff" transform="translate(111, 13)">
-                                        <!-- K -->
-                                        <path d="M 0 0 h 6 v 10 l 9 -10 h 7.5 l -10.5 11.5 l 11.5 14.5 h -7.5 l -10 -13 v 13 h -6 z" />
-                                        <!-- H -->
-                                        <path d="M 30 0 h 6 v 10 h 10 v -10 h 6 v 26 h -6 v -11 h -10 v 11 h -6 z" />
-                                        <!-- Q -->
-                                        <path d="M 72 0 c 7 0 12 5.5 12 13 c 0 3.5 -1.2 6.5 -3.5 9 l 4.5 4 h -7.5 l -2.5 -2.5 c -1 0.4 -2 0.5 -3 0.5 c -7 0 -12 -5.5 -12 -13 c 0 -7.5 5 -13 12 -13 z m 0 5.5 c -4 0 -6.5 3 -6.5 7.5 c 0 4.5 2.5 7.5 6.5 7.5 c 4 0 6.5 -3 6.5 -7.5 c 0 -4.5 -2.5 -7.5 -6.5 -7.5 z" />
-                                        <!-- R -->
-                                        <path d="M 92 0 h 12 c 5.5 0 9.5 3.5 9.5 8.5 c 0 3.5 -2 6.5 -5.5 7.5 l 7 10 h -7.5 l -6.5 -9.5 h -3 v 9.5 h -6 z m 6 5 v 6.5 h 6 c 2 0 3.5 -1.2 3.5 -3.2 c 0 -2 -1.5 -3.3 -3.5 -3.3 z" />
-                                    </g>
-                                </svg>
-                            </div>
-
-                            <div class="card-content-body">
-                                <div class="card-merchant-name">JingJang Store</div>
-                                <div class="card-amount-line">
-                                    <span class="card-amount-khmer" id="disp-amount-num-acleda">0.00 ដុល្លារ</span>
-                                </div>
-                                <div class="card-dashed-divider"></div>
-
-                                <!-- QR Canvas with Embedded Logo Badge -->
-                                <div class="qr-canvas-holder">
-                                    <img id="qr-img-acleda" class="qr-main-image" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='270' height='270'></svg>" alt="ACLEDA KHQR Payment Code">
-                                    <div class="center-logo-badge">
-                                        <img src="favicon.png" alt="Store Logo">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Under Card Footer Label -->
-                        <div class="acleda-footer-text-row">
-                            ស្កេនទូទាត់ ជាមួយគ្រប់កម្មវិធីទូរសព្ទដែលគាំទ្រ KHQR
-                        </div>
-                    </div>
-
-                    <!-- Download Buttons for ACLEDA -->
-                    <div class="download-actions-group">
-                        <button type="button" class="btn-download-standee primary" id="btn-dl-standee-acleda" onclick="downloadPoster('acleda')">
-                            <span>⬇️ Download ACLEDA Standee (PNG)</span>
                         </button>
                     </div>
                 </div>
@@ -433,10 +345,20 @@
                 if (idEl) idEl.textContent = userId;
 
                 if (bottomAvatar) {
+                    // Initials circle (same as the profile page), used for email login or if the photo fails to load
+                    var initials = document.createElement('span');
+                    initials.textContent = username.substring(0, 2).toUpperCase();
+                    initials.style.cssText = 'width: 24px; height: 24px; border-radius: 50%; background: #3b665b; color: #ffffff; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center;';
                     if (avatar) {
-                        bottomAvatar.innerHTML = `<img src="${avatar}" alt="Avatar" style="width: 22px; height: 22px; border-radius: 50%; object-fit: cover; border: 1.5px solid #3b665b;">`;
+                        var avatarImg = document.createElement('img');
+                        avatarImg.alt = 'Avatar';
+                        avatarImg.referrerPolicy = 'no-referrer'; // Google photos can be blocked when a referrer is sent
+                        avatarImg.style.cssText = 'width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid #3b665b;';
+                        avatarImg.onerror = function () { bottomAvatar.replaceChildren(initials); };
+                        avatarImg.src = avatar;
+                        bottomAvatar.replaceChildren(avatarImg);
                     } else {
-                        bottomAvatar.innerHTML = `<span class="tab-icon">👤</span>`;
+                        bottomAvatar.replaceChildren(initials);
                     }
                 }
             } else {

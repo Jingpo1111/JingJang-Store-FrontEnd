@@ -124,6 +124,9 @@ async function handleLogin(event) {
             localStorage.setItem('jj_email', result.email || '');
             localStorage.setItem('jj_regDate', result.registerDate || '');
             localStorage.setItem('jj_authType', 'local');
+            // Use this account's photo if it has one; never keep a previous Google user's avatar
+            if (result.avatar) localStorage.setItem('jj_avatar', result.avatar);
+            else localStorage.removeItem('jj_avatar');
 
             // Redirect to main store
             window.location.href = '../index.html';
@@ -311,6 +314,7 @@ async function handleVerifyOTP() {
                 localStorage.setItem('jj_loggedIn', 'true');
                 localStorage.setItem('jj_email', regResult.email);
                 localStorage.setItem('jj_regDate', regResult.registerDate);
+                localStorage.removeItem('jj_avatar');
 
                 // Show success modal with User ID
                 document.getElementById('new-user-id').textContent = regResult.userId;
